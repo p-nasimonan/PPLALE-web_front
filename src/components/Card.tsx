@@ -68,6 +68,7 @@ const Card: React.FC<CardProps> = ({
         ${isSelected ? 'ring-4 ring-blue-500' : ''}
         transition-all duration-200 hover:shadow-lg
         cursor-pointer
+        flex-shrink-0
       `}
       onClick={handleClick}
       draggable={draggable}

@@ -63,8 +63,8 @@
       "description": "甘いお菓子です",
       "imageUrl": "/images/sweet1.jpg",
       "cost": 2,
-      "hp": 40,
-      "attack": 30
+      "hp": 0,
+      "attack": 0
     }
   ]
 } 

@@ -7,8 +7,8 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Card, CardType } from '@/types/card';
+import React, { useState } from 'react';
+import { Card, CardType, FruitType } from '@/types/card';
 import CardList from '@/components/CardList';
 import Deck from '@/components/Deck';
 import cardData from '@/data/cards.json';
@@ -18,7 +18,8 @@ import ImportPopup from '@/components/ImportPopup';
 // サンプルカードデータ
 const sampleCards: Card[] = cardData.cards.map(card => ({
   ...card,
-  type: card.type as CardType
+  type: card.type as CardType,
+  fruit: card.fruit as FruitType
 }));
 
 /**
