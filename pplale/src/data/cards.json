@@ -1,0 +1,70 @@
+{
+  "cards": [
+    {
+      "id": "5",
+      "name": "りくす",
+      "type": "幼女",
+      "fruit": "いちご",
+      "description": "なん",
+      "imageUrl": "/images/girl1.jpg",
+      "cost": 5,
+      "hp": 6,
+      "attack": 3
+    },
+    {
+      "id": "15",
+      "name": "りくす",
+      "type": "幼女",
+      "fruit": "ぶどう",
+      "description": "なん",
+      "imageUrl": "/images/girl1.jpg",
+      "cost": 5,
+      "hp": 6,
+      "attack": 3
+    },
+    {
+      "id": "16",
+      "name": "まめろん",
+      "type": "幼女",
+      "fruit": "いちご",
+      "description": "あーい",
+      "imageUrl": "/images/girl2.jpg",
+      "cost": 4,
+      "hp": 5,
+      "attack": 4
+    },
+    {
+      "id": "31",
+      "name": "ももか",
+      "type": "幼女",
+      "fruit": "いちご",
+      "description": "甘い幼女です",
+      "imageUrl": "/images/girl3.jpg",
+      "cost": 5,
+      "hp": 150,
+      "attack": 70
+    },
+    {
+      "id": "32",
+      "name": "ちょり",
+      "type": "幼女",
+      "fruit": "いちご",
+      "description": "かわいい幼女です",
+      "imageUrl": "/images/girl4.jpg",
+      "cost": 4,
+      "hp": 130,
+      "attack": 65
+    },
+    {
+      "id": "11",
+      "name": "いちごお菓子",
+      "type": "お菓子",
+      "fruit": "いちご",
+      "description": "甘いお菓子です",
+      "imageUrl": "/images/sweet1.jpg",
+      "cost": 2,
+      "hp": 40,
+      "attack": 30
+    }
+  ]
+} 
