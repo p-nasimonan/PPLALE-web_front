@@ -33,7 +33,7 @@ export default function TwoPick() {
   // フェーズが変わったときに選択肢を更新
   useEffect(() => {
     updateChoices();
-  }, [currentPhase]);
+  }, [currentPhase, updateChoices]);
 
   // カードが選択されたときの処理
   const handleCardSelect = (card: CardInterface) => {

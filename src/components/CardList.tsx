@@ -39,28 +39,18 @@ const CardList: React.FC<CardListProps> = ({
   onDragStart,
   cardType = '幼女', // カードの種類（幼女/お菓子）をデフォルトで設定
 }) => {
-
-  // 幼女かお菓子かをフィルタリング用の状態
-  const [filter, setFilter] = useState<CardType | 'all'>('all');
   // フルーツのフィルタリング用の状態
   const [fruitFilter, setFruitFilter] = useState<FruitType | 'all'>('all');
-
   // 検索用の状態
   const [searchQuery, setSearchQuery] = useState('');
 
   // フィルタリングされたカードを取得
   const filteredCards = cards.filter(card => {
-    // 種類でフィルタリング
-    if (filter !== 'all' && card.type !== filter) {
-      return false;
-    }
-  
-  // フルーツでフィルタリング
+    // フルーツでフィルタリング
     if (fruitFilter !== 'all' && card.fruit !== fruitFilter) {
       return false;
     }  
     
-
     // 検索クエリでフィルタリング
     if (searchQuery && !card.name.toLowerCase().includes(searchQuery.toLowerCase())) {
       return false;
