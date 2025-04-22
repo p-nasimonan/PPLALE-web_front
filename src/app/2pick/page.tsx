@@ -2,8 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card as CardInterface, CardType as CardTypeEnum, FruitType } from '@/types/card';
-import CardList from '@/components/CardList';
-import Deck from '@/components/Deck';
 import Card from '@/components/Card';
 import cardData from '@/data/cards.json';
 import Link from 'next/link';
