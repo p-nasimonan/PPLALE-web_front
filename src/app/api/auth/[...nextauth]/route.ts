@@ -1,6 +1,8 @@
 import NextAuth from 'next-auth';
 import { NextAuthOptions } from 'next-auth';
 
+export const dynamic = 'force-dynamic';
+
 const authOptions: NextAuthOptions = {
   providers: [],
   pages: {

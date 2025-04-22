@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card as CardInterface, CardType as CardTypeEnum, FruitType } from '@/types/card';
 import Card from '@/components/Card';
 import cardData from '@/data/cards.json';
@@ -24,11 +24,11 @@ export default function TwoPick() {
   const [currentChoices, setCurrentChoices] = useState<CardInterface[]>([]);
 
   // 選択肢を更新する関数
-  const updateChoices = () => {
+  const updateChoices = useCallback(() => {
     const availableCards = allCards.filter(card => card.type === currentPhase);
     const shuffled = [...availableCards].sort(() => Math.random() - 0.5);
     setCurrentChoices(shuffled.slice(0, 2));
-  };
+  }, [allCards, currentPhase]);
 
   // フェーズが変わったときに選択肢を更新
   useEffect(() => {
