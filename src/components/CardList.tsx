@@ -107,19 +107,44 @@ const CardList: React.FC<CardListProps> = ({
         />
       </div>
 
-      {/* カードリスト */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 overflow-auto max-h-[calc(100vh-200px)]">
-        {filteredCards.map((card) => (
-          <div key={card.id} className="flex justify-center">
-            <Card
-              card={card}
-              isSelected={card.id === selectedCardId}
-              onClick={handleCardSelect}
-              draggable={draggable}
-              onDragStart={onDragStart}
-            />
-          </div>
-        ))}
+      {/* 幼女カードリスト */}
+      <div className="space-y-4">
+        <h2 className="text-xl font-bold text-pink-600">幼女カード</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 overflow-auto max-h-[calc(50vh-100px)]">
+          {filteredCards
+            .filter(card => card.type === '幼女')
+            .map((card) => (
+              <div key={card.id} className="flex justify-center">
+                <Card
+                  card={card}
+                  isSelected={card.id === selectedCardId}
+                  onClick={handleCardSelect}
+                  draggable={draggable}
+                  onDragStart={onDragStart}
+                />
+              </div>
+            ))}
+        </div>
+      </div>
+
+      {/* お菓子カードリスト */}
+      <div className="space-y-4">
+        <h2 className="text-xl font-bold text-yellow-600">お菓子カード</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 overflow-auto max-h-[calc(50vh-100px)]">
+          {filteredCards
+            .filter(card => card.type === 'お菓子')
+            .map((card) => (
+              <div key={card.id} className="flex justify-center">
+                <Card
+                  card={card}
+                  isSelected={card.id === selectedCardId}
+                  onClick={handleCardSelect}
+                  draggable={draggable}
+                  onDragStart={onDragStart}
+                />
+              </div>
+            ))}
+        </div>
       </div>
 
       {/* カードが見つからない場合のメッセージ */}

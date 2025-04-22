@@ -14,6 +14,7 @@ import Deck from '@/components/Deck';
 import cardData from '@/data/cards.json';
 import ExportPopup from '@/components/ExportPopup';
 import ImportPopup from '@/components/ImportPopup';
+import Link from 'next/link';
 
 // サンプルカードデータ
 const sampleCards: Card[] = cardData.cards.map(card => ({
@@ -162,6 +163,12 @@ export default function Home() {
           >
             デッキをインポート
           </button>
+          <Link
+            href="/2pick"
+            className="btn-primary"
+          >
+            2pickで構築する
+          </Link>
         </div>
       </header>
 
