@@ -85,10 +85,25 @@ export default function Home() {
     const cardData = e.dataTransfer.getData('text/plain');
     const card = JSON.parse(cardData) as Card;
     
+    // 同じカードの枚数をカウント
+    const countSameCards = (deck: Card[], targetCard: Card) => {
+      return deck.filter(c => c.id === targetCard.id).length;
+    };
+
     if (deckType === '幼女' && card.type === '幼女' && yojoDeck.length < 20) {
-      setYojoDeck([...yojoDeck, card]);
+      // 同じカードが2枚未満の場合のみ追加
+      if (countSameCards(yojoDeck, card) < 2) {
+        setYojoDeck([...yojoDeck, card]);
+      } else {
+        alert('同じカードは2枚までしか追加できません');
+      }
     } else if (deckType === 'お菓子' && card.type === 'お菓子' && sweetDeck.length < 10) {
-      setSweetDeck([...sweetDeck, card]);
+      // 同じカードが2枚未満の場合のみ追加
+      if (countSameCards(sweetDeck, card) < 2) {
+        setSweetDeck([...sweetDeck, card]);
+      } else {
+        alert('同じカードは2枚までしか追加できません');
+      }
     }
   };
 
@@ -172,19 +187,7 @@ export default function Home() {
         </div>
       </header>
 
-      <div className="grid grid-cols-3">
-        {/* カードリスト */}
-        <div className="card">
-          <h2 className="text-xl font-bold mb-4">カードリスト</h2>
-          <CardList
-            cards={allCards}
-            onCardSelect={handleCardSelect}
-            selectedCardId={selectedCard?.id}
-            draggable={true}
-            onDragStart={handleDragStart}
-          />
-        </div>
-
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2 mt-2">
         {/* デッキ構築エリア */}
         <div className="space-y-6">
           {/* 幼女デッキ */}
@@ -201,10 +204,27 @@ export default function Home() {
               onCardRemove={(card) => handleRemoveFromDeck(card, '幼女')}
               onCardsReorder={(cards) => handleDeckReorder(cards, '幼女')}
             />
-          </div>
+        </div>
 
-          {/* お菓子デッキ */}
-          <div 
+
+
+     
+      {/* カードリスト */}
+      <div className="card">
+        <CardList
+          cards={allCards}
+          onCardSelect={handleCardSelect}
+          selectedCardId={selectedCard?.id}
+          draggable={true}
+          onDragStart={handleDragStart}
+          cardType="幼女" // 幼女カードリスト
+        />
+      </div>
+      
+      {/* デッキ構築エリア */}
+      <div className="space-y-6">
+       {/* お菓子デッキ */}
+        <div 
             className="card dropzone"
             onDrop={(e) => handleDrop(e, 'お菓子')}
             onDragOver={handleDragOver}
@@ -219,6 +239,18 @@ export default function Home() {
             />
           </div>
         </div>
+      </div>
+      </div>
+
+      <div className="card">
+        <CardList
+          cards={allCards}
+          onCardSelect={handleCardSelect}
+          selectedCardId={selectedCard?.id}
+          draggable={true}
+          onDragStart={handleDragStart}
+          cardType="お菓子" // 幼女カードリスト
+        />
       </div>
 
       {/* 選択されたカードの詳細 */}
@@ -250,6 +282,8 @@ export default function Home() {
           </div>
         </div>
       )}
+
+
 
       {/* エクスポートポップアップ */}
       {showExportPopup && (

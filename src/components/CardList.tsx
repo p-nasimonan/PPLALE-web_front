@@ -20,6 +20,9 @@ interface CardListProps {
   draggable?: boolean;
   /** ドラッグ開始時のコールバック関数 */
   onDragStart?: (e: React.DragEvent, card: CardTS) => void;
+
+  /** カードの種類（幼女/お菓子） */
+  cardType: CardType; // カードの種類（幼女/お菓子）を指定
 }
 
 /**
@@ -34,7 +37,9 @@ const CardList: React.FC<CardListProps> = ({
   selectedCardId,
   draggable = false,
   onDragStart,
+  cardType = '幼女', // カードの種類（幼女/お菓子）をデフォルトで設定
 }) => {
+
   // 幼女かお菓子かをフィルタリング用の状態
   const [filter, setFilter] = useState<CardType | 'all'>('all');
   // フルーツのフィルタリング用の状態
@@ -73,18 +78,10 @@ const CardList: React.FC<CardListProps> = ({
 
   return (
     <div className="flex flex-col gap-4">
-      {/* フィルターと検索 */}
-      <div className="flex flex-col sm:flex-row gap-2">
-        <select
-          className="px-3 py-2 border rounded-md"
-          value={filter}
-          onChange={(e) => setFilter(e.target.value as CardType | 'all')}
-        >
-          <option value="all">すべて</option>
-          <option value="幼女">幼女</option>
-          <option value="お菓子">お菓子</option>
-        </select>
-
+      {/* 幼女カードリスト */}
+      <div className="space-y-4">
+        <h2 className="text-xl font-bold text-pink-600">{cardType}</h2>
+        <div className="flex flex-col sm:flex-row gap-2">
         {/* フルーツのフィルター */}
         <select
             className="px-3 py-2 border rounded-md"
@@ -97,7 +94,7 @@ const CardList: React.FC<CardListProps> = ({
             <option value="めろん">めろん</option>
             <option value="おれんじ">おれんじ</option>
         </select>
-        
+
         <input
           type="text"
           placeholder="カード名で検索..."
@@ -106,33 +103,9 @@ const CardList: React.FC<CardListProps> = ({
           onChange={(e) => setSearchQuery(e.target.value)}
         />
       </div>
-
-      {/* 幼女カードリスト */}
-      <div className="space-y-4">
-        <h2 className="text-xl font-bold text-pink-600">幼女カード</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 overflow-auto max-h-[calc(50vh-100px)]">
+        <div className="flex grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 overflow-auto max-h-[calc(50vh-100px)]">
           {filteredCards
-            .filter(card => card.type === '幼女')
-            .map((card) => (
-              <div key={card.id} className="flex justify-center">
-                <Card
-                  card={card}
-                  isSelected={card.id === selectedCardId}
-                  onClick={handleCardSelect}
-                  draggable={draggable}
-                  onDragStart={onDragStart}
-                />
-              </div>
-            ))}
-        </div>
-      </div>
-
-      {/* お菓子カードリスト */}
-      <div className="space-y-4">
-        <h2 className="text-xl font-bold text-yellow-600">お菓子カード</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 overflow-auto max-h-[calc(50vh-100px)]">
-          {filteredCards
-            .filter(card => card.type === 'お菓子')
+            .filter(card => card.type === cardType) // カードの種類でフィルタリング
             .map((card) => (
               <div key={card.id} className="flex justify-center">
                 <Card

@@ -38,6 +38,16 @@ const Deck: React.FC<DeckProps> = ({
   // ドラッグ中のカードのインデックス
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 
+  // カードの重複数を計算する関数
+  const getCardCount = (card: CardTS) => {
+    return cards.filter(c => c.id === card.id).length;
+  };
+
+  // 重複を除いたカードリストを作成
+  const uniqueCards = cards.filter((card, index, self) => 
+    index === self.findIndex(c => c.id === card.id)
+  );
+
   // カードがドラッグ開始されたときの処理
   const handleDragStart = (e: React.DragEvent, index: number) => {
     setDraggedIndex(index);
@@ -109,8 +119,8 @@ const Deck: React.FC<DeckProps> = ({
       </div>
 
       {/* デッキのカードリスト */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
-        {cards.map((card, index) => (
+      <div className="flex grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 overflow-auto max-h-[calc(50vh-100px)]">
+        {uniqueCards.map((card, index) => (
           <div
             key={card.id}
             draggable
@@ -123,6 +133,7 @@ const Deck: React.FC<DeckProps> = ({
             <Card
               card={card}
               draggable={false}
+              count={getCardCount(card)}
             />
             <button
               className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"

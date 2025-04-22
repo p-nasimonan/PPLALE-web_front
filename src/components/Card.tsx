@@ -20,6 +20,8 @@ interface CardProps {
   draggable?: boolean;
   /** ドラッグ開始時のコールバック関数 */
   onDragStart?: (e: React.DragEvent, card: CardType) => void;
+  /** カードの重複数 */
+  count?: number;
 }
 
 /**
@@ -34,6 +36,7 @@ const Card: React.FC<CardProps> = ({
   onClick,
   draggable = false,
   onDragStart,
+  count = 1,
 }) => {
   // カードの種類に応じた背景色を設定
   const getCardColor = () => {
@@ -63,7 +66,7 @@ const Card: React.FC<CardProps> = ({
   return (
     <div
       className={`
-        relative w-40 h-56 rounded-lg shadow-md overflow-hidden
+        relative w-32 h-44 rounded-lg shadow-md overflow-hidden
         ${getCardColor()} ${getBorderColor()} border-2
         ${isSelected ? 'ring-4 ring-blue-500' : ''}
         transition-all duration-200 hover:shadow-lg
@@ -76,7 +79,7 @@ const Card: React.FC<CardProps> = ({
     >
 
       {/* カードの画像 */}
-      <div className="w-full h-32 relative">
+      <div className="w-full h-24 relative">
         <Image
           src={card.imageUrl}
           alt={card.name}
@@ -84,6 +87,13 @@ const Card: React.FC<CardProps> = ({
           className="object-cover"
         />
       </div>
+
+      {/* 重複数の表示 */}
+      {count > 1 && (
+        <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm">
+          ×{count}
+        </div>
+      )}
     </div>
   );
 };
