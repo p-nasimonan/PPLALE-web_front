@@ -8,7 +8,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Card } from '@/types/card';
+import { CardInfo } from '@/types/card'; // CardをCardInfoに変更
 
 /**
  * エクスポートポップアップのプロパティ
@@ -17,12 +17,12 @@ interface ExportPopupProps {
   /**
    * 幼女デッキのカード配列
    */
-  yojoDeck: Card[];
+  yojoDeck: CardInfo[]; // CardをCardInfoに変更
   
   /**
    * お菓子デッキのカード配列
    */
-  sweetDeck: Card[];
+  sweetDeck: CardInfo[]; // CardをCardInfoに変更
   
   /**
    * ポップアップを閉じる関数
@@ -104,4 +104,4 @@ const ExportPopup: React.FC<ExportPopupProps> = ({ yojoDeck, sweetDeck, onClose 
   );
 };
 
-export default ExportPopup; 
+export default ExportPopup;

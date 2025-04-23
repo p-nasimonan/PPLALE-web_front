@@ -6,20 +6,20 @@
  */
 
 import React, { useState } from 'react';
-import { Card as CardTS, CardType } from '@/types/card';
+import { CardInfo, CardType } from '@/types/card';
 import Card from './Card';
 
 interface DeckProps {
   /** デッキに含まれるカードのリスト */
-  cards: CardTS[];
+  cards: CardInfo[];
   /** カードが削除されたときのコールバック関数 */
-  onCardRemove?: (card: CardTS) => void;
+  onCardRemove?: (card: CardInfo) => void;
   /** カードが並べ替えられたときのコールバック関数 */
-  onCardsReorder?: (cards: CardTS[]) => void;
+  onCardsReorder?: (cards: CardInfo[]) => void;
   /** デッキの種類（幼女またはお菓子） */
   type: CardType;
-  /** デッキの最大枚数 */
-  maxCards: number;
+  /**カードを消せるか */
+  removeable?: boolean;
 }
 
 /**
@@ -33,13 +33,20 @@ const Deck: React.FC<DeckProps> = ({
   onCardRemove,
   onCardsReorder,
   type,
-  maxCards,
+  removeable = true,
 }) => {
   // ドラッグ中のカードのインデックス
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 
+  // デッキの最大枚数
+  const maxCards = type === '幼女' 
+        ? 20 
+        : type === 'お菓子'
+        ? 10
+        : 0;
+
   // カードの重複数を計算する関数
-  const getCardCount = (card: CardTS) => {
+  const getCardCount = (card: CardInfo) => {
     return cards.filter(c => c.id === card.id).length;
   };
 
@@ -84,7 +91,7 @@ const Deck: React.FC<DeckProps> = ({
   };
 
   // カードが削除されたときの処理
-  const handleCardRemove = (card: CardTS) => {
+  const handleCardRemove = (card: CardInfo) => {
     if (onCardRemove) {
       onCardRemove(card);
     }
@@ -135,13 +142,15 @@ const Deck: React.FC<DeckProps> = ({
               draggable={false}
               count={getCardCount(card)}
             />
-            <button
-              className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
-              onClick={() => handleCardRemove(card)}
-              aria-label={`${card.name}を削除`}
-            >
-              ×
-            </button>
+            {removeable && (
+              <button
+                className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
+                onClick={() => handleCardRemove(card)}
+                aria-label={`${card.name}を削除`}
+              >
+                ×
+              </button>
+            )}
           </div>
         ))}
       </div>
@@ -156,4 +165,4 @@ const Deck: React.FC<DeckProps> = ({
   );
 };
 
-export default Deck; 
+export default Deck;

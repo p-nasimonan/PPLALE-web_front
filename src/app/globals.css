@@ -16,6 +16,14 @@
   --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
+:root.dark {
+  --background-color: #1f2937;
+  --card-background: #374151;
+  --text-color: #f3f4f6;
+  --text-light: #9ca3af;
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.4);
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -30,9 +38,11 @@ body {
 }
 
 .container {
-  max-width: 1200px;
+  max-width: 1500px;
   margin: 0 auto;
-  padding: 1rem;
+  padding: 0rem;
+  background: var(--base-background);
+  color: var(--base-color);
 }
 
 /* ヘッダースタイル */
@@ -96,6 +106,30 @@ button {
 
 .btn-import:hover {
   background-color: var(--secondary-hover);
+  transform: scale(1.05);
+}
+
+a {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+
+
+a.lnk-important {
+  background-color: var(--danger-color);
+  color: white;
+}
+
+a.lnk-important:hover {
+  background-color: var(--danger-hover);
   transform: scale(1.05);
 }
 
@@ -179,4 +213,23 @@ button {
 
 .dropzone:hover {
   border-color: var(--primary-color);
+}
+
+.toggle-dark-mode {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  background-color: var(--card-background);
+  color: var(--text-color);
+  border: 1px solid var(--text-light);
+  border-radius: var(--border-radius);
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+  font-size: 0.5rem;
+}
+
+.toggle-dark-mode:hover {
+  background-color: var(--text-light);
+  color: var(--background-color);
 }

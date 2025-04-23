@@ -6,20 +6,20 @@
  */
 
 import React, { useState } from 'react';
-import { Card as CardTS, CardType, FruitType } from '@/types/card';
+import { CardInfo, CardType, FruitType } from '@/types/card';
 import Card from './Card';
 
 interface CardListProps {
   /** 表示するカードのリスト */
-  cards: CardTS[];
+  cards: CardInfo[];
   /** カードが選択されたときのコールバック関数 */
-  onCardSelect?: (card: CardTS) => void;
+  onCardSelect?: (card: CardInfo) => void;
   /** 選択されているカードのID */
   selectedCardId?: string;
   /** カードがドラッグ可能かどうか */
   draggable?: boolean;
   /** ドラッグ開始時のコールバック関数 */
-  onDragStart?: (e: React.DragEvent, card: CardTS) => void;
+  onDragStart?: (e: React.DragEvent, card: CardInfo) => void;
 
   /** カードの種類（幼女/お菓子） */
   cardType: CardType; // カードの種類（幼女/お菓子）を指定
@@ -60,7 +60,7 @@ const CardList: React.FC<CardListProps> = ({
   });
 
   // カードが選択されたときの処理
-  const handleCardSelect = (card: CardTS) => {
+  const handleCardSelect = (card: CardInfo) => {
     if (onCardSelect) {
       onCardSelect(card);
     }
@@ -120,4 +120,4 @@ const CardList: React.FC<CardListProps> = ({
   );
 };
 
-export default CardList; 
+export default CardList;

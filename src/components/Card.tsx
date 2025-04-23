@@ -7,19 +7,19 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { Card as CardType } from '@/types/card';
+import { CardInfo } from '@/types/card';
 
 interface CardProps {
   /** 表示するカードのデータ */
-  card: CardType;
+  card: CardInfo;
   /** カードが選択されているかどうか */
   isSelected?: boolean;
   /** カードがクリックされたときのコールバック関数 */
-  onClick?: (card: CardType) => void;
+  onClick?: (card: CardInfo) => void;
   /** カードがドラッグ可能かどうか */
   draggable?: boolean;
   /** ドラッグ開始時のコールバック関数 */
-  onDragStart?: (e: React.DragEvent, card: CardType) => void;
+  onDragStart?: (e: React.DragEvent, card: CardInfo) => void;
   /** カードの重複数 */
   count?: number;
 }
@@ -38,15 +38,29 @@ const Card: React.FC<CardProps> = ({
   onDragStart,
   count = 1,
 }) => {
+  if (!card) {
+    throw new Error('Card data is required');
+  }
+    
+
   // カードの種類に応じた背景色を設定
   const getCardColor = () => {
-    return card.type === '幼女' ? 'bg-pink-100' : 'bg-yellow-100';
+    return card.fruit === 'いちご'
+      ? 'bg-red-200'
+      : card.fruit === 'ぶどう'
+      ? 'bg-purple-200'
+      : card.fruit === 'めろん'
+      ? 'bg-green-200'
+      : card.fruit === 'おれんじ'
+      ? 'bg-orange-200'
+      : 'bg-gray-200';
   };
 
   // カードの種類に応じたボーダー色を設定
   const getBorderColor = () => {
     return card.type === '幼女' ? 'border-pink-300' : 'border-yellow-300';
   };
+
 
 
   // カードがクリックされたときの処理
@@ -98,4 +112,4 @@ const Card: React.FC<CardProps> = ({
   );
 };
 
-export default Card; 
+export default Card;

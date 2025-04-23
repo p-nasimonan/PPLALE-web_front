@@ -7,17 +7,18 @@
 
 'use client';
 
-import React, { useState } from 'react';
-import { Card, CardType, FruitType } from '@/types/card';
+import React, { useState, useEffect, useContext } from 'react';
+import { CardInfo, CardType, FruitType } from '@/types/card';
 import CardList from '@/components/CardList';
 import Deck from '@/components/Deck';
 import cardData from '@/data/cards.json';
 import ExportPopup from '@/components/ExportPopup';
 import ImportPopup from '@/components/ImportPopup';
 import Link from 'next/link';
+import { DarkModeContext } from "./DarkModeProvider";
 
 // サンプルカードデータ
-const sampleCards: Card[] = cardData.cards.map(card => ({
+const sampleCards: CardInfo[] = cardData.cards.map(card => ({
   ...card,
   type: card.type as CardType,
   fruit: card.fruit as FruitType
@@ -30,25 +31,31 @@ const sampleCards: Card[] = cardData.cards.map(card => ({
  */
 export default function Home() {
   // すべてのカード
-  const [allCards] = useState<Card[]>(sampleCards);
+  const [allCards] = useState<CardInfo[]>(sampleCards);
   // 幼女デッキのカード
-  const [yojoDeck, setYojoDeck] = useState<Card[]>([]);
+  const [yojoDeck, setYojoDeck] = useState<CardInfo[]>([]);
   // お菓子デッキのカード
-  const [sweetDeck, setSweetDeck] = useState<Card[]>([]);
+  const [sweetDeck, setSweetDeck] = useState<CardInfo[]>([]);
   // 選択されているカード
-  const [selectedCard, setSelectedCard] = useState<Card | null>(null);
+  const [selectedCard, setSelectedCard] = useState<CardInfo | null>(null);
   // エクスポートポップアップの表示状態
   const [showExportPopup, setShowExportPopup] = useState(false);
   // インポートポップアップの表示状態
   const [showImportPopup, setShowImportPopup] = useState(false);
 
+  const { isDarkMode, toggleDarkMode } = useContext(DarkModeContext);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', isDarkMode);
+  }, [isDarkMode]);
+
   // カードが選択されたときの処理
-  const handleCardSelect = (card: Card) => {
+  const handleCardSelect = (card: CardInfo) => {
     setSelectedCard(card);
   };
 
   // カードがデッキに追加されたときの処理
-  const handleAddToDeck = (card: Card) => {
+  const handleAddToDeck = (card: CardInfo) => {
     if (card.type === '幼女' && yojoDeck.length < 20) {
       setYojoDeck([...yojoDeck, card]);
     } else if (card.type === 'お菓子' && sweetDeck.length < 10) {
@@ -57,7 +64,7 @@ export default function Home() {
   };
 
   // カードがデッキから削除されたときの処理
-  const handleRemoveFromDeck = (card: Card, deckType: string) => {
+  const handleRemoveFromDeck = (card: CardInfo, deckType: string) => {
     if (deckType === '幼女') {
       setYojoDeck(yojoDeck.filter(c => c.id !== card.id));
     } else {
@@ -66,7 +73,7 @@ export default function Home() {
   };
 
   // デッキのカードが並べ替えられたときの処理
-  const handleDeckReorder = (cards: Card[], deckType: string) => {
+  const handleDeckReorder = (cards: CardInfo[], deckType: string) => {
     if (deckType === '幼女') {
       setYojoDeck(cards);
     } else {
@@ -75,7 +82,7 @@ export default function Home() {
   };
 
   // ドラッグ開始時の処理
-  const handleDragStart = (e: React.DragEvent, card: Card) => {
+  const handleDragStart = (e: React.DragEvent, card: CardInfo) => {
     e.dataTransfer.setData('text/plain', JSON.stringify(card));
   };
 
@@ -83,10 +90,10 @@ export default function Home() {
   const handleDrop = (e: React.DragEvent, deckType: string) => {
     e.preventDefault();
     const cardData = e.dataTransfer.getData('text/plain');
-    const card = JSON.parse(cardData) as Card;
+    const card = JSON.parse(cardData) as CardInfo;
     
     // 同じカードの枚数をカウント
-    const countSameCards = (deck: Card[], targetCard: Card) => {
+    const countSameCards = (deck: CardInfo[], targetCard: CardInfo) => {
       return deck.filter(c => c.id === targetCard.id).length;
     };
 
@@ -138,11 +145,11 @@ export default function Home() {
       // カードIDからカードオブジェクトを取得
       const newYojoDeck = yojoIds
         .map(id => allCards.find(card => parseInt(card.id, 10) === id))
-        .filter((card): card is Card => card !== undefined);
+        .filter((card): card is CardInfo => card !== undefined);
       
       const newSweetDeck = sweetIds
         .map(id => allCards.find(card => parseInt(card.id, 10) === id))
-        .filter((card): card is Card => card !== undefined);
+        .filter((card): card is CardInfo => card !== undefined);
       
       // デッキを更新
       setYojoDeck(newYojoDeck);
@@ -163,8 +170,13 @@ export default function Home() {
       <header>
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold text-center">ぷぷりえーる デッキ構築</h1>
+          <button
+            className="toggle-dark-mode"
+            onClick={toggleDarkMode}
+          >
+            {isDarkMode ? "☀️" : "🌙"}
+          </button>
         </div>
-
         <div className="flex justify-center gap-4 mt-4">
           <button
             className="btn-export"
@@ -178,12 +190,11 @@ export default function Home() {
           >
             デッキをインポート
           </button>
-          <Link
-            href="/2pick"
-            className="btn-primary"
-          >
-            2pickで構築する
-          </Link>
+            <Link
+              className="lnk-important"
+              href="/2pick">
+              2pickで構築する
+            </Link>
         </div>
       </header>
 
@@ -200,7 +211,6 @@ export default function Home() {
             <Deck
               cards={yojoDeck}
               type="幼女"
-              maxCards={20}
               onCardRemove={(card) => handleRemoveFromDeck(card, '幼女')}
               onCardsReorder={(cards) => handleDeckReorder(cards, '幼女')}
             />
@@ -233,7 +243,6 @@ export default function Home() {
             <Deck
               cards={sweetDeck}
               type="お菓子"
-              maxCards={10}
               onCardRemove={(card) => handleRemoveFromDeck(card, 'お菓子')}
               onCardsReorder={(cards) => handleDeckReorder(cards, 'お菓子')}
             />
