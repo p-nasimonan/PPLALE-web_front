@@ -233,11 +233,11 @@
     },
     {
       "id": "22",
-      "name": "ぷるぷるギガプリン",
+      "name": "ギガプリン",
       "type": "お菓子",
       "fruit": "いちご",
       "description": "",
-      "imageUrl": "/images/sweet/21.png",
+      "imageUrl": "/images/sweet/ギガプリンワールド改.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
