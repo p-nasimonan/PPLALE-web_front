@@ -42,6 +42,10 @@ const Card: React.FC<CardProps> = ({
     throw new Error('Card data is required');
   }
     
+  // 画像のパスを修正
+  const imagePath = card.imageUrl.startsWith('/') 
+    ? `/PPLALE-web_front${card.imageUrl}`
+    : `/PPLALE-web_front/${card.imageUrl}`;
 
   // カードの種類に応じた背景色を設定
   const getCardColor = () => {
@@ -60,8 +64,6 @@ const Card: React.FC<CardProps> = ({
   const getBorderColor = () => {
     return card.type === '幼女' ? 'border-pink-300' : 'border-yellow-300';
   };
-
-
 
   // カードがクリックされたときの処理
   const handleClick = () => {
@@ -91,14 +93,19 @@ const Card: React.FC<CardProps> = ({
       draggable={draggable}
       onDragStart={handleDragStart}
     >
-
       {/* カードの画像 */}
       <div className="w-full h-full relative">
         <Image
-          src={card.imageUrl}
+          src={imagePath}
           alt={card.name}
-          fill
-          className="object-cover"
+          width={128}
+          height={192}
+          className="rounded-lg"
+          priority={true}
+          loading="eager"
+          quality={90}
+          placeholder="blur"
+          blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx4eHRoaHSQtJSAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCD/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
         />
       </div>
 
