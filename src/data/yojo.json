@@ -1,12 +1,12 @@
 {
-  "cards": [
+  "yojo": [
     {
       "id": "0",
       "name": "かがり",
       "type": "幼女",
       "fruit": "いちご",
       "description": "",
-      "imageUrl": "/images/yojo/0.png",
+      "imageUrl": "/images/yojo/111イチゴかがり.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -17,7 +17,7 @@
       "type": "幼女",
       "fruit": "いちご",
       "description": "",
-      "imageUrl": "/images/yojo/1.png",
+      "imageUrl": "/images/yojo/111イチゴとここ.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -28,7 +28,7 @@
       "type": "幼女",
       "fruit": "いちご",
       "description": "",
-      "imageUrl": "/images/yojo/2.png",
+      "imageUrl": "/images/yojo/111イチゴうゆち.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -39,7 +39,7 @@
       "type": "幼女",
       "fruit": "いちご",
       "description": "",
-      "imageUrl": "/images/yojo/3.png",
+      "imageUrl": "/images/yojo/213イチゴうぃまる.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -50,7 +50,7 @@
       "type": "幼女",
       "fruit": "いちご",
       "description": "",
-      "imageUrl": "/images/yojo/4.png",
+      "imageUrl": "/images/yojo/221イチゴえーりん.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -61,7 +61,7 @@
       "type": "幼女",
       "fruit": "いちご",
       "description": "",
-      "imageUrl": "/images/yojo/5.png",
+      "imageUrl": "/images/yojo/221イチゴかんらん改.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -72,7 +72,7 @@
       "type": "幼女",
       "fruit": "いちご",
       "description": "",
-      "imageUrl": "/images/yojo/6.png",
+      "imageUrl": "/images/yojo/212イチゴほーずき.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -83,7 +83,7 @@
       "type": "幼女",
       "fruit": "いちご",
       "description": "",
-      "imageUrl": "/images/yojo/7.png",
+      "imageUrl": "/images/yojo/222イチゴレンテ.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -94,7 +94,7 @@
       "type": "幼女",
       "fruit": "いちご",
       "description": "",
-      "imageUrl": "/images/yojo/8.png",
+      "imageUrl": "/images/yojo/211イチゴちょり.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -105,7 +105,7 @@
       "type": "幼女",
       "fruit": "いちご",
       "description": "",
-      "imageUrl": "/images/yojo/9.png",
+      "imageUrl": "/images/yojo/212イチゴぷらむ.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -116,7 +116,7 @@
       "type": "幼女",
       "fruit": "いちご",
       "description": "",
-      "imageUrl": "/images/yojo/10.png",
+      "imageUrl": "/images/yojo/222イチゴゼロオレンジ.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -127,7 +127,7 @@
       "type": "幼女",
       "fruit": "いちご",
       "description": "",
-      "imageUrl": "/images/yojo/11.png",
+      "imageUrl": "/images/yojo/233イチゴもなか改.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -138,7 +138,7 @@
       "type": "幼女",
       "fruit": "いちご",
       "description": "",
-      "imageUrl": "/images/yojo/12.png",
+      "imageUrl": "/images/yojo/311イチゴあみの.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -149,7 +149,7 @@
       "type": "幼女",
       "fruit": "いちご",
       "description": "",
-      "imageUrl": "/images/yojo/13.png",
+      "imageUrl": "/images/yojo/321イチゴがと.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -160,7 +160,7 @@
       "type": "幼女",
       "fruit": "いちご",
       "description": "",
-      "imageUrl": "/images/yojo/14.png",
+      "imageUrl": "/images/yojo/322イチゴももか.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -171,7 +171,7 @@
       "type": "幼女",
       "fruit": "いちご",
       "description": "",
-      "imageUrl": "/images/yojo/15.png",
+      "imageUrl": "/images/yojo/322イチゴまこぽに.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -182,7 +182,7 @@
       "type": "幼女",
       "fruit": "いちご",
       "description": "",
-      "imageUrl": "/images/yojo/16.png",
+      "imageUrl": "/images/yojo/323イチゴいのむー.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -193,7 +193,7 @@
       "type": "幼女",
       "fruit": "いちご",
       "description": "",
-      "imageUrl": "/images/yojo/17.png",
+      "imageUrl": "/images/yojo/334イチゴまめろん.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -204,7 +204,7 @@
       "type": "幼女",
       "fruit": "いちご",
       "description": "",
-      "imageUrl": "/images/yojo/18.png",
+      "imageUrl": "/images/yojo/433イチゴぎってぃ.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -215,7 +215,7 @@
       "type": "幼女",
       "fruit": "いちご",
       "description": "",
-      "imageUrl": "/images/yojo/19.png",
+      "imageUrl": "/images/yojo/423イチゴさら.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -226,7 +226,7 @@
       "type": "幼女",
       "fruit": "いちご",
       "description": "",
-      "imageUrl": "/images/yojo/20.png",
+      "imageUrl": "/images/yojo/433イチゴふろんとさん.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -237,7 +237,7 @@
       "type": "幼女",
       "fruit": "いちご",
       "description": "",
-      "imageUrl": "/images/yojo/21.png",
+      "imageUrl": "/images/yojo/442イチゴしゅお.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -248,7 +248,7 @@
       "type": "幼女",
       "fruit": "いちご",
       "description": "",
-      "imageUrl": "/images/yojo/22.png",
+      "imageUrl": "/images/yojo/424イチゴゆうひ.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -259,7 +259,7 @@
       "type": "幼女",
       "fruit": "いちご",
       "description": "",
-      "imageUrl": "/images/yojo/23.png",
+      "imageUrl": "/images/yojo/434イチゴふらら.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -270,7 +270,7 @@
       "type": "幼女",
       "fruit": "いちご",
       "description": "",
-      "imageUrl": "/images/yojo/24.png",
+      "imageUrl": "/images/yojo/536イチゴりくす改.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -281,7 +281,7 @@
       "type": "幼女",
       "fruit": "いちご",
       "description": "",
-      "imageUrl": "/images/yojo/25.png",
+      "imageUrl": "/images/yojo/533イチゴストラ.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -292,7 +292,7 @@
       "type": "幼女",
       "fruit": "いちご",
       "description": "",
-      "imageUrl": "/images/yojo/26.png",
+      "imageUrl": "/images/yojo/523イチゴしゅれい.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -303,7 +303,7 @@
       "type": "幼女",
       "fruit": "いちご",
       "description": "",
-      "imageUrl": "/images/yojo/27.png",
+      "imageUrl": "/images/yojo/544イチゴオフティ二.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -314,7 +314,7 @@
       "type": "幼女",
       "fruit": "いちご",
       "description": "",
-      "imageUrl": "/images/yojo/28.png",
+      "imageUrl": "/images/yojo/655イチゴじょんこ.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -325,7 +325,7 @@
       "type": "幼女",
       "fruit": "いちご",
       "description": "",
-      "imageUrl": "/images/yojo/29.png",
+      "imageUrl": "/images/yojo/735イチゴいろは.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -336,7 +336,7 @@
       "type": "幼女",
       "fruit": "いちご",
       "description": "",
-      "imageUrl": "/images/yojo/30.png",
+      "imageUrl": "/images/yojo/735イチゴみゅーとん.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -347,7 +347,7 @@
       "type": "幼女",
       "fruit": "ぶどう",
       "description": "",
-      "imageUrl": "/images/yojo/31.png",
+      "imageUrl": "/images/yojo/111ぶどうほーずき.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -358,7 +358,7 @@
       "type": "幼女",
       "fruit": "ぶどう",
       "description": "",
-      "imageUrl": "/images/yojo/32.png",
+      "imageUrl": "/images/yojo/111ぶどうぷらむ.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -380,7 +380,7 @@
       "type": "幼女",
       "fruit": "ぶどう",
       "description": "",
-      "imageUrl": "/images/yojo/34.png",
+      "imageUrl": "/images/yojo/111ぶどうとここ.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -391,7 +391,7 @@
       "type": "幼女",
       "fruit": "ぶどう",
       "description": "",
-      "imageUrl": "/images/yojo/35.png",
+      "imageUrl": "/images/yojo/221ぶどうえーりん.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -402,7 +402,7 @@
       "type": "幼女",
       "fruit": "ぶどう",
       "description": "",
-      "imageUrl": "/images/yojo/36.png",
+      "imageUrl": "/images/yojo/211ぶどうふらら.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -413,7 +413,7 @@
       "type": "幼女",
       "fruit": "ぶどう",
       "description": "",
-      "imageUrl": "/images/yojo/37.png",
+      "imageUrl": "/images/yojo/222ぶどうがと.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -424,7 +424,7 @@
       "type": "幼女",
       "fruit": "ぶどう",
       "description": "",
-      "imageUrl": "/images/yojo/38.png",
+      "imageUrl": "/images/yojo/221ぶどう氷花.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -435,7 +435,7 @@
       "type": "幼女",
       "fruit": "ぶどう",
       "description": "",
-      "imageUrl": "/images/yojo/39.png",
+      "imageUrl": "/images/yojo/212ぶどうかがり.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -446,7 +446,7 @@
       "type": "幼女",
       "fruit": "ぶどう",
       "description": "",
-      "imageUrl": "/images/yojo/40.png",
+      "imageUrl": "/images/yojo/222ぶどうりくす.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -457,7 +457,7 @@
       "type": "幼女",
       "fruit": "ぶどう",
       "description": "",
-      "imageUrl": "/images/yojo/41.png",
+      "imageUrl": "/images/yojo/222ぶどうさら.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -468,7 +468,7 @@
       "type": "幼女",
       "fruit": "ぶどう",
       "description": "",
-      "imageUrl": "/images/yojo/42.png",
+      "imageUrl": "/images/yojo/210ぶどううゆち.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -479,7 +479,7 @@
       "type": "幼女",
       "fruit": "ぶどう",
       "description": "",
-      "imageUrl": "/images/yojo/43.png",
+      "imageUrl": "/images/yojo/322ぶどうちょり.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -490,7 +490,7 @@
       "type": "幼女",
       "fruit": "ぶどう",
       "description": "",
-      "imageUrl": "/images/yojo/44.png",
+      "imageUrl": "/images/yojo/323ぶどういのむー.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -501,7 +501,7 @@
       "type": "幼女",
       "fruit": "ぶどう",
       "description": "",
-      "imageUrl": "/images/yojo/45.png",
+      "imageUrl": "/images/yojo/332ぶどうまこぽに.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -512,7 +512,7 @@
       "type": "幼女",
       "fruit": "ぶどう",
       "description": "",
-      "imageUrl": "/images/yojo/46.png",
+      "imageUrl": "/images/yojo/322ぶどうももか.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -523,7 +523,7 @@
       "type": "幼女",
       "fruit": "ぶどう",
       "description": "",
-      "imageUrl": "/images/yojo/47.png",
+      "imageUrl": "/images/yojo/317ぶどうゆうひ.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -534,7 +534,7 @@
       "type": "幼女",
       "fruit": "ぶどう",
       "description": "",
-      "imageUrl": "/images/yojo/48.png",
+      "imageUrl": "/images/yojo/322ぶどうゼロオレンジ.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -545,7 +545,7 @@
       "type": "幼女",
       "fruit": "ぶどう",
       "description": "",
-      "imageUrl": "/images/yojo/49.png",
+      "imageUrl": "/images/yojo/415ぶどうふろんとさん.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -556,7 +556,7 @@
       "type": "幼女",
       "fruit": "ぶどう",
       "description": "",
-      "imageUrl": "/images/yojo/50.png",
+      "imageUrl": "/images/yojo/465ぶどうもなか.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -567,7 +567,7 @@
       "type": "幼女",
       "fruit": "ぶどう",
       "description": "",
-      "imageUrl": "/images/yojo/51.png",
+      "imageUrl": "/images/yojo/434ぶどうオフティ二.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -578,7 +578,7 @@
       "type": "幼女",
       "fruit": "ぶどう",
       "description": "",
-      "imageUrl": "/images/yojo/52.png",
+      "imageUrl": "/images/yojo/433ぶどうレンテ.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -589,7 +589,7 @@
       "type": "幼女",
       "fruit": "ぶどう",
       "description": "",
-      "imageUrl": "/images/yojo/53.png",
+      "imageUrl": "/images/yojo/433ぶどうしゅれい.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -600,7 +600,7 @@
       "type": "幼女",
       "fruit": "ぶどう",
       "description": "",
-      "imageUrl": "/images/yojo/54.png",
+      "imageUrl": "/images/yojo/433ぶどうしゅお改.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -611,7 +611,7 @@
       "type": "幼女",
       "fruit": "ぶどう",
       "description": "",
-      "imageUrl": "/images/yojo/55.png",
+      "imageUrl": "/images/yojo/542ぶどうあみの.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -622,7 +622,7 @@
       "type": "幼女",
       "fruit": "ぶどう",
       "description": "",
-      "imageUrl": "/images/yojo/56.png",
+      "imageUrl": "/images/yojo/534ぶどうぎってぃ.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -633,7 +633,7 @@
       "type": "幼女",
       "fruit": "ぶどう",
       "description": "",
-      "imageUrl": "/images/yojo/57.png",
+      "imageUrl": "/images/yojo/533ぶどうかんらん.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -644,7 +644,7 @@
       "type": "幼女",
       "fruit": "ぶどう",
       "description": "",
-      "imageUrl": "/images/yojo/58.png",
+      "imageUrl": "/images/yojo/544ぶどうまめろん.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -655,7 +655,7 @@
       "type": "幼女",
       "fruit": "ぶどう",
       "description": "",
-      "imageUrl": "/images/yojo/59.png",
+      "imageUrl": "/images/yojo/504ぶどうストラ.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -666,7 +666,7 @@
       "type": "幼女",
       "fruit": "ぶどう",
       "description": "",
-      "imageUrl": "/images/yojo/60.png",
+      "imageUrl": "/images/yojo/643ぶどうレンス.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -677,7 +677,7 @@
       "type": "幼女",
       "fruit": "ぶどう",
       "description": "",
-      "imageUrl": "/images/yojo/61.png",
+      "imageUrl": "/images/yojo/755ぶどういろは.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -688,7 +688,7 @@
       "type": "幼女",
       "fruit": "ぶどう",
       "description": "",
-      "imageUrl": "/images/yojo/62.png",
+      "imageUrl": "/images/yojo/766ぶどうじょんこ.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -699,7 +699,7 @@
       "type": "幼女",
       "fruit": "ぶどう",
       "description": "",
-      "imageUrl": "/images/yojo/63.png",
+      "imageUrl": "/images/yojo/755ぶどうみゅーとん改.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
@@ -710,10 +710,10 @@
       "type": "幼女",
       "fruit": "ぶどう",
       "description": "",
-      "imageUrl": "/images/yojo/64.png",
+      "imageUrl": "/images/yojo/711ぶどううぃまる.png",
       "cost": 0,
       "hp": 0,
       "attack": 0
     }
   ]
-} 
+}

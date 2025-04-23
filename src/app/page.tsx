@@ -11,18 +11,26 @@ import React, { useState, useEffect, useContext } from 'react';
 import { CardInfo, CardType, FruitType } from '@/types/card';
 import CardList from '@/components/CardList';
 import Deck from '@/components/Deck';
-import cardData from '@/data/cards.json';
+import sweetData from '@/data/sweet.json';
+import yojoData from '@/data/yojo.json';
 import ExportPopup from '@/components/ExportPopup';
 import ImportPopup from '@/components/ImportPopup';
 import Link from 'next/link';
 import { DarkModeContext } from "./DarkModeProvider";
 
 // サンプルカードデータ
-const sampleCards: CardInfo[] = cardData.cards.map(card => ({
-  ...card,
-  type: card.type as CardType,
-  fruit: card.fruit as FruitType
-}));
+const sampleCards: CardInfo[] = [
+  ...yojoData.yojo.map(card => ({
+    ...card,
+    type: card.type as CardType,
+    fruit: card.fruit as FruitType
+  })),
+  ...sweetData.sweet.map(card => ({
+    ...card,
+    type: card.type as CardType,
+    fruit: card.fruit as FruitType
+  }))
+];
 
 /**
  * メインページコンポーネント

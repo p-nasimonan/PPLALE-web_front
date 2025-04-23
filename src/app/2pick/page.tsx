@@ -2,18 +2,26 @@
 
 import React, { useState, useEffect, useCallback, useContext } from 'react';
 import { CardInfo, CardType, FruitType } from '@/types/card';
-import cardData from '@/data/cards.json';
+import sweetData from '@/data/sweet.json';
+import yojoData from '@/data/yojo.json';
 import Link from 'next/link';
 import { DarkModeContext } from "../DarkModeProvider";
 import Deck from '@/components/Deck';
 import CardSelection from './components/CardSelection'; // 新しいコンポーネントをインポート
 
 // サンプルカードデータ
-const sampleCards: CardInfo[] = cardData.cards.map(card => ({
-  ...card,
-  type: card.type as CardType,
-  fruit: card.fruit as FruitType
-}));
+const sampleCards: CardInfo[] = [
+  ...yojoData.yojo.map(card => ({
+    ...card,
+    type: card.type as CardType,
+    fruit: card.fruit as FruitType
+  })),
+  ...sweetData.sweet.map(card => ({
+    ...card,
+    type: card.type as CardType,
+    fruit: card.fruit as FruitType
+  }))
+];
 
 export default function TwoPick() {
   // すべてのカード

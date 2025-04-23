@@ -93,7 +93,7 @@ const Card: React.FC<CardProps> = ({
     >
 
       {/* カードの画像 */}
-      <div className="w-full h-24 relative">
+      <div className="w-full h-full relative">
         <Image
           src={card.imageUrl}
           alt={card.name}
