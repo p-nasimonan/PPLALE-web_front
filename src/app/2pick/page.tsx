@@ -27,26 +27,34 @@ export default function TwoPick() {
 
   const { isDarkMode, toggleDarkMode } = useContext(DarkModeContext);
   
-  const [deck, setDeck] = useState<CardInfo[]>([]); // デッキ
+  const [deck, setDeck] = useState<CardInfo[]>([]); // 幼女デッキ
   const [isShowDeck, setIsShowDeck] = useState(false); // デッキ確認ポップアップの表示状態
   const [round, setRound] = useState(1); // 現在のラウンド
 
   // 選択肢を更新する関数
   const updateChoices = useCallback(() => {
+    // 現在のフェーズで種類を合わせて、すでに2つ以上選択されているカードを除外
+    const selectedCardCounts = selectedCards.reduce((acc, card) => {
+      acc[card.id] = (acc[card.id] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
     const availableCards = allCards.filter(
-      card => card.type === currentPhase );
+      card => card.type === currentPhase && (selectedCardCounts[card.id] || 0) < 2
+    );
+
     const shuffled = [...availableCards].sort(() => Math.random() - 0.5);
     setCurrentChoices(shuffled.slice(0, 4));
-  }, [allCards, currentPhase]);
+  }, [allCards, currentPhase, selectedCards]);
 
-  // フェーズが変わったときに選択肢を更新
+  // ラウンドが変わったときに選択肢を更新
   useEffect(() => {
     updateChoices();
   }, [currentPhase, updateChoices]);
 
   // カードが選択されたときの処理
   const handleCardSelect = (card1: CardInfo, card2: CardInfo) => {
-    if (deck.length < 20) {
+    if (deck.length < 30) {
       if (currentPhase === '幼女') {
         setSelectedCards([...selectedCards, card1, card2]);
         setDeck([...deck, card1, card2]);
@@ -54,18 +62,16 @@ export default function TwoPick() {
         setSelectedCards([...selectedCards, card1]);
         setDeck([...deck, card1]);
       }
+      // 20枚選択したらお菓子を選択
+      if (currentPhase === '幼女' && deck.length >= 20) {
+        setCurrentPhase('お菓子');
+        setRound(1);
+      }
+
       setRound(round + 1);
 
-      // ラウンド数に応じて currentPhase を切り替え
-      if (round % 2 === 0) {
-        setCurrentPhase('お菓子'); // 偶数ラウンドでは「お菓子」
-      } else {
-        setCurrentPhase('幼女'); // 奇数ラウンドでは「幼女」
-      }
-
-      if (deck.length + 1 < 20) {
-        updateChoices();
-      }
+      updateChoices();
+      
     }
   };
 
@@ -94,10 +100,10 @@ export default function TwoPick() {
       </header>
 
       <div className="mt-4 shadow-md flex flex-col items-center">
-        {deck.length < 20 ? (
+        {deck.length < 30 ? (
           <>
             <h2 className="text-xl font-bold mb-4 text-center">
-              {round} / 10: {currentPhase}カードを選択してください
+              {round} / {currentPhase == "幼女" ? 10 : 5}: {currentPhase}カードを選択してください
             </h2>
             <div className="flex justify-between w-full max-w-4xl items-center">
               {/* 左側のカード選択 */}

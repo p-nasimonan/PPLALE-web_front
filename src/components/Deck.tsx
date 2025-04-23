@@ -39,7 +39,8 @@ const Deck: React.FC<DeckProps> = ({
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 
   // デッキの最大枚数
-  const maxCards = type === '幼女' 
+  const maxCards = 
+        type === '幼女' 
         ? 20 
         : type === 'お菓子'
         ? 10
