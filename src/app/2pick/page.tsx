@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useContext } from 'react'; // 'use' を削除
+import React, { useState, useEffect, useCallback, useContext } from 'react'; 
 import { useForm, Controller, ControllerRenderProps } from 'react-hook-form';
 import { CardInfo, CardType, FruitType } from '@/types/card';
 import { allYojoCards, allSweetCards, allPlayableCards } from '@/data/cards'; // 通常構築のデータをインポート
@@ -46,7 +46,6 @@ export default function TwoPick() {
   const [isCardDisappearing, setIsCardDisappearing] = useState(false); // カードが消えるアニメーションの状態
 
   const [selectionPhase, setSelectionPhase] = useState<'fruitSelection' | 'playableSelection' | 'cardSelection'>('fruitSelection'); // 選択フェーズ
-  const [isDownloading, setIsDownloading] = useState(false); // ダウンロード状態
 
   // 選択肢を更新する関数
   const updateChoices = useCallback(() => {
@@ -93,8 +92,7 @@ export default function TwoPick() {
     }
   }, []);
 
-  useEffect(() => {
-  }, []);
+
 
   // デッキが更新されたときに localStorage に保存
   useEffect(() => {
@@ -107,12 +105,7 @@ export default function TwoPick() {
 
   // カードが選択されたときの処理
   const handleCardSelect = (card1: CardInfo, card2: CardInfo) => {
-    setIsDownloading(true);
 
-    // 1秒後にダウンロード完了
-    setTimeout(() => {
-      setIsDownloading(false);
-    }, 1000);
 
     if (currentPhase === '幼女' && yojoDeck.length < 20) {
       const updatedYojoDeck = [...yojoDeck, card1, card2];
@@ -134,16 +127,6 @@ export default function TwoPick() {
     }
   };
 
-  // プレイアブルカード選択画面のカード選択処理
-  const handlePlayableCardSelect = (card: CardInfo) => {
-    setIsDownloading(true);
-
-    // 1秒後にダウンロード完了
-    setTimeout(() => {
-      setIsDownloading(false);
-      setSelectedPlayableCard(card);
-    }, 1000);
-  };
 
   // プレイアブルカード選択完了処理
   const handlePlayableCardConfirm = () => {
@@ -231,10 +214,9 @@ export default function TwoPick() {
                   <Card
                     key={card.id}
                     card={card}
-                    onClick={() => handlePlayableCardSelect(card)}
+                    onClick={() => setSelectedPlayableCard(card)}
                     width={300}
                     height={450}
-                    isDownloading={isDownloading}
                   />
                 ))}
               </div>
@@ -253,7 +235,6 @@ export default function TwoPick() {
                   card={selectedPlayableCard}
                   width={340}
                   height={500}
-                  isDownloading={isDownloading}
                 />
                 <div className="description w-80 h-40 overflow-auto p-4 bg-gray-100 rounded-lg">
                   {selectedPlayableCard.description && (

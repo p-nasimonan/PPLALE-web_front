@@ -5,7 +5,7 @@
  * カードの種類（幼女/お菓子）に応じて表示を変更する
  */
 
-import React from 'react';
+import React, { useState, useEffect} from 'react'; 
 import Image from 'next/image';
 import { CardInfo } from '@/types/card';
 
@@ -26,9 +26,8 @@ interface CardProps {
   width?: number;
   /** カード画像の高さ */
   height?: number;
-  /** 画像ダウンロード中かどうか */
-  isDownloading?: boolean;
 }
+
 
 /**
  * カードコンポーネント
@@ -45,7 +44,6 @@ const Card: React.FC<CardProps> = ({
   count = 1,
   width = 128, // デフォルト幅
   height = 190, // デフォルト高さ
-  isDownloading = false,
 }) => {
   if (!card) {
     throw new Error('Card data is required');
@@ -56,6 +54,8 @@ const Card: React.FC<CardProps> = ({
   const basePath = isProd ? '/PPLALE-web_front' : '';
   const imagePath = `${basePath}${card.imageUrl}`;
   const loadingImagePath = `${basePath}/images/yokan.png`;
+
+  const [isDownloading, setIsDownloading] = useState(true);
 
   // カードの種類に応じた背景色を設定
   const getCardColor = () => {
@@ -84,6 +84,15 @@ const Card: React.FC<CardProps> = ({
     }
   };
 
+  useEffect(() => {
+    setIsDownloading(true);
+  
+    // 1秒後にダウンロード完了
+    setTimeout(() => {
+      setIsDownloading(false);
+    }, 1000);
+  }, []);
+
   return (
     <div
       className={`
@@ -107,12 +116,15 @@ const Card: React.FC<CardProps> = ({
           height={height}
           className={`rounded-lg ${isDownloading ? 'pixelated' : ''}`}
           sizes="(max-width: 800px) 100vw, (max-width: 1200px) 50vw, 25vw"
-          priority={isSelected}
+          priority={true}
           quality={75}
           unoptimized={false}
           style={isDownloading ? {
             imageRendering: 'pixelated',
           } : undefined}
+          placeholder="blur"
+          loading="eager"
+          blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx4eHRoaHSQtJSAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCD/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
         />
               {isDownloading && (
         <h2 className='top-4 w-full h-full flex items-center justify-center'>ロード中</h2>)}
