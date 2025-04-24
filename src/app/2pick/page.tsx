@@ -1,20 +1,24 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useContext } from 'react';
+import React, { useState, useEffect, useCallback, useContext } from 'react'; // 'use' を削除
 import { useForm, Controller, ControllerRenderProps } from 'react-hook-form';
 import { CardInfo, CardType, FruitType } from '@/types/card';
-import { allYojoCards, allSweetCards } from '@/data/cards'; // 通常構築のデータをインポート
+import { allYojoCards, allSweetCards, allPlayableCards } from '@/data/cards'; // 通常構築のデータをインポート
 import Link from 'next/link';
 import { DarkModeContext } from "../DarkModeProvider";
 import Deck from '@/components/Deck';
 import CardSelection from './components/CardSelection';
 import ExportPopup from '@/components/ExportPopup';
+import Card from '@/components/Card';
 
 export default function TwoPick() {
   // 幼女カード
   const [yojoCards] = useState<CardInfo[]>(allYojoCards);
   // お菓子カード
   const [sweetCards] = useState<CardInfo[]>(allSweetCards);
+
+  // プレイアブルカード
+  const [playableCards] = useState<CardInfo[]>(allPlayableCards); // 'setPlayableCards' を削除
   
   // 現在の選択フェーズ（幼女かお菓子か）
   const [currentPhase, setCurrentPhase] = useState<CardType>('幼女');
@@ -38,7 +42,10 @@ export default function TwoPick() {
   });
 
   const selectedFruits = watch('fruits'); // フルーツ選択の監視
-  const [isFruitSelectionComplete, setIsFruitSelectionComplete] = useState(false); // フルーツ選択完了状態
+  const [selectedPlayableCard, setSelectedPlayableCard] = useState<CardInfo | null>(null); // 選択されたプレイアブルカード
+  const [isCardDisappearing, setIsCardDisappearing] = useState(false); // カードが消えるアニメーションの状態
+
+  const [selectionPhase, setSelectionPhase] = useState<'fruitSelection' | 'playableSelection' | 'cardSelection'>('fruitSelection'); // 選択フェーズ
 
   // 選択肢を更新する関数
   const updateChoices = useCallback(() => {
@@ -51,12 +58,25 @@ export default function TwoPick() {
     setCurrentChoices(shuffled.slice(0, 4));
   }, [yojoCards, sweetCards, currentPhase, selectedFruits]);
 
+  // プレイアブルカード選択肢を更新する関数
+  const updatePlayableChoices = useCallback(() => {
+    const shuffled = [...playableCards].sort(() => Math.random() - 0.5);
+    setCurrentChoices(shuffled.slice(0, 3)); // ランダムに3枚選択
+  }, [playableCards]);
+
   // ラウンドが変わったときに選択肢を更新
   useEffect(() => {
-    if (isFruitSelectionComplete) {
+    if (selectionPhase === 'cardSelection') {
       updateChoices();
     }
-  }, [currentPhase, updateChoices, isFruitSelectionComplete]);
+  }, [currentPhase, updateChoices, selectionPhase]);
+
+  // フルーツ選択完了後にプレイアブルカード選択肢を更新
+  useEffect(() => {
+    if (selectionPhase === 'playableSelection') {
+      updatePlayableChoices();
+    }
+  }, [selectionPhase, updatePlayableChoices]);
 
   // デッキの状態を保持するための useEffect
   useEffect(() => {
@@ -70,6 +90,9 @@ export default function TwoPick() {
     if (savedSweetDeck) {
       setSweetDeck(JSON.parse(savedSweetDeck));
     }
+  }, []);
+
+  useEffect(() => {
   }, []);
 
   // デッキが更新されたときに localStorage に保存
@@ -103,6 +126,21 @@ export default function TwoPick() {
     }
   };
 
+  // プレイアブルカード選択画面のカード選択処理
+  const handlePlayableCardSelect = (card: CardInfo) => {
+    setSelectedPlayableCard(card); // カードを拡大表示
+  };
+
+  // プレイアブルカード選択完了処理
+  const handlePlayableCardConfirm = () => {
+    setIsCardDisappearing(true); // アニメーションを開始
+    setTimeout(() => {
+      setSelectionPhase('cardSelection'); // カード選択画面に移行
+      setSelectedPlayableCard(null); // 拡大表示を解除
+      setIsCardDisappearing(false); // アニメーション状態をリセット
+    }, 500); // アニメーションの時間に合わせてタイムアウトを設定
+  };
+
   // デッキ確認ボタンの処理
   const showDeck = () => {
     setIsShowDeck(isShowDeck => !isShowDeck);
@@ -110,7 +148,7 @@ export default function TwoPick() {
 
   // フルーツ選択画面のフォーム送信処理
   const handleFruitSelectionSubmit = () => {
-    setIsFruitSelectionComplete(true); // フルーツ選択完了
+    setSelectionPhase('playableSelection'); // プレイアブルカード選択画面に移行
   };
 
   return (
@@ -130,7 +168,7 @@ export default function TwoPick() {
         </div>
       </header>
 
-      {!isFruitSelectionComplete ? (
+      {selectionPhase === 'fruitSelection' ? (
         // フルーツ選択画面
         <div className="flex flex-col items-center mt-8">
           <h2 className="text-xl font-bold mb-4">カードのフルーツを選択してください</h2>
@@ -169,6 +207,62 @@ export default function TwoPick() {
             </button>
           </form>
         </div>
+      ) : selectionPhase === 'playableSelection' ? (
+        // プレイアブルカード選択画面
+        <div className="mt-4 flex flex-col items-center">
+          <h2 className="text-xl font-bold mb-4 text-center">プレイアブルカードを選択してください</h2>
+          {!selectedPlayableCard && (
+            <div>
+              <div className="grid grid-cols-4 sm:grid-cols-3 gap-4">
+                {currentChoices.map(card => (
+                  <Card
+                    key={card.id}
+                    card={card}
+                    onClick={() => handlePlayableCardSelect(card)}
+                    width={300}
+                    height={450}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* スライド表示されたカード */}
+          {selectedPlayableCard && (
+            <article>
+              <div
+                className={`flex items-center justify-start w-full transform-slide ${
+                  isCardDisappearing ? 'animate-disappear' : ''
+                }`}
+              >
+                <Card
+                  card={selectedPlayableCard}
+                  width={340}
+                  height={500}
+                />
+                <div className="w-80 h-40 overflow-auto p-4 bg-gray-100 rounded-lg">
+                  {selectedPlayableCard.description && (
+                    <p className="text-sm text-gray-600 break-words">{selectedPlayableCard.description}</p>
+                  )}
+                </div>
+              </div>
+              <button
+                className="btn-secondary absolute top-30 left-5"
+                onClick={() => setSelectedPlayableCard(null)}
+              >
+                ◀︎キャンセル
+              </button>
+              <div className="flex justify-end mt-6 pr-40">
+                <button
+                  className="btn-select relative top-1 left-20"
+                  onClick={handlePlayableCardConfirm}
+                >
+                  選択 
+                </button>
+              </div>
+            </article>
+          )}
+        </div>
       ) : (
         // カード選択画面
         <div className="mt-4 flex flex-col items-center">
@@ -178,13 +272,17 @@ export default function TwoPick() {
                 {round} / {currentPhase === "幼女" ? 10 : 5}: {currentPhase}カードを選択してください
               </h2>
               <div className="flex justify-between w-full max-w-4xl items-center">
+
                 {/* 左側のカード選択 */}
                 {currentChoices.length >= 2 && (
-                  <CardSelection
-                    card1={currentChoices[0]}
-                    card2={currentChoices[1]}
-                    onSelect={() => handleCardSelect(currentChoices[0], currentChoices[1])}
-                  />
+                  <>
+                    {console.log("Rendering left CardSelection with:", currentChoices[0], currentChoices[1])}
+                    <CardSelection
+                      card1={currentChoices[0]}
+                      card2={currentChoices[1]}
+                      onSelect={() => handleCardSelect(currentChoices[0], currentChoices[1])}
+                    />
+                  </>
                 )}
 
                 {/* デッキ確認ボタン */}
@@ -199,11 +297,14 @@ export default function TwoPick() {
 
                 {/* 右側のカード選択 */}
                 {currentChoices.length >= 4 && (
-                  <CardSelection
-                    card1={currentChoices[2]}
-                    card2={currentChoices[3]}
-                    onSelect={() => handleCardSelect(currentChoices[2], currentChoices[3])}
-                  />
+                  <>
+                    {console.log("Rendering right CardSelection with:", currentChoices[2], currentChoices[3])}
+                    <CardSelection
+                      card1={currentChoices[2]}
+                      card2={currentChoices[3]}
+                      onSelect={() => handleCardSelect(currentChoices[2], currentChoices[3])}
+                    />
+                  </>
                 )}
               </div>
             </>

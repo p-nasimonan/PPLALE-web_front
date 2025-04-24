@@ -1,0 +1,48 @@
+{
+    "playable":[
+        {
+            "id": "0",
+            "name": "かがり",
+            "type": "幼女",
+            "fruit": "いちご",
+            "description": "",
+            "imageUrl": "/images/yojo/111イチゴかがり.png",
+            "cost": 0,
+            "hp": 0,
+            "attack": 0
+          },
+          {
+            "id": "1",
+            "name": "とここ",
+            "type": "幼女",
+            "fruit": "いちご",
+            "description": "",
+            "imageUrl": "/images/yojo/111イチゴとここ.png",
+            "cost": 0,
+            "hp": 0,
+            "attack": 0
+          },
+          {
+            "id": "2",
+            "name": "うゆち",
+            "type": "幼女",
+            "fruit": "いちご",
+            "description": "",
+            "imageUrl": "/images/yojo/111イチゴうゆち.png",
+            "cost": 0,
+            "hp": 0,
+            "attack": 0
+          },
+          {
+            "id": "3",
+            "name": "うぃまる",
+            "type": "幼女",
+            "fruit": "いちご",
+            "description": "うぃまるはうぃまるだよ。置いてかないでーうぃまるを置いてかないでー",
+            "imageUrl": "/images/yojo/213イチゴうぃまる.png",
+            "cost": 0,
+            "hp": 0,
+            "attack": 0
+          }
+]
+}

@@ -22,6 +22,10 @@ interface CardProps {
   onDragStart?: (e: React.DragEvent, card: CardInfo) => void;
   /** カードの重複数 */
   count?: number;
+  /** カード画像の幅 */
+  width?: number;
+  /** カード画像の高さ */
+  height?: number;
 }
 
 /**
@@ -37,6 +41,8 @@ const Card: React.FC<CardProps> = ({
   draggable = false,
   onDragStart,
   count = 1,
+  width = 128, // デフォルト幅
+  height = 190, // デフォルト高さ
 }) => {
   if (!card) {
     throw new Error('Card data is required');
@@ -61,19 +67,6 @@ const Card: React.FC<CardProps> = ({
       : 'bg-gray-200';
   };
 
-  // カードの種類に応じたボーダー色を設定
-  const getBorderColor = () => {
-    return card.fruit === 'いちご'
-      ? 'border-red-400'
-      : card.fruit === 'ぶどう'
-      ? 'border-purple-400'
-      : card.fruit === 'めろん'
-      ? 'border-green-400'
-      : card.fruit === 'おれんじ'
-      ? 'border-orange-400'
-      : 'border-gray-400';
-  };
-
   // カードがクリックされたときの処理
   const handleClick = () => {
     if (onClick) {
@@ -91,24 +84,24 @@ const Card: React.FC<CardProps> = ({
   return (
     <div
       className={`
-        relative w-32 h-47 rounded-lg shadow-md overflow-hidden
-        ${getCardColor()} ${getBorderColor()} border-2
+        relative rounded-lg shadow-md overflow-hidden
+        ${getCardColor()} 
         ${isSelected ? 'ring-4 ring-blue-500' : ''}
         transition-all duration-200 hover:shadow-lg
-        cursor-pointer
-        flex-shrink-0
+        cursor-pointer flex-shrink-0
       `}
+      style={{ width: `${width}px`, height: `${height}px` }} // インラインスタイルで幅と高さを指定
       onClick={handleClick}
       draggable={draggable}
       onDragStart={handleDragStart}
     >
       {/* カードの画像 */}
-      <div className="w-full h-full flex items-center justify-center"> 
+      <div className="w-full h-full flex items-center justify-center">
         <Image
           src={imagePath}
           alt={card.name}
-          width={128}
-          height={256}
+          width={width}
+          height={height}
           className="rounded-lg"
           priority={true}
           loading="eager"

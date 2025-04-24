@@ -14,7 +14,10 @@
   --text-light: #6b7280;
   --border-radius: 0.5rem;
   --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --special: #3ec6c4;
+  --special-hover: #0f8c8c;
 }
+
 
 :root.dark {
   --background-color: #1f2937;
@@ -59,6 +62,10 @@ header {
   margin-bottom: 2rem;
 }
 
+p{
+  color: var(--text-color)
+}
+
 header::before {
   content: '';
   position: absolute;
@@ -78,6 +85,8 @@ header > * {
 
 /* ボタンスタイル */
 button {
+  width: auto;
+  height: 50;
   display: inline-block;
   padding: 0.75rem 1.5rem;
   border-radius: 9999px;
@@ -93,6 +102,22 @@ button:hover {
   transform: scale(1.05);
 }
 
+.btn-primary {
+  background-color: var(--primary-color);
+  color: white;
+}
+.btn-primary:hover {
+  background-color: var(--primary-hover);
+  transform: scale(1.05);
+}
+.btn-secondary {
+  background-color: var(--secondary-color);
+  color: white;
+}
+.btn-secondary:hover {
+  background-color: var(--secondary-hover);
+  transform: scale(1.05);
+}
 
 .btn-export {
   background-color: var(--primary-color);
@@ -111,6 +136,21 @@ button:hover {
 
 .btn-import:hover {
   background-color: var(--secondary-hover);
+  transform: scale(1.05);
+}
+
+.btn-select {
+  height: 100;
+  width: 100;
+  background-color: var(--special);
+  font-weight: 1000;
+  color: white;
+  padding: auto;
+}
+.btn-select:hover{
+  background-color: var(--special-hover);
+  padding: auto;
+  color: white;
   transform: scale(1.05);
 }
 
@@ -247,4 +287,88 @@ a.lnk-important:hover {
   color: var(--text-color);
   border-radius: var(--border-radius);
   padding: 1.5rem;
+}
+
+/* 拡大表示のアニメーション */
+@keyframes scaleIn {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes scaleOut {
+  from {
+    transform: scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+}
+
+.transform {
+  animation: scaleIn 0.3s ease-out forwards;
+}
+
+.transform-leave {
+  animation: scaleOut 0.3s ease-in forwards;
+}
+
+/* スライドアニメーション */
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+.transform-slide {
+  animation: slideIn 0.3s ease-out forwards;
+}
+
+.transform-slide-leave {
+  animation: slideOut 0.3s ease-in forwards;
+}
+
+/* カードが拡大して消えるアニメーション */
+@keyframes disappear {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+.animate-disappear {
+  animation: disappear 0.5s ease-out forwards;
+}
+
+/* テキストの改行を適切に処理 */
+.break-words {
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
