@@ -47,7 +47,6 @@ export default function TwoPick() {
 
   const [selectionPhase, setSelectionPhase] = useState<'fruitSelection' | 'playableSelection' | 'cardSelection'>('fruitSelection'); // 選択フェーズ
   const [isDownloading, setIsDownloading] = useState(false); // ダウンロード状態
-  const [downloadProgress, setDownloadProgress] = useState(0); // ダウンロード進捗
 
   // 選択肢を更新する関数
   const updateChoices = useCallback(() => {
@@ -109,19 +108,11 @@ export default function TwoPick() {
   // カードが選択されたときの処理
   const handleCardSelect = (card1: CardInfo, card2: CardInfo) => {
     setIsDownloading(true);
-    setDownloadProgress(0);
 
-    // ダウンロードのシミュレーション
-    const interval = setInterval(() => {
-      setDownloadProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setIsDownloading(false);
-          return 100;
-        }
-        return prev + 10;
-      });
-    }, 100);
+    // 1秒後にダウンロード完了
+    setTimeout(() => {
+      setIsDownloading(false);
+    }, 1000);
 
     if (currentPhase === '幼女' && yojoDeck.length < 20) {
       const updatedYojoDeck = [...yojoDeck, card1, card2];
@@ -146,20 +137,12 @@ export default function TwoPick() {
   // プレイアブルカード選択画面のカード選択処理
   const handlePlayableCardSelect = (card: CardInfo) => {
     setIsDownloading(true);
-    setDownloadProgress(0);
 
-    // ダウンロードのシミュレーション
-    const interval = setInterval(() => {
-      setDownloadProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setIsDownloading(false);
-          setSelectedPlayableCard(card);
-          return 100;
-        }
-        return prev + 10;
-      });
-    }, 100);
+    // 1秒後にダウンロード完了
+    setTimeout(() => {
+      setIsDownloading(false);
+      setSelectedPlayableCard(card);
+    }, 1000);
   };
 
   // プレイアブルカード選択完了処理
@@ -199,206 +182,187 @@ export default function TwoPick() {
         </div>
       </header>
 
-      {isDownloading ? (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
-            <h3 className="text-xl font-bold mb-4">画像をダウンロード中...</h3>
-            <div className="w-full bg-gray-200 rounded-full h-2.5 mb-4">
-              <div
-                className="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
-                style={{ width: `${downloadProgress}%` }}
-              ></div>
-            </div>
-            <p className="text-center text-gray-600">{Math.round(downloadProgress)}%</p>
-          </div>
-        </div>
-      ) : (
-        <>
-          {selectionPhase === 'fruitSelection' ? (
-            // フルーツ選択画面
-            <div className="flex flex-col items-center mt-8">
-              <h2 className="text-xl font-bold mb-4">カードのフルーツを選択してください</h2>
-              <form
-                onSubmit={handleSubmit(handleFruitSelectionSubmit)}
-                className="space-y-4"
-              >
-                <div className="space-y-2">
-                  {(['いちご', 'ぶどう', 'めろん', 'おれんじ'] as FruitType[]).map(fruit => (
-                    <Controller
-                      key={fruit}
-                      name="fruits"
-                      control={control}
-                      render={({ field }: { field: ControllerRenderProps<{ fruits: FruitType[] }, 'fruits'> }) => (
-                        <label className="flex items-center">
-                          <input
-                            type="checkbox"
-                            value={fruit}
-                            checked={field.value.includes(fruit)}
-                            onChange={e => {
-                              const newValue = e.target.checked
-                                ? [...field.value, fruit]
-                                : field.value.filter(f => f !== fruit);
-                              field.onChange(newValue);
-                            }}
-                            className="mr-2"
-                          />
-                          {fruit}
-                        </label>
-                      )}
-                    />
-                  ))}
-                </div>
-                <button type="submit" className="btn-primary">
-                  次へ
-                </button>
-              </form>
-            </div>
-          ) : selectionPhase === 'playableSelection' ? (
-            // プレイアブルカード選択画面
-            <div className="mt-4 flex flex-col items-center">
-              <h2 className="text-xl font-bold mb-4 text-center">プレイアブルカードを選択してください</h2>
-              {!selectedPlayableCard && (
-                <div>
-                  <div className="grid grid-cols-4 sm:grid-cols-3 gap-4">
-                    {currentChoices.map(card => (
-                      <Card
-                        key={card.id}
-                        card={card}
-                        onClick={() => handlePlayableCardSelect(card)}
-                        width={300}
-                        height={450}
-                        isDownloading={isDownloading}
+      {/* ダウンロードオーバーレイを削除し、直接カード選択画面を表示 */}
+      {selectionPhase === 'fruitSelection' ? (
+        <div className="flex flex-col items-center mt-8">
+          <h2 className="text-xl font-bold mb-4">カードのフルーツを選択してください</h2>
+          <form
+            onSubmit={handleSubmit(handleFruitSelectionSubmit)}
+            className="space-y-4"
+          >
+            <div className="space-y-2">
+              {(['いちご', 'ぶどう', 'めろん', 'おれんじ'] as FruitType[]).map(fruit => (
+                <Controller
+                  key={fruit}
+                  name="fruits"
+                  control={control}
+                  render={({ field }: { field: ControllerRenderProps<{ fruits: FruitType[] }, 'fruits'> }) => (
+                    <label className="flex items-center">
+                      <input
+                        type="checkbox"
+                        value={fruit}
+                        checked={field.value.includes(fruit)}
+                        onChange={e => {
+                          const newValue = e.target.checked
+                            ? [...field.value, fruit]
+                            : field.value.filter(f => f !== fruit);
+                          field.onChange(newValue);
+                        }}
+                        className="mr-2"
                       />
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* スライド表示されたカード */}
-              {selectedPlayableCard && (
-                <article>
-                  <div
-                    className={`flex items-center justify-start w-full transform-slide ${
-                      isCardDisappearing ? 'animate-disappear' : ''
-                    }`}
-                  >
-                    <Card
-                      card={selectedPlayableCard}
-                      width={340}
-                      height={500}
-                      isDownloading={isDownloading}
-                    />
-                    <div className="description w-80 h-40 overflow-auto p-4 bg-gray-100 rounded-lg">
-                      {selectedPlayableCard.description && (
-                        <p className="text-sm break-words">{selectedPlayableCard.description}</p>
-                      )}
-                    </div>
-                  </div>
-                  <button
-                    className="btn-secondary absolute top-30 left-5"
-                    onClick={() => setSelectedPlayableCard(null)}
-                  >
-                    ◀︎キャンセル
-                  </button>
-                  <div className="flex justify-end mt-6 pr-40">
-                    <button
-                      className="btn-select relative top-1 left-20"
-                      onClick={handlePlayableCardConfirm}
-                    >
-                      選択 
-                    </button>
-                  </div>
-                </article>
-              )}
+                      {fruit}
+                    </label>
+                  )}
+                />
+              ))}
             </div>
-          ) : (
-            // カード選択画面
-            <div className="mt-4 flex flex-col items-center">
-              {yojoDeck.length < 20 || sweetDeck.length < 10 ? (
-                <>
-                  <h2 className="text-xl font-bold mb-4 text-center">
-                    {round} / {currentPhase === "幼女" ? 10 : 5}: {currentPhase}カードを選択してください
-                  </h2>
-                  <div className="flex justify-between w-full max-w-4xl items-center">
-
-                    {/* 左側のカード選択 */}
-                    {currentChoices.length >= 2 && (
-                      <>
-                        {(() => {
-                          console.log("Rendering left CardSelection with:", currentChoices[0], currentChoices[1]);
-                          return null;
-                        })()}
-                        <CardSelection
-                          card1={currentChoices[0]}
-                          card2={currentChoices[1]}
-                          onSelect={() => handleCardSelect(currentChoices[0], currentChoices[1])}
-                        />
-                      </>
-                    )}
-
-                    {/* デッキ確認ボタン */}
-                    <div className="flex justify-center">
-                      <button
-                        className="btn-import"
-                        onClick={() => showDeck()}
-                      >
-                        デッキ確認
-                      </button>
-                    </div>
-
-                    {/* 右側のカード選択 */}
-                    {currentChoices.length >= 4 && (
-                      <>
-                        {(() => {
-                          console.log("Rendering right CardSelection with:", currentChoices[2], currentChoices[3]);
-                          return null;
-                        })()}
-                        <CardSelection
-                          card1={currentChoices[2]}
-                          card2={currentChoices[3]}
-                          onSelect={() => handleCardSelect(currentChoices[2], currentChoices[3])}
-                        />
-                      </>
-                    )}
-                  </div>
-                </>
-              ) : (
-                <div className="text-center">
-                  <h2 className="text-2xl font-bold mb-4">デッキ構築完了！</h2>
-                  <p className="mb-4">選択したカードでデッキが完成しました。</p>
-                  <button
-                    className="btn-export mb-4"
-                    onClick={() => setShowExportPopup(true)}
-                  >
-                    エクスポート
-                  </button>
-                  <div className="flex justify-center">
-                    <button
-                      className="btn-import"
-                      onClick={() => showDeck()}
-                    >
-                      デッキ確認
-                    </button>
-                  </div>
-                </div>
-              )}
-              {isShowDeck && (
-                <div className="space-y-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2 mt-2">
-                  <Deck
-                    cards={yojoDeck}
-                    type="幼女"
-                    removeable={false}
+            <button type="submit" className="btn-primary">
+              次へ
+            </button>
+          </form>
+        </div>
+      ) : selectionPhase === 'playableSelection' ? (
+        <div className="mt-4 flex flex-col items-center">
+          <h2 className="text-xl font-bold mb-4 text-center">プレイアブルカードを選択してください</h2>
+          {!selectedPlayableCard && (
+            <div>
+              <div className="grid grid-cols-4 sm:grid-cols-3 gap-4">
+                {currentChoices.map(card => (
+                  <Card
+                    key={card.id}
+                    card={card}
+                    onClick={() => handlePlayableCardSelect(card)}
+                    width={300}
+                    height={450}
+                    isDownloading={isDownloading}
                   />
-                  <Deck
-                    cards={sweetDeck}
-                    type="お菓子"
-                    removeable={false}
-                  />
-                </div>
-              )}
+                ))}
+              </div>
             </div>
           )}
-        </>
+
+          {/* スライド表示されたカード */}
+          {selectedPlayableCard && (
+            <article>
+              <div
+                className={`flex items-center justify-start w-full transform-slide ${
+                  isCardDisappearing ? 'animate-disappear' : ''
+                }`}
+              >
+                <Card
+                  card={selectedPlayableCard}
+                  width={340}
+                  height={500}
+                  isDownloading={isDownloading}
+                />
+                <div className="description w-80 h-40 overflow-auto p-4 bg-gray-100 rounded-lg">
+                  {selectedPlayableCard.description && (
+                    <p className="text-sm break-words">{selectedPlayableCard.description}</p>
+                  )}
+                </div>
+              </div>
+              <button
+                className="btn-secondary absolute top-30 left-5"
+                onClick={() => setSelectedPlayableCard(null)}
+              >
+                ◀︎キャンセル
+              </button>
+              <div className="flex justify-end mt-6 pr-40">
+                <button
+                  className="btn-select relative top-1 left-20"
+                  onClick={handlePlayableCardConfirm}
+                >
+                  選択 
+                </button>
+              </div>
+            </article>
+          )}
+        </div>
+      ) : (
+        <div className="mt-4 flex flex-col items-center">
+          {yojoDeck.length < 20 || sweetDeck.length < 10 ? (
+            <>
+              <h2 className="text-xl font-bold mb-4 text-center">
+                {round} / {currentPhase === "幼女" ? 10 : 5}: {currentPhase}カードを選択してください
+              </h2>
+              <div className="flex justify-between w-full max-w-4xl items-center">
+
+                {/* 左側のカード選択 */}
+                {currentChoices.length >= 2 && (
+                  <>
+                    {(() => {
+                      console.log("Rendering left CardSelection with:", currentChoices[0], currentChoices[1]);
+                      return null;
+                    })()}
+                    <CardSelection
+                      card1={currentChoices[0]}
+                      card2={currentChoices[1]}
+                      onSelect={() => handleCardSelect(currentChoices[0], currentChoices[1])}
+                    />
+                  </>
+                )}
+
+                {/* デッキ確認ボタン */}
+                <div className="flex justify-center">
+                  <button
+                    className="btn-import"
+                    onClick={() => showDeck()}
+                  >
+                    デッキ確認
+                  </button>
+                </div>
+
+                {/* 右側のカード選択 */}
+                {currentChoices.length >= 4 && (
+                  <>
+                    {(() => {
+                      console.log("Rendering right CardSelection with:", currentChoices[2], currentChoices[3]);
+                      return null;
+                    })()}
+                    <CardSelection
+                      card1={currentChoices[2]}
+                      card2={currentChoices[3]}
+                      onSelect={() => handleCardSelect(currentChoices[2], currentChoices[3])}
+                    />
+                  </>
+                )}
+              </div>
+            </>
+          ) : (
+            <div className="text-center">
+              <h2 className="text-2xl font-bold mb-4">デッキ構築完了！</h2>
+              <p className="mb-4">選択したカードでデッキが完成しました。</p>
+              <button
+                className="btn-export mb-4"
+                onClick={() => setShowExportPopup(true)}
+              >
+                エクスポート
+              </button>
+              <div className="flex justify-center">
+                <button
+                  className="btn-import"
+                  onClick={() => showDeck()}
+                >
+                  デッキ確認
+                </button>
+              </div>
+            </div>
+          )}
+          {isShowDeck && (
+            <div className="space-y-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2 mt-2">
+              <Deck
+                cards={yojoDeck}
+                type="幼女"
+                removeable={false}
+              />
+              <Deck
+                cards={sweetDeck}
+                type="お菓子"
+                removeable={false}
+              />
+            </div>
+          )}
+        </div>
       )}
 
       {/* エクスポートポップアップ */}

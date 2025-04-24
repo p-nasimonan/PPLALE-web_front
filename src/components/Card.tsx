@@ -105,12 +105,17 @@ const Card: React.FC<CardProps> = ({
           alt={isDownloading ? "ロード中..." : card.name}
           width={width}
           height={height}
-          className="rounded-lg"
+          className={`rounded-lg ${isDownloading ? 'pixelated' : ''}`}
           sizes="(max-width: 800px) 100vw, (max-width: 1200px) 50vw, 25vw"
           priority={isSelected}
           quality={75}
           unoptimized={false}
+          style={isDownloading ? {
+            imageRendering: 'pixelated',
+          } : undefined}
         />
+              {isDownloading && (
+        <h2 className='top-4 w-full h-full flex items-center justify-center'>ロード中</h2>)}
       </div>
 
       {/* 重複数の表示 */}
