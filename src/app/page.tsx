@@ -58,6 +58,29 @@ export default function Home() {
     document.documentElement.classList.toggle('dark', isDarkMode);
   }, [isDarkMode]);
 
+  // デッキの状態を保持するための useEffect
+  useEffect(() => {
+    // 初回読み込み時にデッキを localStorage から取得
+    const savedYojoDeck = localStorage.getItem('yojoDeck');
+    const savedSweetDeck = localStorage.getItem('sweetDeck');
+
+    if (savedYojoDeck) {
+      setYojoDeck(JSON.parse(savedYojoDeck));
+    }
+    if (savedSweetDeck) {
+      setSweetDeck(JSON.parse(savedSweetDeck));
+    }
+  }, []);
+
+  // デッキが更新されたときに localStorage に保存
+  useEffect(() => {
+    localStorage.setItem('yojoDeck', JSON.stringify(yojoDeck));
+  }, [yojoDeck]);
+
+  useEffect(() => {
+    localStorage.setItem('sweetDeck', JSON.stringify(sweetDeck));
+  }, [sweetDeck]);
+
   // カードが選択されたときの処理
   const handleCardSelect = (card: CardInfo) => {
     setSelectedCard(card);
@@ -66,18 +89,26 @@ export default function Home() {
   // カードがデッキに追加されたときの処理
   const handleAddToDeck = (card: CardInfo) => {
     if (card.type === '幼女' && yojoDeck.length < 20) {
-      setYojoDeck([...yojoDeck, card]);
+      const updatedYojoDeck = [...yojoDeck, card];
+      setYojoDeck(updatedYojoDeck);
+      localStorage.setItem('yojoDeck', JSON.stringify(updatedYojoDeck)); // デッキを同期
     } else if (card.type === 'お菓子' && sweetDeck.length < 10) {
-      setSweetDeck([...sweetDeck, card]);
+      const updatedSweetDeck = [...sweetDeck, card];
+      setSweetDeck(updatedSweetDeck);
+      localStorage.setItem('sweetDeck', JSON.stringify(updatedSweetDeck)); // デッキを同期
     }
   };
 
   // カードがデッキから削除されたときの処理
   const handleRemoveFromDeck = (card: CardInfo, deckType: string) => {
     if (deckType === '幼女') {
-      setYojoDeck(yojoDeck.filter(c => c.id !== card.id));
+      const updatedYojoDeck = yojoDeck.filter(c => c.id !== card.id);
+      setYojoDeck(updatedYojoDeck);
+      localStorage.setItem('yojoDeck', JSON.stringify(updatedYojoDeck)); // デッキを同期
     } else {
-      setSweetDeck(sweetDeck.filter(c => c.id !== card.id));
+      const updatedSweetDeck = sweetDeck.filter(c => c.id !== card.id);
+      setSweetDeck(updatedSweetDeck);
+      localStorage.setItem('sweetDeck', JSON.stringify(updatedSweetDeck)); // デッキを同期
     }
   };
 

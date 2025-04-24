@@ -63,7 +63,15 @@ const Card: React.FC<CardProps> = ({
 
   // カードの種類に応じたボーダー色を設定
   const getBorderColor = () => {
-    return card.type === '幼女' ? 'border-pink-300' : 'border-yellow-300';
+    return card.fruit === 'いちご'
+      ? 'border-red-400'
+      : card.fruit === 'ぶどう'
+      ? 'border-purple-400'
+      : card.fruit === 'めろん'
+      ? 'border-green-400'
+      : card.fruit === 'おれんじ'
+      ? 'border-orange-400'
+      : 'border-gray-400';
   };
 
   // カードがクリックされたときの処理

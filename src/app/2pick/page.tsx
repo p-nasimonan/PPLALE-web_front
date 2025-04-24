@@ -71,14 +71,39 @@ export default function TwoPick() {
     }
   }, [currentPhase, updateChoices, isFruitSelectionComplete]);
 
+  // デッキの状態を保持するための useEffect
+  useEffect(() => {
+    // 初回読み込み時にデッキを localStorage から取得
+    const savedYojoDeck = localStorage.getItem('yojoDeck');
+    const savedSweetDeck = localStorage.getItem('sweetDeck');
+
+    if (savedYojoDeck) {
+      setYojoDeck(JSON.parse(savedYojoDeck));
+    }
+    if (savedSweetDeck) {
+      setSweetDeck(JSON.parse(savedSweetDeck));
+    }
+  }, []);
+
+  // デッキが更新されたときに localStorage に保存
+  useEffect(() => {
+    localStorage.setItem('yojoDeck', JSON.stringify(yojoDeck));
+  }, [yojoDeck]);
+
+  useEffect(() => {
+    localStorage.setItem('sweetDeck', JSON.stringify(sweetDeck));
+  }, [sweetDeck]);
+
   // カードが選択されたときの処理
   const handleCardSelect = (card1: CardInfo, card2: CardInfo) => {
     if (currentPhase === '幼女' && yojoDeck.length < 20) {
-      setSelectedCards([...selectedCards, card1, card2]);
-      setYojoDeck([...yojoDeck, card1, card2]);
+      const updatedYojoDeck = [...yojoDeck, card1, card2];
+      setYojoDeck(updatedYojoDeck);
+      localStorage.setItem('yojoDeck', JSON.stringify(updatedYojoDeck)); // 通常デッキに同期
     } else if (currentPhase === 'お菓子' && sweetDeck.length < 10) {
-      setSelectedCards([...selectedCards, card1, card2]);
-      setSweetDeck([...sweetDeck, card1, card2]);
+      const updatedSweetDeck = [...sweetDeck, card1, card2];
+      setSweetDeck(updatedSweetDeck);
+      localStorage.setItem('sweetDeck', JSON.stringify(updatedSweetDeck)); // 通常デッキに同期
     }
 
     setRound(round + 1);
@@ -199,9 +224,6 @@ export default function TwoPick() {
             <div className="text-center">
               <h2 className="text-2xl font-bold mb-4">デッキ構築完了！</h2>
               <p className="mb-4">選択したカードでデッキが完成しました。</p>
-              <Link href="/" className="btn-export mb-4">
-                ホームに戻る
-              </Link>
               <button
                 className="btn-export mb-4"
                 onClick={() => setShowExportPopup(true)}
