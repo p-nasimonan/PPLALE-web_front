@@ -18,19 +18,19 @@ import ImportPopup from '@/components/ImportPopup';
 import Link from 'next/link';
 import { DarkModeContext } from "./DarkModeProvider";
 
-// サンプルカードデータ
-const sampleCards: CardInfo[] = [
-  ...yojoData.yojo.map(card => ({
-    ...card,
-    type: card.type as CardType,
-    fruit: card.fruit as FruitType
-  })),
-  ...sweetData.sweet.map(card => ({
-    ...card,
-    type: card.type as CardType,
-    fruit: card.fruit as FruitType
-  }))
-];
+// 幼女カードデータ
+const yojoCards: CardInfo[] = yojoData.yojo.map(card => ({
+  ...card,
+  type: card.type as CardType,
+  fruit: card.fruit as FruitType,
+}));
+
+// お菓子カードデータ
+const sweetCards: CardInfo[] = sweetData.sweet.map(card => ({
+  ...card,
+  type: card.type as CardType,
+  fruit: card.fruit as FruitType,
+}));
 
 /**
  * メインページコンポーネント
@@ -39,7 +39,8 @@ const sampleCards: CardInfo[] = [
  */
 export default function Home() {
   // すべてのカード
-  const [allCards] = useState<CardInfo[]>(sampleCards);
+  const [allYojoCards] = useState<CardInfo[]>(yojoCards);
+  const [allSweetCards] = useState<CardInfo[]>(sweetCards);
   // 幼女デッキのカード
   const [yojoDeck, setYojoDeck] = useState<CardInfo[]>([]);
   // お菓子デッキのカード
@@ -106,19 +107,9 @@ export default function Home() {
     };
 
     if (deckType === '幼女' && card.type === '幼女' && yojoDeck.length < 20) {
-      // 同じカードが2枚未満の場合のみ追加
-      if (countSameCards(yojoDeck, card) < 2) {
-        setYojoDeck([...yojoDeck, card]);
-      } else {
-        alert('同じカードは2枚までしか追加できません');
-      }
+      setYojoDeck([...yojoDeck, card]);
     } else if (deckType === 'お菓子' && card.type === 'お菓子' && sweetDeck.length < 10) {
-      // 同じカードが2枚未満の場合のみ追加
-      if (countSameCards(sweetDeck, card) < 2) {
-        setSweetDeck([...sweetDeck, card]);
-      } else {
-        alert('同じカードは2枚までしか追加できません');
-      }
+      setSweetDeck([...sweetDeck, card]);
     }
   };
 
@@ -137,36 +128,36 @@ export default function Home() {
 
   // デッキをインポートする処理
   const handleImportDeck = (yojoCardIds: string, sweetCardIds: string) => {
+    
     try {
       // 幼女デッキのカードIDを取得
       const yojoIds = yojoCardIds
         .split(',')
         .filter(id => id.trim() !== '')
         .map(id => parseInt(id.trim(), 10));
-      
+
+      // 幼女デッキのカードを取得
+      const newYojoDeck = yojoIds
+        .map(id => allYojoCards.find(card => parseInt(card.id, 10) === id))
+        .filter((card): card is CardInfo => card !== undefined);
+
       // お菓子デッキのカードIDを取得
       const sweetIds = sweetCardIds
         .split(',')
         .filter(id => id.trim() !== '')
         .map(id => parseInt(id.trim(), 10));
-      
-      // カードIDからカードオブジェクトを取得
-      const newYojoDeck = yojoIds
-        .map(id => allCards.find(card => parseInt(card.id, 10) === id))
-        .filter((card): card is CardInfo => card !== undefined);
-      
+
+      // お菓子デッキのカードを取得
       const newSweetDeck = sweetIds
-        .map(id => allCards.find(card => parseInt(card.id, 10) === id))
+        .map(id => allSweetCards.find(card => parseInt(card.id, 10) === id))
         .filter((card): card is CardInfo => card !== undefined);
-      
+
       // デッキを更新
       setYojoDeck(newYojoDeck);
       setSweetDeck(newSweetDeck);
-      
+
       // ポップアップを閉じる
       setShowImportPopup(false);
-      
-      alert('デッキをインポートしました');
     } catch (error) {
       console.error('デッキのインポートに失敗しました:', error);
       alert('デッキのインポートに失敗しました');
@@ -174,7 +165,8 @@ export default function Home() {
   };
 
   return (
-    <div className="container">
+    <div>
+    <div className={showImportPopup||showExportPopup ? 'blur-sm ' : 'container'}>
       <header>
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold text-center">ぷぷりえーる デッキ構築</h1>
@@ -230,7 +222,7 @@ export default function Home() {
       {/* カードリスト */}
       <div className="card">
         <CardList
-          cards={allCards}
+          cards={allYojoCards}
           onCardSelect={handleCardSelect}
           selectedCardId={selectedCard?.id}
           draggable={true}
@@ -261,7 +253,7 @@ export default function Home() {
 
       <div className="card">
         <CardList
-          cards={allCards}
+          cards={allSweetCards}
           onCardSelect={handleCardSelect}
           selectedCardId={selectedCard?.id}
           draggable={true}
@@ -299,7 +291,7 @@ export default function Home() {
           </div>
         </div>
       )}
-
+      </div>
 
 
       {/* エクスポートポップアップ */}

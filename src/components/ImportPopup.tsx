@@ -55,8 +55,8 @@ const ImportPopup: React.FC<ImportPopupProps> = ({ onImport, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+    <div className="fixed inset-0 bg-opacity-40 flex items-center justify-center z-50">
+      <div className="popup">
         <h3 className="text-xl font-bold mb-4">デッキをインポート</h3>
         <div className="mb-4">
           <div className="mb-4">
@@ -82,17 +82,17 @@ const ImportPopup: React.FC<ImportPopupProps> = ({ onImport, onClose }) => {
           </div>
         </div>
         <div className="flex justify-between">
-          <button
-            className="btn btn-primary"
-            onClick={handleImport}
-          >
-            インポート
-          </button>
-          <button
-            className="btn btn-secondary"
+        <button
+            className="btn btn-cancel"
             onClick={handleClose}
           >
             キャンセル
+          </button>
+          <button
+            className="btn btn-import"
+            onClick={handleImport}
+          >
+            インポート
           </button>
         </div>
       </div>

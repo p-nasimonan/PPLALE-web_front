@@ -61,8 +61,8 @@ const ExportPopup: React.FC<ExportPopupProps> = ({ yojoDeck, sweetDeck, onClose 
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+    <div className="fixed inset-0 bg-opacity-40 flex items-center justify-center z-50">
+      <div className="popup p-6 rounded-lg shadow-lg max-w-md w-full">
         <h3 className="text-xl font-bold mb-4">デッキをエクスポート</h3>
         <div className="mb-4">
           <div className="mb-4">
