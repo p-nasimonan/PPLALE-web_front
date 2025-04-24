@@ -42,10 +42,11 @@ const Card: React.FC<CardProps> = ({
     throw new Error('Card data is required');
   }
     
-  // 画像のパスを修正
-  const imagePath = card.imageUrl.startsWith('/') 
+  // 環境に応じて画像のパスを切り替え
+  const isProd = process.env.NODE_ENV === 'production';
+  const imagePath = isProd
     ? `/PPLALE-web_front${card.imageUrl}`
-    : `/PPLALE-web_front/${card.imageUrl}`;
+    : card.imageUrl;
 
   // カードの種類に応じた背景色を設定
   const getCardColor = () => {
@@ -82,7 +83,7 @@ const Card: React.FC<CardProps> = ({
   return (
     <div
       className={`
-        relative w-32 h-44 rounded-lg shadow-md overflow-hidden
+        relative w-32 h-47 rounded-lg shadow-md overflow-hidden
         ${getCardColor()} ${getBorderColor()} border-2
         ${isSelected ? 'ring-4 ring-blue-500' : ''}
         transition-all duration-200 hover:shadow-lg
@@ -94,7 +95,7 @@ const Card: React.FC<CardProps> = ({
       onDragStart={handleDragStart}
     >
       {/* カードの画像 */}
-      <div className="w-full h-full relative">
+      <div className="w-full h-full flex items-center justify-center"> 
         <Image
           src={imagePath}
           alt={card.name}
@@ -104,8 +105,7 @@ const Card: React.FC<CardProps> = ({
           priority={true}
           loading="eager"
           quality={90}
-          placeholder="blur"
-          blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx4eHRoaHSQtJSAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCD/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+          unoptimized={!isProd} // 本番環境では最適化を有効化
         />
       </div>
 
