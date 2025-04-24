@@ -26,6 +26,8 @@ interface CardProps {
   width?: number;
   /** カード画像の高さ */
   height?: number;
+  /** 画像ダウンロード中かどうか */
+  isDownloading?: boolean;
 }
 
 /**
@@ -43,6 +45,7 @@ const Card: React.FC<CardProps> = ({
   count = 1,
   width = 128, // デフォルト幅
   height = 190, // デフォルト高さ
+  isDownloading = false,
 }) => {
   if (!card) {
     throw new Error('Card data is required');
@@ -52,6 +55,7 @@ const Card: React.FC<CardProps> = ({
   const isProd = process.env.NODE_ENV === 'production';
   const basePath = isProd ? '/PPLALE-web_front' : '';
   const imagePath = `${basePath}${card.imageUrl}`;
+  const loadingImagePath = `${basePath}/images/yokan.png`;
 
   // カードの種類に応じた背景色を設定
   const getCardColor = () => {
@@ -97,8 +101,8 @@ const Card: React.FC<CardProps> = ({
       {/* カードの画像 */}
       <div className="w-full h-full flex items-center justify-center">
         <Image
-          src={imagePath}
-          alt={card.name}
+          src={isDownloading ? loadingImagePath : imagePath}
+          alt={isDownloading ? "ロード中..." : card.name}
           width={width}
           height={height}
           className="rounded-lg"
@@ -110,7 +114,7 @@ const Card: React.FC<CardProps> = ({
       </div>
 
       {/* 重複数の表示 */}
-      {count > 1 && (
+      {count > 1 && !isDownloading && (
         <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm">
           ×{count}
         </div>
