@@ -50,9 +50,8 @@ const Card: React.FC<CardProps> = ({
     
   // 環境に応じて画像のパスを切り替え
   const isProd = process.env.NODE_ENV === 'production';
-  const imagePath = isProd
-    ? `/PPLALE-web_front${card.imageUrl}`
-    : card.imageUrl;
+  const basePath = isProd ? '/PPLALE-web_front' : '';
+  const imagePath = `${basePath}${card.imageUrl}`;
 
   // カードの種類に応じた背景色を設定
   const getCardColor = () => {
@@ -90,7 +89,7 @@ const Card: React.FC<CardProps> = ({
         transition-all duration-200 hover:shadow-lg
         cursor-pointer flex-shrink-0
       `}
-      style={{ width: `${width}px`, height: `${height}px` }} // インラインスタイルで幅と高さを指定
+      style={{ width: `${width}px`, height: `${height}px` }}
       onClick={handleClick}
       draggable={draggable}
       onDragStart={handleDragStart}
@@ -103,10 +102,10 @@ const Card: React.FC<CardProps> = ({
           width={width}
           height={height}
           className="rounded-lg"
-          sizes="(max-width: 800px) 100vw, (max-width: 1200px) 50vw, 25vw" // 画面幅に応じた画像サイズ
-          priority={isSelected} // 選択されたカードの場合は優先度を高く設定
-          quality={50} // 画像品質を50に設定
-unoptimized={!isProd} // 本番環境では最適化を有効化
+          sizes="(max-width: 800px) 100vw, (max-width: 1200px) 50vw, 25vw"
+          priority={isSelected}
+          quality={75}
+          unoptimized={false}
         />
       </div>
 

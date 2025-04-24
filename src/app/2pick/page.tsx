@@ -276,7 +276,10 @@ export default function TwoPick() {
                 {/* 左側のカード選択 */}
                 {currentChoices.length >= 2 && (
                   <>
-                    {console.log("Rendering left CardSelection with:", currentChoices[0], currentChoices[1])}
+                    {(() => {
+                      console.log("Rendering left CardSelection with:", currentChoices[0], currentChoices[1]);
+                      return null;
+                    })()}
                     <CardSelection
                       card1={currentChoices[0]}
                       card2={currentChoices[1]}
@@ -298,7 +301,10 @@ export default function TwoPick() {
                 {/* 右側のカード選択 */}
                 {currentChoices.length >= 4 && (
                   <>
-                    {console.log("Rendering right CardSelection with:", currentChoices[2], currentChoices[3])}
+                    {(() => {
+                      console.log("Rendering right CardSelection with:", currentChoices[2], currentChoices[3]);
+                      return null;
+                    })()}
                     <CardSelection
                       card1={currentChoices[2]}
                       card2={currentChoices[3]}
