@@ -8,29 +8,14 @@
 'use client';
 
 import React, { useState, useEffect, useContext } from 'react';
-import { CardInfo, CardType, FruitType } from '@/types/card';
+import { CardInfo } from '@/types/card';
 import CardList from '@/components/CardList';
 import Deck from '@/components/Deck';
-import sweetData from '@/data/sweet.json';
-import yojoData from '@/data/yojo.json';
 import ExportPopup from '@/components/ExportPopup';
 import ImportPopup from '@/components/ImportPopup';
 import Link from 'next/link';
 import { DarkModeContext } from "./DarkModeProvider";
-
-// 幼女カードデータ
-const yojoCards: CardInfo[] = yojoData.yojo.map(card => ({
-  ...card,
-  type: card.type as CardType,
-  fruit: card.fruit as FruitType,
-}));
-
-// お菓子カードデータ
-const sweetCards: CardInfo[] = sweetData.sweet.map(card => ({
-  ...card,
-  type: card.type as CardType,
-  fruit: card.fruit as FruitType,
-}));
+import { allYojoCards, allSweetCards } from '@/data/cards';
 
 /**
  * メインページコンポーネント
@@ -38,9 +23,6 @@ const sweetCards: CardInfo[] = sweetData.sweet.map(card => ({
  * @returns メインページコンポーネント
  */
 export default function Home() {
-  // すべてのカード
-  const [allYojoCards] = useState<CardInfo[]>(yojoCards);
-  const [allSweetCards] = useState<CardInfo[]>(sweetCards);
   // 幼女デッキのカード
   const [yojoDeck, setYojoDeck] = useState<CardInfo[]>([]);
   // お菓子デッキのカード

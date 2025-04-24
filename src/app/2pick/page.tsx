@@ -3,33 +3,19 @@
 import React, { useState, useEffect, useCallback, useContext } from 'react';
 import { useForm, Controller, ControllerRenderProps } from 'react-hook-form';
 import { CardInfo, CardType, FruitType } from '@/types/card';
-import sweetData from '@/data/sweet.json';
-import yojoData from '@/data/yojo.json';
+import { allYojoCards, allSweetCards } from '@/data/cards'; // 通常構築のデータをインポート
 import Link from 'next/link';
 import { DarkModeContext } from "../DarkModeProvider";
 import Deck from '@/components/Deck';
 import CardSelection from './components/CardSelection';
 import ExportPopup from '@/components/ExportPopup';
 
-// サンプルカードデータ
-const sampleCards: CardInfo[] = [
-  ...yojoData.yojo.map(card => ({
-    ...card,
-    type: card.type as CardType,
-    fruit: card.fruit as FruitType
-  })),
-  ...sweetData.sweet.map(card => ({
-    ...card,
-    type: card.type as CardType,
-    fruit: card.fruit as FruitType
-  }))
-];
-
 export default function TwoPick() {
-  // すべてのカード
-  const [allCards] = useState<CardInfo[]>(sampleCards);
-  // 選択されたカード
-  const [selectedCards, setSelectedCards] = useState<CardInfo[]>([]);
+  // 幼女カード
+  const [yojoCards] = useState<CardInfo[]>(allYojoCards);
+  // お菓子カード
+  const [sweetCards] = useState<CardInfo[]>(allSweetCards);
+  
   // 現在の選択フェーズ（幼女かお菓子か）
   const [currentPhase, setCurrentPhase] = useState<CardType>('幼女');
   // 現在表示されている選択肢
@@ -56,13 +42,14 @@ export default function TwoPick() {
 
   // 選択肢を更新する関数
   const updateChoices = useCallback(() => {
-    const availableCards = allCards.filter(
-      card => card.type === currentPhase && selectedFruits.includes(card.fruit)
-    );
+    const availableCards =
+      currentPhase === '幼女'
+        ? yojoCards.filter(card => selectedFruits.includes(card.fruit))
+        : sweetCards.filter(card => selectedFruits.includes(card.fruit));
 
     const shuffled = [...availableCards].sort(() => Math.random() - 0.5);
     setCurrentChoices(shuffled.slice(0, 4));
-  }, [allCards, currentPhase, selectedFruits]);
+  }, [yojoCards, sweetCards, currentPhase, selectedFruits]);
 
   // ラウンドが変わったときに選択肢を更新
   useEffect(() => {
