@@ -30,17 +30,22 @@ def find_matching_file(files, name, fruit, is_yojo):
             return file
     return None
 
-def update_image_urls(json_file, output_file, is_yojo=True):
+def update_image_urls(json_file, output_file, type:str):
     # JSONファイルを読み込む
     with open(json_file, 'r', encoding='utf-8') as f:
         data = json.load(f)
     
     # カードの種類に応じてキーを設定
-    cards_key = 'yojo' if is_yojo else 'sweet'
+    if type == '幼女':
+        cards_key = 'yojo'
+    elif type == 'お菓子':
+        cards_key = 'sweet'
+    elif type == 'プレイアブル':
+        cards_key = 'playable'
     cards = data[cards_key]
     
     # 画像ディレクトリのパスを設定
-    image_dir = 'public/images/yojo' if is_yojo else 'public/images/sweet'
+    image_dir = 'public/images/' + cards_key
     
     # ファイルリストを一度だけ取得
     files = get_image_files(image_dir)
@@ -51,7 +56,7 @@ def update_image_urls(json_file, output_file, is_yojo=True):
             files,
             card['name'],
             card['fruit'],
-            is_yojo
+            type == '幼女'  # 幼女カードの場合はフルーツを考慮
         )
         
         if selected_file:
@@ -65,9 +70,11 @@ def update_image_urls(json_file, output_file, is_yojo=True):
         json.dump(data, f, ensure_ascii=False, indent=2)
 
 # 幼女カードのJSONを更新
-update_image_urls('src/data/yojo.json', 'src/data/yojo_updated.json', True)
+#update_image_urls('src/data/yojo.json', 'src/data/yojo_updated.json', '幼女')
 
 # お菓子カードのJSONを更新
-update_image_urls('src/data/sweet.json', 'src/data/sweet_updated.json', False)
+#update_image_urls('src/data/sweet.json', 'src/data/sweet_updated.json', 'お菓子')
+
+update_image_urls('src/data/playable.json', 'src/data/playable_updated.json', 'プレイアブル')
 
 print("画像URLの更新が完了しました。") 

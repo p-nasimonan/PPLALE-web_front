@@ -103,10 +103,10 @@ const Card: React.FC<CardProps> = ({
           width={width}
           height={height}
           className="rounded-lg"
-          priority={true}
-          loading="eager"
-          quality={90}
-          unoptimized={!isProd} // 本番環境では最適化を有効化
+          sizes="(max-width: 800px) 100vw, (max-width: 1200px) 50vw, 25vw" // 画面幅に応じた画像サイズ
+          priority={isSelected} // 選択されたカードの場合は優先度を高く設定
+          quality={50} // 画像品質を50に設定
+unoptimized={!isProd} // 本番環境では最適化を有効化
         />
       </div>
 

@@ -145,7 +145,7 @@ const Deck: React.FC<DeckProps> = ({
             />
             {removeable && (
               <button
-                className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
+                className="absolute top-1 right-1 bg-gray-300 text-gray-700 rounded-full text-xs items-center justify-center hover:bg-red-500 hover:text-white transition-colors duration-200"
                 onClick={() => handleCardRemove(card)}
                 aria-label={`${card.name}を削除`}
               >

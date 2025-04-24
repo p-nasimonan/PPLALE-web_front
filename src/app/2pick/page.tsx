@@ -240,9 +240,9 @@ export default function TwoPick() {
                   width={340}
                   height={500}
                 />
-                <div className="w-80 h-40 overflow-auto p-4 bg-gray-100 rounded-lg">
+                <div className="description w-80 h-40 overflow-auto p-4 bg-gray-100 rounded-lg">
                   {selectedPlayableCard.description && (
-                    <p className="text-sm text-gray-600 break-words">{selectedPlayableCard.description}</p>
+                    <p className="text-sm break-words">{selectedPlayableCard.description}</p>
                   )}
                 </div>
               </div>

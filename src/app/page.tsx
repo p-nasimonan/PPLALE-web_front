@@ -266,7 +266,7 @@ export default function Home() {
           selectedCardId={selectedCard?.id}
           draggable={true}
           onDragStart={handleDragStart}
-          cardType="お菓子" // 幼女カードリスト
+          cardType="お菓子" // お菓子カードリスト
         />
       </div>
 
