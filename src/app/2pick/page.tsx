@@ -130,6 +130,8 @@ export default function TwoPick() {
     if (currentPhase === '幼女' && round >= 10) {
       setCurrentPhase('お菓子');
       setRound(1);
+    } else if (currentPhase === 'お菓子' && round >= 5) {
+      setSelectionPhase('playableSelection'); // プレイアブルカード選択画面に移行
     }
   };
 
@@ -137,6 +139,9 @@ export default function TwoPick() {
     setYojoDeck([]);
     setSweetDeck([]);
     setSelectionPhase('fruitSelection'); // フルーツ選択画面に戻す
+    setSelectedPlayableCard(null); // 拡大表示を解除
+    setRound(1); // ラウンドをリセット
+    setIsShowDeck(false); // デッキ確認ポップアップを非表示
   }
 
   // プレイアブルカード選択完了処理
@@ -144,7 +149,9 @@ export default function TwoPick() {
     setIsCardDisappearing(true); // アニメーションを開始
     setTimeout(() => {
       setSelectionPhase('end'); // 終了に移行
-      setSavedPlayableCard(selectedPlayableCard); // 選択されたプレイアブルカードを保存
+      if (selectedPlayableCard) {
+        setSavedPlayableCard(selectedPlayableCard); // 選択されたプレイアブルカードを保存
+      }
       setSelectedPlayableCard(null); // 拡大表示を解除
       setIsCardDisappearing(false); // アニメーション状態をリセット
     }, 500); // アニメーションの時間に合わせてタイムアウトを設定
@@ -159,7 +166,6 @@ export default function TwoPick() {
   const handleFruitSelectionSubmit = () => {
     setSelectionPhase('CardSelection'); // カード選択へ
     setCurrentPhase('幼女'); // 初期は幼女カードから選択
-    setRound(1); // ラウンドをリセット
   };
 
   return (
@@ -368,11 +374,13 @@ export default function TwoPick() {
               type="お菓子"
               removeable={false}
             />
-              <Card
-                card={savedPlayableCard}
-                width={340}
-                height={500}
-              />
+              {savedPlayableCard && (
+                <Card
+                  card={savedPlayableCard}
+                  width={340}
+                  height={500}
+                />
+              )}
           </div>
         )}
     </div>
