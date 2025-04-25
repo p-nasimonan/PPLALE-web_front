@@ -16,6 +16,7 @@ import ImportPopup from '@/components/ImportPopup';
 import Link from 'next/link';
 import { DarkModeContext } from "./DarkModeProvider";
 import { allYojoCards, allSweetCards } from '@/data/cards';
+import { set } from 'react-hook-form';
 
 /**
  * メインページコンポーネント
@@ -62,6 +63,11 @@ export default function Home() {
   useEffect(() => {
     localStorage.setItem('sweetDeck', JSON.stringify(sweetDeck));
   }, [sweetDeck]);
+
+  const resetAllDeck = () => {
+    setYojoDeck([]);
+    setSweetDeck([]);
+  }
 
   // カードが選択されたときの処理
   const handleCardSelect = (card: CardInfo) => {
@@ -183,6 +189,11 @@ export default function Home() {
             onClick={toggleDarkMode}
           >
             {isDarkMode ? "☀️" : "🌙"}
+          </button>
+          <button
+            className="btn-reset"
+            onClick={resetAllDeck}
+            >リセット
           </button>
         </div>
         <div className="flex justify-center gap-4 mt-4">

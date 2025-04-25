@@ -43,9 +43,10 @@ export default function TwoPick() {
 
   const selectedFruits = watch('fruits'); // フルーツ選択の監視
   const [selectedPlayableCard, setSelectedPlayableCard] = useState<CardInfo | null>(null); // 選択されたプレイアブルカード
+  const [savedPlayableCard, setSavedPlayableCard] = useState<CardInfo>(); // 保存されたプレイアブルカード
   const [isCardDisappearing, setIsCardDisappearing] = useState(false); // カードが消えるアニメーションの状態
 
-  const [selectionPhase, setSelectionPhase] = useState<'fruitSelection' | 'playableSelection' | 'cardSelection'>('fruitSelection'); // 選択フェーズ
+  const [selectionPhase, setSelectionPhase] = useState<'fruitSelection'| 'CardSelection' | 'playableSelection' | 'end' >('fruitSelection'); // 選択フェーズ
 
   // 選択肢を更新する関数
   const updateChoices = useCallback(() => {
@@ -66,8 +67,9 @@ export default function TwoPick() {
 
   // ラウンドが変わったときに選択肢を更新
   useEffect(() => {
-    if (selectionPhase === 'cardSelection') {
+    if (selectionPhase === 'CardSelection' ) {
       updateChoices();
+
     }
   }, [currentPhase, updateChoices, selectionPhase]);
 
@@ -106,6 +108,10 @@ export default function TwoPick() {
   // カードが選択されたときの処理
   const handleCardSelect = (card1: CardInfo, card2: CardInfo) => {
 
+    if (yojoDeck.length >= 20 && sweetDeck.length >= 10) {
+      setSelectionPhase('playableSelection'); // プレイアブルカード選択画面に移行
+    }
+
 
     if (currentPhase === '幼女' && yojoDeck.length < 20) {
       const updatedYojoDeck = [...yojoDeck, card1, card2];
@@ -115,7 +121,7 @@ export default function TwoPick() {
       const updatedSweetDeck = [...sweetDeck, card1, card2];
       setSweetDeck(updatedSweetDeck);
       localStorage.setItem('sweetDeck', JSON.stringify(updatedSweetDeck));
-    }
+    } 
 
     setRound(round + 1);
     updateChoices();
@@ -127,12 +133,18 @@ export default function TwoPick() {
     }
   };
 
+  const restart = () => {
+    setYojoDeck([]);
+    setSweetDeck([]);
+    setSelectionPhase('fruitSelection'); // フルーツ選択画面に戻す
+  }
 
   // プレイアブルカード選択完了処理
   const handlePlayableCardConfirm = () => {
     setIsCardDisappearing(true); // アニメーションを開始
     setTimeout(() => {
-      setSelectionPhase('cardSelection'); // カード選択画面に移行
+      setSelectionPhase('end'); // 終了に移行
+      setSavedPlayableCard(selectedPlayableCard); // 選択されたプレイアブルカードを保存
       setSelectedPlayableCard(null); // 拡大表示を解除
       setIsCardDisappearing(false); // アニメーション状態をリセット
     }, 500); // アニメーションの時間に合わせてタイムアウトを設定
@@ -145,7 +157,9 @@ export default function TwoPick() {
 
   // フルーツ選択画面のフォーム送信処理
   const handleFruitSelectionSubmit = () => {
-    setSelectionPhase('playableSelection'); // プレイアブルカード選択画面に移行
+    setSelectionPhase('CardSelection'); // カード選択へ
+    setCurrentPhase('幼女'); // 初期は幼女カードから選択
+    setRound(1); // ラウンドをリセット
   };
 
   return (
@@ -204,6 +218,56 @@ export default function TwoPick() {
             </button>
           </form>
         </div>
+      ) : selectionPhase === 'CardSelection' ? (  
+        <div className="mt-4 flex flex-col items-center">
+          <>
+            <h2 className="text-xl font-bold mb-4 text-center">
+              {round} / {currentPhase === "幼女" ? 10 : 5}: {currentPhase}カードを選択してください
+            </h2>
+            <div className="flex justify-between w-full max-w-4xl items-center">
+
+              {/* 左側のカード選択 */}
+              {currentChoices.length >= 2 && (
+                <>
+                  {(() => {
+                    console.log("Rendering left CardSelection with:", currentChoices[0], currentChoices[1]);
+                    return null;
+                  })()}
+                  <CardSelection
+                    card1={currentChoices[0]}
+                    card2={currentChoices[1]}
+                    onSelect={() => handleCardSelect(currentChoices[0], currentChoices[1])}
+                  />
+                </>
+              )}
+
+              {/* デッキ確認ボタン */}
+              <div className="flex justify-center">
+                <button
+                  className="btn-import"
+                  onClick={() => showDeck()}
+                >
+                  デッキ確認
+                </button>
+              </div>
+
+              {/* 右側のカード選択 */}
+              {currentChoices.length >= 4 && (
+                <>
+                  {(() => {
+                    console.log("Rendering right CardSelection with:", currentChoices[2], currentChoices[3]);
+                    return null;
+                  })()}
+                  <CardSelection
+                    card1={currentChoices[2]}
+                    card2={currentChoices[3]}
+                    onSelect={() => handleCardSelect(currentChoices[2], currentChoices[3])}
+                  />
+                </>
+              )}
+            </div>
+          </>
+        </div>
       ) : selectionPhase === 'playableSelection' ? (
         <div className="mt-4 flex flex-col items-center">
           <h2 className="text-xl font-bold mb-4 text-center">プレイアブルカードを選択してください</h2>
@@ -260,90 +324,28 @@ export default function TwoPick() {
           )}
         </div>
       ) : (
-        <div className="mt-4 flex flex-col items-center">
-          {yojoDeck.length < 20 || sweetDeck.length < 10 ? (
-            <>
-              <h2 className="text-xl font-bold mb-4 text-center">
-                {round} / {currentPhase === "幼女" ? 10 : 5}: {currentPhase}カードを選択してください
-              </h2>
-              <div className="flex justify-between w-full max-w-4xl items-center">
-
-                {/* 左側のカード選択 */}
-                {currentChoices.length >= 2 && (
-                  <>
-                    {(() => {
-                      console.log("Rendering left CardSelection with:", currentChoices[0], currentChoices[1]);
-                      return null;
-                    })()}
-                    <CardSelection
-                      card1={currentChoices[0]}
-                      card2={currentChoices[1]}
-                      onSelect={() => handleCardSelect(currentChoices[0], currentChoices[1])}
-                    />
-                  </>
-                )}
-
-                {/* デッキ確認ボタン */}
-                <div className="flex justify-center">
-                  <button
-                    className="btn-import"
-                    onClick={() => showDeck()}
-                  >
-                    デッキ確認
-                  </button>
-                </div>
-
-                {/* 右側のカード選択 */}
-                {currentChoices.length >= 4 && (
-                  <>
-                    {(() => {
-                      console.log("Rendering right CardSelection with:", currentChoices[2], currentChoices[3]);
-                      return null;
-                    })()}
-                    <CardSelection
-                      card1={currentChoices[2]}
-                      card2={currentChoices[3]}
-                      onSelect={() => handleCardSelect(currentChoices[2], currentChoices[3])}
-                    />
-                  </>
-                )}
-              </div>
-            </>
-          ) : (
-            <div className="text-center">
-              <h2 className="text-2xl font-bold mb-4">デッキ構築完了！</h2>
-              <p className="mb-4">選択したカードでデッキが完成しました。</p>
-              <button
-                className="btn-export mb-4"
-                onClick={() => setShowExportPopup(true)}
-              >
-                エクスポート
-              </button>
-              <div className="flex justify-center">
-                <button
-                  className="btn-import"
-                  onClick={() => showDeck()}
-                >
-                  デッキ確認
-                </button>
-              </div>
-            </div>
-          )}
-          {isShowDeck && (
-            <div className="space-y-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2 mt-2">
-              <Deck
-                cards={yojoDeck}
-                type="幼女"
-                removeable={false}
-              />
-              <Deck
-                cards={sweetDeck}
-                type="お菓子"
-                removeable={false}
-              />
-            </div>
-          )}
+        <div className="text-center">
+        <h2 className="text-2xl font-bold mb-4">デッキ構築完了！</h2>
+        <p className="mb-4">選択したカードでデッキが完成しました。</p>
+        <button
+          className="btn-export mb-4"
+          onClick={() => setShowExportPopup(true)}
+        >
+          エクスポート
+        </button>
+        <div className="flex justify-center">
+          <button
+            className="btn-import"
+            onClick={() => showDeck()}
+          >
+            デッキ確認
+          </button>
+        <button
+          className="btn-danger"
+          onClick={restart}
+        >やり直す</button>
         </div>
+      </div>
       )}
 
       {/* エクスポートポップアップ */}
@@ -354,6 +356,25 @@ export default function TwoPick() {
           onClose={() => setShowExportPopup(false)}
         />
       )}
+      {isShowDeck && (
+          <div className="space-y-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2 mt-2">
+            <Deck
+              cards={yojoDeck}
+              type="幼女"
+              removeable={false}
+            />
+            <Deck
+              cards={sweetDeck}
+              type="お菓子"
+              removeable={false}
+            />
+              <Card
+                card={savedPlayableCard}
+                width={340}
+                height={500}
+              />
+          </div>
+        )}
     </div>
   );
 }

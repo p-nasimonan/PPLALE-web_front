@@ -117,6 +117,14 @@ button:hover {
   background-color: var(--secondary-hover);
   transform: scale(1.05);
 }
+.btn-danger {
+  background-color: var(--danger-color);
+  color: white;
+}
+.btn-danger:hover {
+  background-color: var(--danger-hover);
+  transform: scale(1.05);
+}
 
 .btn-export {
   background-color: var(--primary-color);
@@ -151,6 +159,24 @@ button:hover {
   padding: auto;
   color: white;
   transform: scale(1.05);
+}
+
+.btn-reset {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  background-color: var(--special);
+  color: var(--text-color);
+  border: 1px solid var(--text-light);
+  padding: 1.5rem 1.5rem;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+  font-size: 1rem;
+}
+
+.btn-reset:hover {
+  background-color: var(--special-hover);
+  color: var(--background-color);
 }
 
 
