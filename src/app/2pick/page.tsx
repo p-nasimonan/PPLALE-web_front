@@ -164,8 +164,13 @@ export default function TwoPick() {
 
   // フルーツ選択画面のフォーム送信処理
   const handleFruitSelectionSubmit = () => {
+    setYojoDeck([]);
+    setSweetDeck([]);
     setSelectionPhase('CardSelection'); // カード選択へ
     setCurrentPhase('幼女'); // 初期は幼女カードから選択
+    setSelectedPlayableCard(null); // 拡大表示を解除
+    setRound(1); // ラウンドをリセット
+    setIsShowDeck(false); // デッキ確認ポップアップを非表示
   };
 
   return (

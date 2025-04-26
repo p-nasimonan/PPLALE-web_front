@@ -86,12 +86,11 @@ const Card: React.FC<CardProps> = ({
 
   useEffect(() => {
     setIsDownloading(true);
-  
-    // 1秒後にダウンロード完了
+    // 0.002秒後にダウンロード完了
     setTimeout(() => {
       setIsDownloading(false);
-    }, 1000);
-  }, []);
+    }, 2);
+  }, [card]);
 
   return (
     <div
