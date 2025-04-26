@@ -16,7 +16,6 @@ import ImportPopup from '@/components/ImportPopup';
 import Link from 'next/link';
 import { DarkModeContext } from "./DarkModeProvider";
 import { allYojoCards, allSweetCards } from '@/data/cards';
-import { set } from 'react-hook-form';
 
 /**
  * メインページコンポーネント
