@@ -59,6 +59,7 @@ article {
   background-color: var(--card-background);
   border-radius: var(--border-radius);
   box-shadow: var(--shadow);
+  z-index: auto;
 }
 
 .container {

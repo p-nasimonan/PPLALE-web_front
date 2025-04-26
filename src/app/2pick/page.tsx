@@ -286,7 +286,7 @@ export default function TwoPick() {
           <h2 className="text-xl font-bold mb-4 text-center">プレイアブルカードを選択してください</h2>
           {!selectedPlayableCard && (
             <div>
-              <div className="grid grid-cols-4 sm:grid-cols-3 gap-4">
+              <div className="flex gap-4">
                 {currentChoices.map(card => (
                   <Card
                     key={card.id}
@@ -302,36 +302,44 @@ export default function TwoPick() {
 
           {/* スライド表示されたカード */}
           {selectedPlayableCard && (
-            <div>
-              <div
-                className={`flex items-center justify-start w-full transform-slide ${
-                  isCardDisappearing ? 'animate-disappear' : ''
-                }`}
-              >
-                <Card
-                  card={selectedPlayableCard}
-                  width={400}
-                  height={600}
-                />
-                <div className="description w-80 h-40 overflow-auto p-4 bg-gray-100 rounded-lg">
-                  {selectedPlayableCard.description && (
-                    <p className="text-sm break-words">{selectedPlayableCard.description}</p>
-                  )}
-                </div>
-              </div>
-              <button
-                className="btn-secondary absolute top-30 left-5"
-                onClick={() => setSelectedPlayableCard(null)}
-              >
-                ◀︎キャンセル
-              </button>
-              <div className="flex justify-end mt-6 pr-40">
-                <button
-                  className="btn-select relative top-1 left-10"
-                  onClick={handlePlayableCardConfirm}
+            <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50">
+              <div className="relative w-full max-w-4xl mx-auto">
+                <div
+                  className={`flex items-center justify-center w-full transform-slide ${
+                    isCardDisappearing ? 'animate-disappear' : ''
+                  }`}
                 >
-                  選択 
-                </button>
+                  <Card
+                    card={selectedPlayableCard}
+                    width={340}
+                    height={500}
+                  />
+                  <div className="description w-96 h-96 overflow-auto p-4 bg-gray-100 rounded-lg ml-4">
+                    {selectedPlayableCard.description && (
+                      <p className="text-sm break-words">{selectedPlayableCard.description}</p>
+                    )}
+                    {selectedPlayableCard.effect && (
+                      <div className="mt-4">
+                        <span className="font-bold">効果:</span>
+                        <p className="text-sm mt-1 whitespace-pre-line">{selectedPlayableCard.effect}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div className="flex justify-between mt-8 px-20">
+                  <button
+                    className="btn-secondary"
+                    onClick={() => setSelectedPlayableCard(null)}
+                  >
+                    ◀︎キャンセル
+                  </button>
+                  <button
+                    className="btn-select"
+                    onClick={handlePlayableCardConfirm}
+                  >
+                    選択
+                  </button>
+                </div>
               </div>
             </div>
           )}

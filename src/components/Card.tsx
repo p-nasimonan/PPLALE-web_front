@@ -57,6 +57,7 @@ const Card: React.FC<CardProps> = ({
   height = 190, // デフォルト高さ
   onRemove,
   showRemoveButton = false,
+
   canAddToDeck,
   onAddToDeck,
 }) => {
@@ -146,7 +147,7 @@ const Card: React.FC<CardProps> = ({
             } : undefined}
             placeholder="blur"
             loading="eager"
-            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx4eHRoaHSQtJSAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCD/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx4eHRoaHSQtJSAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCD/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
           />
           {isDownloading && (
             <h2 className='top-4 w-full h-full flex items-center justify-center'>ロード中</h2>
@@ -174,72 +175,77 @@ const Card: React.FC<CardProps> = ({
 
       {/* 拡大表示ポップアップ */}
       {isExpanded && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={() => setIsExpanded(false)}>
-          <div className="bg-white p-4 rounded-lg max-w-2xl w-full mx-4" onClick={e => e.stopPropagation()}>
-            <div className="flex justify-between items-start mb-4">
-              <h2 className="text-2xl font-bold">{card.name}</h2>
-              <button
-                className="text-gray-500 hover:text-gray-700"
-                onClick={() => setIsExpanded(false)}
-              >
-                ×
-              </button>
-            </div>
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex-shrink-0">
-                <Image
-                  src={imagePath}
-                  alt={card.name}
-                  width={width * 2}
-                  height={height * 2}
-                  className="rounded-lg"
-                  priority={true}
-                  quality={100}
-                />
+        <div className="fixed inset-0 flex items-center justify-center w-full h-full z-50" onClick={() => setIsExpanded(false)}>
+          {card.type === 'プレイアブル' ? (
+<></>
+          ) : (
+            // 通常のカード用のレイアウト
+            <div className="bg-white p-4 rounded-lg max-w-2xl w-full mx-4" onClick={e => e.stopPropagation()}>
+              <div className="flex justify-between items-start mb-4">
+                <h2 className="text-2xl font-bold">{card.name}</h2>
+                <button
+                  className="text-gray-500 hover:text-gray-700"
+                  onClick={() => setIsExpanded(false)}
+                >
+                  ×
+                </button>
               </div>
-              <div className="flex-grow">
-                <p className="text-gray-700 mb-2">{card.description}</p>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <span className="font-bold">種類:</span> {card.type}
-                  </div>
-                  <div>
-                    <span className="font-bold">フルーツ:</span> {card.fruit}
-                  </div>
-                  {card.role && (
+              <div className="flex flex-col md:flex-row gap-4">
+                <div className="flex-shrink-0">
+                  <Image
+                    src={imagePath}
+                    alt={card.name}
+                    width={width * 2}
+                    height={height * 2}
+                    className="rounded-lg"
+                    priority={true}
+                    quality={100}
+                  />
+                </div>
+                <div className="flex-grow">
+                  <p className="text-gray-700 mb-2">{card.description}</p>
+                  <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <span className="font-bold">役職:</span> {card.role}
+                      <span className="font-bold">種類:</span> {card.type}
                     </div>
-                  )}
-                  {card.sweetType && (
                     <div>
-                      <span className="font-bold">お菓子タイプ:</span> {card.sweetType}
+                      <span className="font-bold">フルーツ:</span> {card.fruit}
                     </div>
-                  )}
-                  {card.effect && (
-                    <div className="col-span-2">
-                      <span className="font-bold">効果:</span>
-                      <p className="text-sm mt-1">{card.effect}</p>
+                    {card.role && (
+                      <div>
+                        <span className="font-bold">役職:</span> {card.role}
+                      </div>
+                    )}
+                    {card.sweetType && (
+                      <div>
+                        <span className="font-bold">お菓子タイプ:</span> {card.sweetType}
+                      </div>
+                    )}
+                    {card.effect && (
+                      <div className="col-span-2">
+                        <span className="font-bold">効果:</span>
+                        <p className="text-sm mt-1">{card.effect}</p>
+                      </div>
+                    )}
+                  </div>
+                  {onAddToDeck && (
+                    <div className="mt-4">
+                      <button
+                        className="btn btn-primary w-full"
+                        onClick={() => {
+                          onAddToDeck(card);
+                          setIsExpanded(false);
+                        }}
+                        disabled={!canAddToDeck?.(card)}
+                      >
+                        デッキに追加
+                      </button>
                     </div>
                   )}
                 </div>
-                {onAddToDeck && (
-                  <div className="mt-4">
-                    <button
-                      className="btn btn-primary w-full"
-                      onClick={() => {
-                        onAddToDeck(card);
-                        setIsExpanded(false);
-                      }}
-                      disabled={!canAddToDeck?.(card)}
-                    >
-                      デッキに追加
-                    </button>
-                  </div>
-                )}
               </div>
             </div>
-          </div>
+          )}
         </div>
       )}
     </>
