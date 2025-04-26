@@ -80,18 +80,9 @@ export default function TwoPick() {
     }
   }, [selectionPhase, updatePlayableChoices]);
 
-  // デッキの状態を保持するための useEffect
+  // 初期化
   useEffect(() => {
-    // 初回読み込み時にデッキを localStorage から取得
-    const savedYojoDeck = localStorage.getItem('yojoDeck');
-    const savedSweetDeck = localStorage.getItem('sweetDeck');
-
-    if (savedYojoDeck) {
-      setYojoDeck(JSON.parse(savedYojoDeck));
-    }
-    if (savedSweetDeck) {
-      setSweetDeck(JSON.parse(savedSweetDeck));
-    }
+    restart();
   }, []);
 
 
@@ -367,6 +358,8 @@ export default function TwoPick() {
           onClose={() => setShowExportPopup(false)}
         />
       )}
+
+      {/* デッキ確認 */}
       {isShowDeck && (
           <div className="space-y-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2 mt-2">
             <Deck
@@ -379,7 +372,7 @@ export default function TwoPick() {
               type="お菓子"
               removeable={false}
             />
-              {savedPlayableCard && (
+              {selectedPlayableCard && savedPlayableCard && (
                 <Card
                   card={savedPlayableCard}
                   width={340}

@@ -45,9 +45,6 @@ const Card: React.FC<CardProps> = ({
   width = 128, // デフォルト幅
   height = 190, // デフォルト高さ
 }) => {
-  if (!card) {
-    throw new Error('Card data is required');
-  }
     
   // 環境に応じて画像のパスを切り替え
   const isProd = process.env.NODE_ENV === 'production';
