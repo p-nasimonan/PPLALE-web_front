@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import DarkModeProvider from './DarkModeProvider'; 
+import DarkModeProvider from './DarkModeProvider';
+import { SettingsProvider } from './SettingsProvider';
+import SettingsButton from '@/components/SettingsButton';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,7 +31,12 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <DarkModeProvider>
-          {children}
+          <SettingsProvider>
+            <div className="fixed top-4 right-4 z-50">
+              <SettingsButton />
+            </div>
+            {children}
+          </SettingsProvider>
         </DarkModeProvider>
       </body>
     </html>

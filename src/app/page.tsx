@@ -7,14 +7,15 @@
 
 'use client';
 
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CardInfo } from '@/types/card';
 import CardList from '@/components/CardList';
 import Deck from '@/components/Deck';
 import ExportPopup from '@/components/ExportPopup';
 import ImportPopup from '@/components/ImportPopup';
 import Link from 'next/link';
-import { DarkModeContext } from "./DarkModeProvider";
+import { useDarkMode } from "./DarkModeProvider";
+import { useSettings } from "./SettingsProvider";
 import { allYojoCards, allSweetCards } from '@/data/cards';
 
 /**
@@ -34,7 +35,8 @@ export default function Home() {
   // インポートポップアップの表示状態
   const [showImportPopup, setShowImportPopup] = useState(false);
 
-  const { isDarkMode, toggleDarkMode } = useContext(DarkModeContext);
+  const { isDarkMode } = useDarkMode();
+  const { isTwoCardLimit } = useSettings();
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDarkMode);
@@ -75,14 +77,25 @@ export default function Home() {
 
   // カードがデッキに追加されたときの処理
   const handleAddToDeck = (card: CardInfo) => {
+    if (isTwoCardLimit) {
+      // 2枚制限の場合、同じカードは最大2枚まで
+      const cardCount = card.type === '幼女' 
+        ? yojoDeck.filter(c => c.id === card.id).length
+        : sweetDeck.filter(c => c.id === card.id).length;
+      
+      if (cardCount >= 2) {
+        return;
+      }
+    }
+
     if (card.type === '幼女' && yojoDeck.length < 20) {
       const updatedYojoDeck = [...yojoDeck, card];
       setYojoDeck(updatedYojoDeck);
-      localStorage.setItem('yojoDeck', JSON.stringify(updatedYojoDeck)); // デッキを同期
+      localStorage.setItem('yojoDeck', JSON.stringify(updatedYojoDeck));
     } else if (card.type === 'お菓子' && sweetDeck.length < 10) {
       const updatedSweetDeck = [...sweetDeck, card];
       setSweetDeck(updatedSweetDeck);
-      localStorage.setItem('sweetDeck', JSON.stringify(updatedSweetDeck)); // デッキを同期
+      localStorage.setItem('sweetDeck', JSON.stringify(updatedSweetDeck));
     }
   };
 
@@ -91,11 +104,11 @@ export default function Home() {
     if (deckType === '幼女') {
       const updatedYojoDeck = yojoDeck.filter(c => c.id !== card.id);
       setYojoDeck(updatedYojoDeck);
-      localStorage.setItem('yojoDeck', JSON.stringify(updatedYojoDeck)); // デッキを同期
+      localStorage.setItem('yojoDeck', JSON.stringify(updatedYojoDeck));
     } else {
       const updatedSweetDeck = sweetDeck.filter(c => c.id !== card.id);
       setSweetDeck(updatedSweetDeck);
-      localStorage.setItem('sweetDeck', JSON.stringify(updatedSweetDeck)); // デッキを同期
+      localStorage.setItem('sweetDeck', JSON.stringify(updatedSweetDeck));
     }
   };
 
@@ -119,6 +132,17 @@ export default function Home() {
     const cardData = e.dataTransfer.getData('text/plain');
     const card = JSON.parse(cardData) as CardInfo;
     
+    if (isTwoCardLimit) {
+      // 2枚制限の場合、同じカードは最大2枚まで
+      const cardCount = deckType === '幼女'
+        ? yojoDeck.filter(c => c.id === card.id).length
+        : sweetDeck.filter(c => c.id === card.id).length;
+      
+      if (cardCount >= 2) {
+        return;
+      }
+    }
+    
     if (deckType === '幼女' && card.type === '幼女' && yojoDeck.length < 20) {
       setYojoDeck([...yojoDeck, card]);
     } else if (deckType === 'お菓子' && card.type === 'お菓子' && sweetDeck.length < 10) {
@@ -131,17 +155,13 @@ export default function Home() {
     e.preventDefault();
   };
 
-  
-
   // デッキをエクスポートする処理
   const handleExportDeck = () => {
-    // エクスポートポップアップを表示
     setShowExportPopup(true);
   };
 
   // デッキをインポートする処理
   const handleImportDeck = (yojoCardIds: string, sweetCardIds: string) => {
-    
     try {
       // 幼女デッキのカードIDを取得
       const yojoIds = yojoCardIds
@@ -183,36 +203,33 @@ export default function Home() {
       <header>
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold text-center">ぷぷりえーる デッキ構築</h1>
-          <button
-            className="toggle-dark-mode"
-            onClick={toggleDarkMode}
-          >
-            {isDarkMode ? "☀️" : "🌙"}
-          </button>
-          <button
-            className="btn-reset"
-            onClick={resetAllDeck}
-            >リセット
-          </button>
-        </div>
-        <div className="flex justify-center gap-4 mt-4">
-          <button
-            className="btn-export"
-            onClick={handleExportDeck}
-          >
-            デッキをエクスポート
-          </button>
-          <button
-            className="btn-import"
-            onClick={() => setShowImportPopup(true)}
-          >
-            デッキをインポート
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              className="btn-reset"
+              onClick={resetAllDeck}
+            >
+              リセット
+            </button>
+          </div>
+          <div className="flex justify-center gap-4 mt-4">
+            <button
+              className="btn-export"
+              onClick={handleExportDeck}
+            >
+              デッキをエクスポート
+            </button>
+            <button
+              className="btn-import"
+              onClick={() => setShowImportPopup(true)}
+            >
+              デッキをインポート
+            </button>
             <Link
               className="lnk-important"
               href="/2pick">
               2pickで構築する
             </Link>
+          </div>
         </div>
       </header>
 
@@ -232,41 +249,35 @@ export default function Home() {
               onCardRemove={(card) => handleRemoveFromDeck(card, '幼女')}
               onCardsReorder={(cards) => handleDeckReorder(cards, '幼女')}
             />
-        </div>
-
-
-
-     
-        {/* カードリスト */}
-        <div className="card">
-          <CardList
-            cards={allYojoCards}
-            onCardSelect={handleCardSelect}
-            selectedCardId={selectedCard?.id}
-            draggable={true}
-            onDragStart={handleDragStart}
-            cardType="幼女" // 幼女カードリスト
-          />
-        </div>
-      
-        {/* デッキ構築エリア */}
-        <div className="space-y-6">
-        {/* お菓子デッキ */}
-          <div 
-              className="card dropzone"
-              onDrop={(e) => handleDrop(e, 'お菓子')}
-              onDragOver={handleDragOver}
-            >
-              <h2 className="text-xl font-bold mb-4">お菓子デッキ ({sweetDeck.length}/10)</h2>
-              <Deck
-                cards={sweetDeck}
-                type="お菓子"
-                onCardRemove={(card) => handleRemoveFromDeck(card, 'お菓子')}
-                onCardsReorder={(cards) => handleDeckReorder(cards, 'お菓子')}
-              />
-            </div>
           </div>
-      </div>
+
+          {/* カードリスト */}
+          <div className="card">
+            <CardList
+              cards={allYojoCards}
+              onCardSelect={handleCardSelect}
+              selectedCardId={selectedCard?.id}
+              draggable={true}
+              onDragStart={handleDragStart}
+              cardType="幼女"
+            />
+          </div>
+      
+          {/* お菓子デッキ */}
+          <div 
+            className="card dropzone"
+            onDrop={(e) => handleDrop(e, 'お菓子')}
+            onDragOver={handleDragOver}
+          >
+            <h2 className="text-xl font-bold mb-4">お菓子デッキ ({sweetDeck.length}/10)</h2>
+            <Deck
+              cards={sweetDeck}
+              type="お菓子"
+              onCardRemove={(card) => handleRemoveFromDeck(card, 'お菓子')}
+              onCardsReorder={(cards) => handleDeckReorder(cards, 'お菓子')}
+            />
+          </div>
+        </div>
       </div>
 
       <div className="card">
@@ -276,7 +287,7 @@ export default function Home() {
           selectedCardId={selectedCard?.id}
           draggable={true}
           onDragStart={handleDragStart}
-          cardType="お菓子" // お菓子カードリスト
+          cardType="お菓子"
         />
       </div>
 
@@ -309,8 +320,6 @@ export default function Home() {
           </div>
         </div>
       )}
-      </div>
-
 
       {/* エクスポートポップアップ */}
       {showExportPopup && (
@@ -328,6 +337,7 @@ export default function Home() {
           onClose={() => setShowImportPopup(false)}
         />
       )}
+    </div>
     </div>
   );
 }

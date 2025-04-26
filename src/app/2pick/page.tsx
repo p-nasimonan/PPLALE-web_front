@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useContext } from 'react'; 
+import React, { useState, useEffect, useCallback} from 'react'; 
 import { useForm, Controller, ControllerRenderProps } from 'react-hook-form';
 import { CardInfo, CardType, FruitType } from '@/types/card';
 import { allYojoCards, allSweetCards, allPlayableCards } from '@/data/cards'; // 通常構築のデータをインポート
 import Link from 'next/link';
-import { DarkModeContext } from "../DarkModeProvider";
+import { useSettings } from "../SettingsProvider";
 import Deck from '@/components/Deck';
 import CardSelection from './components/CardSelection';
 import ExportPopup from '@/components/ExportPopup';
@@ -29,7 +29,7 @@ export default function TwoPick() {
   // お菓子デッキ
   const [sweetDeck, setSweetDeck] = useState<CardInfo[]>([]);
 
-  const { isDarkMode, toggleDarkMode } = useContext(DarkModeContext);
+  const { isTwoCardLimit } = useSettings();
   
   const [isShowDeck, setIsShowDeck] = useState(false); // デッキ確認ポップアップの表示状態
   const [round, setRound] = useState(1); // 現在のラウンド
@@ -43,7 +43,6 @@ export default function TwoPick() {
 
   const selectedFruits = watch('fruits'); // フルーツ選択の監視
   const [selectedPlayableCard, setSelectedPlayableCard] = useState<CardInfo | null>(null); // 選択されたプレイアブルカード
-  const [savedPlayableCard, setSavedPlayableCard] = useState<CardInfo>(); // 保存されたプレイアブルカード
   const [isCardDisappearing, setIsCardDisappearing] = useState(false); // カードが消えるアニメーションの状態
 
   const [selectionPhase, setSelectionPhase] = useState<'fruitSelection'| 'CardSelection' | 'playableSelection' | 'end' >('fruitSelection'); // 選択フェーズ
@@ -55,9 +54,19 @@ export default function TwoPick() {
         ? yojoCards.filter(card => selectedFruits.includes(card.fruit))
         : sweetCards.filter(card => selectedFruits.includes(card.fruit));
 
-    const shuffled = [...availableCards].sort(() => Math.random() - 0.5);
+    // 2枚制限が有効な場合、すでに2枚選択されているカードを除外
+    const filteredCards = isTwoCardLimit
+      ? availableCards.filter(card => {
+          const cardCount = currentPhase === '幼女'
+            ? yojoDeck.filter(c => c.id === card.id).length
+            : sweetDeck.filter(c => c.id === card.id).length;
+          return cardCount < 2;
+        })
+      : availableCards;
+
+    const shuffled = [...filteredCards].sort(() => Math.random() - 0.5);
     setCurrentChoices(shuffled.slice(0, 4));
-  }, [yojoCards, sweetCards, currentPhase, selectedFruits]);
+  }, [yojoCards, sweetCards, currentPhase, selectedFruits, isTwoCardLimit, yojoDeck, sweetDeck]);
 
   // プレイアブルカード選択肢を更新する関数
   const updatePlayableChoices = useCallback(() => {
@@ -77,6 +86,7 @@ export default function TwoPick() {
   useEffect(() => {
     if (selectionPhase === 'playableSelection') {
       updatePlayableChoices();
+      setIsShowDeck(false); // デッキ確認ポップアップを非表示
     }
   }, [selectionPhase, updatePlayableChoices]);
 
@@ -98,20 +108,18 @@ export default function TwoPick() {
 
   // カードが選択されたときの処理
   const handleCardSelect = (card1: CardInfo, card2: CardInfo) => {
-
     if (yojoDeck.length >= 20 && sweetDeck.length >= 10) {
       setSelectionPhase('playableSelection'); // プレイアブルカード選択画面に移行
     }
 
-
     if (currentPhase === '幼女' && yojoDeck.length < 20) {
-      const updatedYojoDeck = [...yojoDeck, card1, card2];
-      setYojoDeck(updatedYojoDeck);
-      localStorage.setItem('yojoDeck', JSON.stringify(updatedYojoDeck));
+      const newDeck = [...yojoDeck, card1, card2].sort((a, b) => parseInt(a.id) - parseInt(b.id));
+      setYojoDeck(newDeck);
+      localStorage.setItem('yojoDeck', JSON.stringify(newDeck));
     } else if (currentPhase === 'お菓子' && sweetDeck.length < 10) {
-      const updatedSweetDeck = [...sweetDeck, card1, card2];
-      setSweetDeck(updatedSweetDeck);
-      localStorage.setItem('sweetDeck', JSON.stringify(updatedSweetDeck));
+      const newDeck = [...sweetDeck, card1, card2].sort((a, b) => parseInt(a.id) - parseInt(b.id));
+      setSweetDeck(newDeck);
+      localStorage.setItem('sweetDeck', JSON.stringify(newDeck));
     } 
 
     setRound(round + 1);
@@ -140,10 +148,6 @@ export default function TwoPick() {
     setIsCardDisappearing(true); // アニメーションを開始
     setTimeout(() => {
       setSelectionPhase('end'); // 終了に移行
-      if (selectedPlayableCard) {
-        setSavedPlayableCard(selectedPlayableCard); // 選択されたプレイアブルカードを保存
-      }
-      setSelectedPlayableCard(null); // 拡大表示を解除
       setIsCardDisappearing(false); // アニメーション状態をリセット
     }, 500); // アニメーションの時間に合わせてタイムアウトを設定
   };
@@ -172,12 +176,6 @@ export default function TwoPick() {
           <Link href="/" className="text-1xl text-center">
             通常構築に戻る
           </Link>
-          <button
-            className="toggle-dark-mode"
-            onClick={toggleDarkMode}
-          >
-            {isDarkMode ? "☀️" : "🌙"}
-          </button>
         </div>
       </header>
 
@@ -291,7 +289,7 @@ export default function TwoPick() {
 
           {/* スライド表示されたカード */}
           {selectedPlayableCard && (
-            <article>
+            <div>
               <div
                 className={`flex items-center justify-start w-full transform-slide ${
                   isCardDisappearing ? 'animate-disappear' : ''
@@ -316,13 +314,13 @@ export default function TwoPick() {
               </button>
               <div className="flex justify-end mt-6 pr-40">
                 <button
-                  className="btn-select relative top-1 left-20"
+                  className="btn-select relative top-1 left-10"
                   onClick={handlePlayableCardConfirm}
                 >
                   選択 
                 </button>
               </div>
-            </article>
+            </div>
           )}
         </div>
       ) : (
@@ -372,9 +370,9 @@ export default function TwoPick() {
               type="お菓子"
               removeable={false}
             />
-              {selectedPlayableCard && savedPlayableCard && (
+              {selectedPlayableCard && (
                 <Card
-                  card={savedPlayableCard}
+                  card={selectedPlayableCard}
                   width={340}
                   height={500}
                 />

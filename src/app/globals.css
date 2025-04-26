@@ -16,6 +16,9 @@
   --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --special: #3ec6c4;
   --special-hover: #0f8c8c;
+
+  --revers-background-color: #1f2937;
+  --revers-text-color: #f3f4f6;
 }
 
 
@@ -25,6 +28,15 @@
   --text-color: #f3f4f6;
   --text-light: #9ca3af;
   --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.4);
+
+  --revers-text-color: #1f2937;
+  --revers-background-color: #f3f4f6;
+  --revers-card-background: #ffffff;
+}
+
+.reverse-color {
+  background-color: var(--revers-background-color);
+  color: var(--revers-text-color);
 }
 
 * {
@@ -38,6 +50,15 @@ body {
   background-color: var(--background-color);
   color: var(--text-color);
   line-height: 1.5;
+}
+
+article {
+  margin: 0 auto;
+  padding: 0.5rem;
+  max-width: 800px;
+  background-color: var(--card-background);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
 }
 
 .container {
@@ -65,6 +86,12 @@ header {
 p{
   color: var(--text-color)
 }
+
+
+label{
+  color: var(--text-color);
+}
+
 
 header::before {
   content: '';

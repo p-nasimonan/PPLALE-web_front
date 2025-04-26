@@ -93,7 +93,7 @@ const CardList: React.FC<CardListProps> = ({
           onChange={(e) => setSearchQuery(e.target.value)}
         />
       </div>
-        <div className="flex grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 overflow-auto max-h-[calc(50vh-100px)]">
+        <div className="grid grid-cols-4 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-4 overflow-auto max-h-[calc(70vh-50px)]">
           {filteredCards
             .filter(card => card.type === cardType) // カードの種類でフィルタリング
             .map((card) => (

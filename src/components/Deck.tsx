@@ -127,7 +127,7 @@ const Deck: React.FC<DeckProps> = ({
       </div>
 
       {/* デッキのカードリスト */}
-      <div className="flex grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 overflow-auto max-h-[calc(50vh-100px)]">
+      <div className="grid grid-cols-4 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-4 overflow-auto max-h-[calc(70vh-50px)]">
         {uniqueCards.map((card, index) => (
           <div
             key={card.id}
@@ -142,16 +142,9 @@ const Deck: React.FC<DeckProps> = ({
               card={card}
               draggable={false}
               count={getCardCount(card)}
+              onRemove={removeable ? handleCardRemove : undefined}
+              showRemoveButton={removeable}
             />
-            {removeable && (
-              <button
-                className="absolute top-1 right-1 bg-gray-300 text-gray-700 rounded-full text-xs items-center justify-center hover:bg-red-500 hover:text-white transition-colors duration-200"
-                onClick={() => handleCardRemove(card)}
-                aria-label={`${card.name}を削除`}
-              >
-                ×
-              </button>
-            )}
           </div>
         ))}
       </div>
