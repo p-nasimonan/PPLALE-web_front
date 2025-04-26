@@ -16,7 +16,7 @@ import ImportPopup from '@/components/ImportPopup';
 import Link from 'next/link';
 import { useDarkMode } from "./DarkModeProvider";
 import { useSettings } from "./SettingsProvider";
-import { allYojoCards, allSweetCards } from '@/data/cards';
+import { allYojoCards, allSweetCards, allPlayableCards } from '@/data/cards';
 
 /**
  * メインページコンポーネント
@@ -288,22 +288,35 @@ export default function Home() {
               onCardsReorder={(cards) => handleDeckReorder(cards, 'お菓子')}
             />
           </div>
-        </div>
-      </div>
 
-      <div className="card">
-        <CardList
-          cards={allSweetCards}
-          onCardSelect={handleCardSelect}
-          selectedCardId={selectedCard?.id}
-          draggable={true}
-          onDragStart={handleDragStart}
-          cardType="お菓子"
-          yojoDeck={yojoDeck}
-          sweetDeck={sweetDeck}
-          canAddToDeck={canAddToDeck}
-          onAddToDeck={handleAddToDeck}
-        />
+          {/* カードリスト */}
+          <div className="card">
+            <CardList
+              cards={allSweetCards}
+              onCardSelect={handleCardSelect}
+              selectedCardId={selectedCard?.id}
+              draggable={true}
+              onDragStart={handleDragStart}
+              cardType="お菓子"
+              canAddToDeck={canAddToDeck}
+              onAddToDeck={handleAddToDeck}
+            />
+          </div>
+
+          {/* カードリスト */}
+          <div className="card">
+            <CardList
+              cards={allPlayableCards}
+              onCardSelect={handleCardSelect}
+              selectedCardId={selectedCard?.id}
+              draggable={true}
+              onDragStart={handleDragStart}
+              cardType="プレイアブル"
+              canAddToDeck={canAddToDeck}
+              onAddToDeck={handleAddToDeck}
+            />
+          </div>
+        </div>
       </div>
 
       {/* エクスポートポップアップ */}
