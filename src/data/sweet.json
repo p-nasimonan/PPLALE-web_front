@@ -7,9 +7,11 @@
       "fruit": "いちご",
       "description": "",
       "imageUrl": "/images/sweet/あざらしレモンソーダワールド.png",
-      "cost": 0,
+      "cost": 2,
       "hp": 0,
-      "attack": 0
+      "attack": 0,
+      "effect": "このカードはデッキに1枚ずつしか入れることができない。このカードを含めて、このゲーム中にプレイした動物さんソーダの種類数をXとして、次の効果が発動する。",
+      "sweetType": "動物さんソーダ"
     },
     {
       "id": "s_1",
@@ -18,9 +20,11 @@
       "fruit": "いちご",
       "description": "",
       "imageUrl": "/images/sweet/きつねマンゴーソーダワールド.png",
-      "cost": 0,
+      "cost": 2,
       "hp": 0,
-      "attack": 0
+      "attack": 0,
+      "effect": "X=1:デッキからカードを1枚引く。X=4:相手の幼女すべてに3ダメージ。",
+      "sweetType": "動物さんソーダ"
     },
     {
       "id": "s_2",
@@ -29,9 +33,11 @@
       "fruit": "いちご",
       "description": "",
       "imageUrl": "/images/sweet/くまさんメロンソーダワールド.png",
-      "cost": 0,
+      "cost": 2,
       "hp": 0,
-      "attack": 0
+      "attack": 0,
+      "effect": "X=2:相手の幼女1人に2ダメージ。X=5:デッキからカードを3枚引く。",
+      "sweetType": "動物さんソーダ"
     },
     {
       "id": "s_3",
@@ -40,9 +46,11 @@
       "fruit": "いちご",
       "description": "",
       "imageUrl": "/images/sweet/ねこちゃんいちごソーダワールド.png",
-      "cost": 0,
+      "cost": 2,
       "hp": 0,
-      "attack": 0
+      "attack": 0,
+      "effect": "X=3:相手のお菓子を2個奪う。X=6:相手のお菓子を5個奪う。",
+      "sweetType": "動物さんソーダ"
     },
     {
       "id": "s_4",
@@ -51,9 +59,11 @@
       "fruit": "いちご",
       "description": "",
       "imageUrl": "/images/sweet/ラビットピーチソーダワールド.png",
-      "cost": 0,
+      "cost": 2,
       "hp": 0,
-      "attack": 0
+      "attack": 0,
+      "effect": "",
+      "sweetType": "動物さんソーダ"
     },
     {
       "id": "s_5",
@@ -62,9 +72,11 @@
       "fruit": "いちご",
       "description": "",
       "imageUrl": "/images/sweet/わんちゃんブルーソーダワールド.png",
-      "cost": 0,
+      "cost": 2,
       "hp": 0,
-      "attack": 0
+      "attack": 0,
+      "effect": "",
+      "sweetType": "動物さんソーダ"
     },
     {
       "id": "s_6",
@@ -73,9 +85,11 @@
       "fruit": "いちご",
       "description": "",
       "imageUrl": "/images/sweet/猫カフェオレワールド.png",
-      "cost": 0,
+      "cost": 2,
       "hp": 0,
-      "attack": 0
+      "attack": 0,
+      "effect": "相手の幼女1体に3ダメージ。このゲーム中に既に犬カフェオレをプレイしていたならばデッキからカードを1枚引く。",
+      "sweetType": "カフェ"
     },
     {
       "id": "s_7",
@@ -84,9 +98,11 @@
       "fruit": "いちご",
       "description": "",
       "imageUrl": "/images/sweet/犬カフェオレワールド.png",
-      "cost": 0,
+      "cost": 2,
       "hp": 0,
-      "attack": 0
+      "attack": 0,
+      "effect": "相手の幼女1体に3ダメージ。このゲーム中に既に猫カフェオレをプレイしていたならば相手のお菓子を1個奪う。",
+      "sweetType": "カフェ"
     },
     {
       "id": "s_8",
@@ -95,9 +111,11 @@
       "fruit": "いちご",
       "description": "",
       "imageUrl": "/images/sweet/ラテアートワールド.png",
-      "cost": 0,
+      "cost": 4,
       "hp": 0,
-      "attack": 0
+      "attack": 0,
+      "effect": "相手の幼女すべてに3ダメージ。このゲーム中に猫カフェオレと犬カフェオレの両方をプレイしていたならばデッキからカードを1枚引き、相手のお菓子を2個奪う。",
+      "sweetType": "カフェ"
     },
     {
       "id": "s_9",
@@ -106,9 +124,11 @@
       "fruit": "いちご",
       "description": "",
       "imageUrl": "/images/sweet/コーラフロートワールド.png",
-      "cost": 0,
+      "cost": 2,
       "hp": 0,
-      "attack": 0
+      "attack": 0,
+      "effect": "相手の幼女1人に2ダメージ。このゲーム中に既にメロンソーダフロートをプレイしていたならば2ダメージではなく5ダメージ。",
+      "sweetType": "フロート"
     },
     {
       "id": "s_10",
@@ -117,9 +137,11 @@
       "fruit": "いちご",
       "description": "",
       "imageUrl": "/images/sweet/メロンソーダフロート.png",
-      "cost": 0,
+      "cost": 2,
       "hp": 0,
-      "attack": 0
+      "attack": 0,
+      "effect": "相手の幼女1人に2ダメージ。このゲーム中に既にコーラフロートをプレイしていたならば幼女1人ではなく相手の幼女全体に2ダメージ。",
+      "sweetType": "フロート"
     },
     {
       "id": "s_11",
@@ -128,9 +150,11 @@
       "fruit": "いちご",
       "description": "",
       "imageUrl": "/images/sweet/ジャンガリアンドーナツワールド.png",
-      "cost": 0,
+      "cost": 1,
       "hp": 0,
-      "attack": 0
+      "attack": 0,
+      "effect": "自分の手札のドーナツカードを1枚捨てたならば自分の場にいる幼女1人は貫通を持つ。",
+      "sweetType": "ドーナツ"
     },
     {
       "id": "s_12",
@@ -139,9 +163,11 @@
       "fruit": "いちご",
       "description": "",
       "imageUrl": "/images/sweet/ゴールデンドーナツワールド.png",
-      "cost": 0,
+      "cost": 1,
       "hp": 0,
-      "attack": 0
+      "attack": 0,
+      "effect": "自分の手札のドーナツカードを1枚捨てたならば自分の場にいる幼女1人は挑発を持つ。",
+      "sweetType": "ドーナツ"
     },
     {
       "id": "s_13",
@@ -150,9 +176,11 @@
       "fruit": "いちご",
       "description": "",
       "imageUrl": "/images/sweet/ハリネズミドーナツワールド.png",
-      "cost": 0,
+      "cost": 1,
       "hp": 0,
-      "attack": 0
+      "attack": 0,
+      "effect": "自分の手札のドーナツカードを1枚捨てたならば自分の場にいる幼女1人は防衛を持つ。",
+      "sweetType": "ドーナツ"
     },
     {
       "id": "s_14",
@@ -161,9 +189,11 @@
       "fruit": "いちご",
       "description": "",
       "imageUrl": "/images/sweet/ラビットドーナツワールド.png",
-      "cost": 0,
+      "cost": 1,
       "hp": 0,
-      "attack": 0
+      "attack": 0,
+      "effect": "自分の手札のドーナツカードを1枚捨てたならば自分の場にいる幼女1人は早食いを持つ。",
+      "sweetType": "ドーナツ"
     },
     {
       "id": "s_15",
@@ -172,9 +202,11 @@
       "fruit": "いちご",
       "description": "",
       "imageUrl": "/images/sweet/にゃんこけーきワールド.png",
-      "cost": 0,
+      "cost": 1,
       "hp": 0,
-      "attack": 0
+      "attack": 0,
+      "effect": "自分の場にいる幼女1人を+1/+1する。このゲーム中にこのカードを含めてケーキカードを3種類プレイしていたならばデッキからカードを2枚引く。",
+      "sweetType": "ケーキ"
     },
     {
       "id": "s_16",
@@ -183,9 +215,11 @@
       "fruit": "いちご",
       "description": "",
       "imageUrl": "/images/sweet/うさぎいちごけーきワールド.png",
-      "cost": 0,
+      "cost": 1,
       "hp": 0,
-      "attack": 0
+      "attack": 0,
+      "effect": "自分の場にいる幼女1人を+1/+1する。このゲーム中にこのカードを含めてケーキカードを3種類プレイしていたならば+1/+1ではなく+3/+3する。",
+      "sweetType": "ケーキ"
     },
     {
       "id": "s_17",
@@ -194,9 +228,11 @@
       "fruit": "いちご",
       "description": "",
       "imageUrl": "/images/sweet/くまちょこけーき.png",
-      "cost": 0,
+      "cost": 1,
       "hp": 0,
-      "attack": 0
+      "attack": 0,
+      "effect": "自分の場にいる幼女1人を+1/+1する。このゲーム中にこのカードを含めてケーキカードを3種類プレイしていたならば幼女1人ではなくすべての幼女を+1/+1する。",
+      "sweetType": "ケーキ"
     },
     {
       "id": "s_18",
@@ -205,9 +241,11 @@
       "fruit": "いちご",
       "description": "",
       "imageUrl": "/images/sweet/いちごパフェワールド改.png",
-      "cost": 0,
+      "cost": 3,
       "hp": 0,
-      "attack": 0
+      "attack": 0,
+      "effect": "デッキからカードを2枚引く。幼女デッキから引いたカードの枚数だけ相手のお菓子ポイントを減らし、お菓子デッキから引いたカードの枚数だけ自分のお菓子ポイントを回復する。",
+      "sweetType": ""
     },
     {
       "id": "s_19",
@@ -216,9 +254,11 @@
       "fruit": "いちご",
       "description": "",
       "imageUrl": "/images/sweet/ふわふわパンケーキワールド改.png",
-      "cost": 0,
+      "cost": 4,
       "hp": 0,
-      "attack": 0
+      "attack": 0,
+      "effect": "自分のお菓子ポイントを3回復する。自らは「相手の幼女がお菓子を食べる、またはお菓子ポイントを奪う効果を1度だけ無効化する(オート発動)」を持つ。この効果は重複して持つことはできない。(自分の場に挑発を持つ幼女がいるときにお菓子を奪う効果を空打ちされてもこの効果は消費されない。また、「相手のお菓子ポイントを\"減らす\"」効果に対してこの効果で無効化できない。)",
+      "sweetType": ""
     },
     {
       "id": "s_20",
@@ -227,20 +267,24 @@
       "fruit": "いちご",
       "description": "",
       "imageUrl": "/images/sweet/でっかいシュークリームワールド.png",
-      "cost": 0,
+      "cost": 6,
       "hp": 0,
-      "attack": 0
+      "attack": 0,
+      "effect": "自分の場にいる幼女1人を+4/+4し、防衛を付与する。",
+      "sweetType": ""
     },
     {
       "id": "s_21",
-      "name": "ギガプリン",
+      "name": "ぷるぷるギガプリン",
       "type": "お菓子",
       "fruit": "いちご",
       "description": "",
       "imageUrl": "/images/sweet/ギガプリンワールド改.png",
-      "cost": 0,
+      "cost": 5,
       "hp": 0,
-      "attack": 0
+      "attack": 0,
+      "effect": "ギガプリン（5コスト 0/7 挑発。防衛。行動不能。)を1体、自分の場に出す。自分のお菓子ポイントを2回復する。",
+      "sweetType": ""
     },
     {
       "id": "s_22",
@@ -249,9 +293,11 @@
       "fruit": "いちご",
       "description": "",
       "imageUrl": "/images/sweet/ぜいたくプリンアラモードワールド改.png",
-      "cost": 0,
+      "cost": 10,
       "hp": 0,
-      "attack": 0
+      "attack": 0,
+      "effect": "相手のお菓子ポイントを7奪う。",
+      "sweetType": ""
     },
     {
       "id": "s_23",
@@ -260,9 +306,11 @@
       "fruit": "いちご",
       "description": "",
       "imageUrl": "/images/sweet/くっつくポッキー.png",
-      "cost": 0,
+      "cost": 2,
       "hp": 0,
-      "attack": 0
+      "attack": 0,
+      "effect": "相手の場の幼女1人と自分の場の幼女1人を選択する。選択された幼女のどちらか一方が破壊されたとき、もう一方の幼女も破壊する。",
+      "sweetType": ""
     },
     {
       "id": "s_24",
@@ -271,9 +319,11 @@
       "fruit": "いちご",
       "description": "",
       "imageUrl": "/images/sweet/ぷぷりえーるワールド改.png",
-      "cost": 0,
+      "cost": 12,
       "hp": 0,
-      "attack": 0
+      "attack": 0,
+      "effect": "このカードはお菓子デッキに組み込むことができるが、お菓子カードとしては扱わない。自分の場にいる幼女すべては+1/+1されて早食いを持つ。このカードが手札にあるとき、任意のタイミングで公開状態にしてもよい。このカードが公開状態ならば自分の手札から幼女を場に出すたびにこのカードのコストを-1する。",
+      "sweetType": "裏メニュー"
     },
     {
       "id": "s_25",
@@ -282,9 +332,11 @@
       "fruit": "いちご",
       "description": "",
       "imageUrl": "/images/sweet/おいしくなる呪文ワールド.png",
-      "cost": 0,
+      "cost": 4,
       "hp": 0,
-      "attack": 0
+      "attack": 0,
+      "effect": "このカードはお菓子デッキに組み込むことができるが、お菓子カードとしては扱わない。次に使用する動物さんソーダを除くお菓子カードの効果が2倍になる。対象選択を含む効果の場合は対象に対して2倍の効果を与える。（選択対象の数は2倍にならない。例えば幼女1体にXダメージならば幼女1体に2Xダメージになる）",
+      "sweetType": "裏メニュー"
     },
     {
       "id": "s_26",
@@ -293,20 +345,24 @@
       "fruit": "いちご",
       "description": "",
       "imageUrl": "/images/sweet/おうたあそびワールド改.png",
-      "cost": 0,
+      "cost": 2,
       "hp": 0,
-      "attack": 0
+      "attack": 0,
+      "effect": "このカードはお菓子デッキに組み込むことができるが、お菓子カードとしては扱わない。デッキからカードを1枚引く。自分の手札にあるお菓子カードを1枚選択し公開する（既に公開済みの場合はそのまま）。そのカードのコストを-1する。",
+      "sweetType": "裏メニュー"
     },
     {
       "id": "s_27",
       "name": "すいーつあーん",
       "type": "お菓子",
-      "fruit": "ぶどう",
+      "fruit": "いちご",
       "description": "",
       "imageUrl": "/images/sweet/すいーつあーん.png",
       "cost": 0,
       "hp": 0,
-      "attack": 0
+      "attack": 0,
+      "effect": "このカードはお菓子デッキに組み込むことができるが、お菓子カードとしては扱わない。自分の手札にあるお菓子カードを1枚選択し公開する。そのカードは自分の手札から消滅し、それと同名のカードを相手の手札に公開状態で加える。自分のppを2回復する。",
+      "sweetType": "裏メニュー"
     },
     {
       "id": "s_28",
@@ -315,9 +371,11 @@
       "fruit": "ぶどう",
       "description": "",
       "imageUrl": "/images/sweet/アップルシナモンチャイ.png",
-      "cost": 0,
+      "cost": 4,
       "hp": 0,
-      "attack": 0
+      "attack": 0,
+      "effect": "このカードはデッキに1枚しか入れることができない。このカードを含めて、このゲーム中にプレイした【チャイ】の種類数をXとして、次の効果が発動する。",
+      "sweetType": "チャイ"
     },
     {
       "id": "s_29",
@@ -326,9 +384,11 @@
       "fruit": "ぶどう",
       "description": "",
       "imageUrl": "/images/sweet/チョコレートチャイ.png",
-      "cost": 0,
+      "cost": 4,
       "hp": 0,
-      "attack": 0
+      "attack": 0,
+      "effect": "X=1: 相手の場の幼女1人を破壊する。その後、ppを1回復する。X=2: 相手の場の幼女1人をこのゲームから除外する。",
+      "sweetType": "チャイ"
     },
     {
       "id": "s_30",
@@ -337,9 +397,11 @@
       "fruit": "ぶどう",
       "description": "",
       "imageUrl": "/images/sweet/抹茶チャイ.png",
-      "cost": 0,
+      "cost": 4,
       "hp": 0,
-      "attack": 0
+      "attack": 0,
+      "effect": "X=3: 『おにごっこ』、『かくれんぼ』の効果を無視して、相手の場の幼女1人をこのゲームから除外する。その後、デッキからカードを1枚引く。",
+      "sweetType": "チャイ"
     },
     {
       "id": "s_31",
@@ -348,9 +410,11 @@
       "fruit": "ぶどう",
       "description": "",
       "imageUrl": "/images/sweet/ストロベリーチャイ.png",
-      "cost": 0,
+      "cost": 4,
       "hp": 0,
-      "attack": 0
+      "attack": 0,
+      "effect": "X=4: X=3の時の効果に加えて、相手のお菓子ポイントを3奪う。",
+      "sweetType": "チャイ"
     },
     {
       "id": "s_32",
@@ -359,9 +423,11 @@
       "fruit": "ぶどう",
       "description": "",
       "imageUrl": "/images/sweet/カップアイス.png",
-      "cost": 0,
+      "cost": 1,
       "hp": 0,
-      "attack": 0
+      "attack": 0,
+      "effect": "アイスカウントを1増やす。アイスカウントをX消費してもよい。その場合、相手の幼女1人にXダメージ。(Xは任意)",
+      "sweetType": "アイス"
     },
     {
       "id": "s_33",
@@ -370,9 +436,11 @@
       "fruit": "ぶどう",
       "description": "",
       "imageUrl": "/images/sweet/シングルコーンアイス改.png",
-      "cost": 0,
+      "cost": 2,
       "hp": 0,
-      "attack": 0
+      "attack": 0,
+      "effect": "アイスカウントを2増やす。アイスカウントを2消費してもよい。その場合、相手の幼女1人に2ダメージを与え、デッキからカードを1枚引く。",
+      "sweetType": "アイス"
     },
     {
       "id": "s_34",
@@ -381,9 +449,11 @@
       "fruit": "ぶどう",
       "description": "",
       "imageUrl": "/images/sweet/ダブルコーンアイス改.png",
-      "cost": 0,
+      "cost": 4,
       "hp": 0,
-      "attack": 0
+      "attack": 0,
+      "effect": "アイスカウントを3増やす。アイスカウントを2消費してもよい。その場合、相手の幼女すべてに2ダメージ。さらに追加でアイスカウントを1消費してもよい。その場合、ランダムな相手幼女1人に3ダメージ。",
+      "sweetType": "アイス"
     },
     {
       "id": "s_35",
@@ -392,9 +462,11 @@
       "fruit": "ぶどう",
       "description": "",
       "imageUrl": "/images/sweet/カラフルハーフタワーアイス.png",
-      "cost": 0,
+      "cost": 4,
       "hp": 0,
-      "attack": 0
+      "attack": 0,
+      "effect": "アイスカウントを4増やす。アイスカウントを4消費してもよい。その場合、自分の場の幼女1人を+3/+3する。さらに追加でアイスカウントを消費してもよい。その場合、+3/+3ではなく、+6/+6する。",
+      "sweetType": "アイス"
     },
     {
       "id": "s_36",
@@ -403,9 +475,11 @@
       "fruit": "ぶどう",
       "description": "",
       "imageUrl": "/images/sweet/チョコミントタワーアイス改2.png",
-      "cost": 0,
+      "cost": 8,
       "hp": 0,
-      "attack": 0
+      "attack": 0,
+      "effect": "このカードは6ターン目以降に使用可能。アイスカウントを4増やす。アイスカウントをX消費してもよい。その場合、相手のお菓子ポイントをX減らす。(Xは任意)",
+      "sweetType": "アイス"
     },
     {
       "id": "s_37",
@@ -414,9 +488,11 @@
       "fruit": "ぶどう",
       "description": "",
       "imageUrl": "/images/sweet/カップケーキ.png",
-      "cost": 0,
+      "cost": 1,
       "hp": 0,
-      "attack": 0
+      "attack": 0,
+      "effect": "デッキからカードを1枚引く。",
+      "sweetType": ""
     },
     {
       "id": "s_38",
@@ -427,7 +503,9 @@
       "imageUrl": "/images/sweet/いっしょにおしゃしん.png",
       "cost": 0,
       "hp": 0,
-      "attack": 0
+      "attack": 0,
+      "effect": "このカードはお菓子デッキに組み込むことができるが、お菓子カードとしては扱わない。(対戦相手と2ショットを撮り、Xに『#お菓子争奪戦争ぷぷりえーる』をつけて投稿したならば、)自分と相手はデッキからカードを1枚引く。",
+      "sweetType": "裏メニュー"
     }
   ]
 }

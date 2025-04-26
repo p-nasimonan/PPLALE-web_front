@@ -197,6 +197,15 @@ export default function Home() {
     }
   };
 
+  // デッキに追加可能かどうかを判定
+  const canAddToDeck = (card: CardInfo) => {
+    if (card.type === '幼女') {
+      return yojoDeck.length < 20;
+    } else {
+      return sweetDeck.length < 10;
+    }
+  };
+
   return (
     <div>
     <div className={showImportPopup||showExportPopup ? 'blur-sm ' : 'container'}>
@@ -260,6 +269,8 @@ export default function Home() {
               draggable={true}
               onDragStart={handleDragStart}
               cardType="幼女"
+              canAddToDeck={canAddToDeck}
+              onAddToDeck={handleAddToDeck}
             />
           </div>
       
@@ -288,38 +299,12 @@ export default function Home() {
           draggable={true}
           onDragStart={handleDragStart}
           cardType="お菓子"
+          yojoDeck={yojoDeck}
+          sweetDeck={sweetDeck}
+          canAddToDeck={canAddToDeck}
+          onAddToDeck={handleAddToDeck}
         />
       </div>
-
-      {/* 選択されたカードの詳細 */}
-      {selectedCard && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white shadow-lg p-4 transform translate-y-full transition-transform duration-300 ease-in-out">
-          <div className="flex justify-between items-center">
-            <div>
-              <h3 className="text-lg font-bold">{selectedCard.name}</h3>
-              <p className="text-sm text-gray-600">{selectedCard.description}</p>
-            </div>
-            <div className="flex gap-2">
-              <button
-                className="btn btn-primary"
-                onClick={() => handleAddToDeck(selectedCard)}
-                disabled={
-                  (selectedCard.type === '幼女' && yojoDeck.length >= 20) ||
-                  (selectedCard.type === 'お菓子' && sweetDeck.length >= 10)
-                }
-              >
-                デッキに追加
-              </button>
-              <button
-                className="btn btn-secondary"
-                onClick={() => setSelectedCard(null)}
-              >
-                閉じる
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* エクスポートポップアップ */}
       {showExportPopup && (

@@ -64,7 +64,22 @@ export default function TwoPick() {
         })
       : availableCards;
 
-    const shuffled = [...filteredCards].sort(() => Math.random() - 0.5);
+    // 動物さんソーダタイプのカードが1枚しか追加できないように制限
+    const filteredSweetCards = currentPhase === 'お菓子'
+      ? filteredCards.filter(card => {
+          if (card.sweetType === '動物さんソーダ') {
+            // 既にデッキに含まれている動物さんソーダの種類を取得
+            const existingAnimalSodas = new Set(sweetDeck
+              .filter(c => c.sweetType === '動物さんソーダ')
+              .map(c => c.id));
+            // 現在のカードが既にデッキに含まれている場合は除外
+            return !existingAnimalSodas.has(card.id);
+          }
+          return true;
+        })
+      : filteredCards;
+
+    const shuffled = [...filteredSweetCards].sort(() => Math.random() - 0.5);
     setCurrentChoices(shuffled.slice(0, 4));
   }, [yojoCards, sweetCards, currentPhase, selectedFruits, isTwoCardLimit, yojoDeck, sweetDeck]);
 
@@ -230,7 +245,6 @@ export default function TwoPick() {
               {currentChoices.length >= 2 && (
                 <>
                   {(() => {
-                    console.log("Rendering left CardSelection with:", currentChoices[0], currentChoices[1]);
                     return null;
                   })()}
                   <CardSelection
@@ -255,7 +269,6 @@ export default function TwoPick() {
               {currentChoices.length >= 4 && (
                 <>
                   {(() => {
-                    console.log("Rendering right CardSelection with:", currentChoices[2], currentChoices[3]);
                     return null;
                   })()}
                   <CardSelection
@@ -297,8 +310,8 @@ export default function TwoPick() {
               >
                 <Card
                   card={selectedPlayableCard}
-                  width={340}
-                  height={500}
+                  width={400}
+                  height={600}
                 />
                 <div className="description w-80 h-40 overflow-auto p-4 bg-gray-100 rounded-lg">
                   {selectedPlayableCard.description && (

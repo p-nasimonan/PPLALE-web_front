@@ -1,7 +1,7 @@
 /**
  * カードの種類を定義する型
  */
-export type CardType = '幼女' | 'お菓子';
+export type CardType = '幼女' | 'お菓子' | 'プレイアブル';
 export type FruitType = 'いちご' | 'ぶどう' | 'めろん' | 'おれんじ';
 
 /**
@@ -26,6 +26,12 @@ export interface CardInfo { // 名前をCardからCardInfoに変更
   description: string;
   /** カードの画像URL */
   imageUrl: string;
+  /** 役職 */
+  role?: string;
+  /** お菓子タイプ */
+  sweetType?: string;
+  /** 効果 */
+  effect?: string;
 }
 
 /**

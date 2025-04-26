@@ -30,6 +30,14 @@ interface CardProps {
   onRemove?: (card: CardInfo) => void;
   /** 削除ボタンを表示するかどうか */
   showRemoveButton?: boolean;
+  /** 幼女デッキ */
+  yojoDeck?: CardInfo[];
+  /** お菓子デッキ */
+  sweetDeck?: CardInfo[];
+  /** デッキに追加可能かどうかを判定する関数 */
+  canAddToDeck?: (card: CardInfo) => boolean;
+  /** カードがデッキに追加されたときのコールバック関数 */
+  onAddToDeck?: (card: CardInfo) => void;
 }
 
 /**
@@ -49,6 +57,8 @@ const Card: React.FC<CardProps> = ({
   height = 190, // デフォルト高さ
   onRemove,
   showRemoveButton = false,
+  canAddToDeck,
+  onAddToDeck,
 }) => {
     
   // 環境に応じて画像のパスを切り替え
@@ -136,7 +146,7 @@ const Card: React.FC<CardProps> = ({
             } : undefined}
             placeholder="blur"
             loading="eager"
-            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx4eHRoaHSQtJSAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCD/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx4eHRoaHSQtJSAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCD/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
           />
           {isDownloading && (
             <h2 className='top-4 w-full h-full flex items-center justify-center'>ロード中</h2>
@@ -196,7 +206,37 @@ const Card: React.FC<CardProps> = ({
                   <div>
                     <span className="font-bold">フルーツ:</span> {card.fruit}
                   </div>
+                  {card.role && (
+                    <div>
+                      <span className="font-bold">役職:</span> {card.role}
+                    </div>
+                  )}
+                  {card.sweetType && (
+                    <div>
+                      <span className="font-bold">お菓子タイプ:</span> {card.sweetType}
+                    </div>
+                  )}
+                  {card.effect && (
+                    <div className="col-span-2">
+                      <span className="font-bold">効果:</span>
+                      <p className="text-sm mt-1">{card.effect}</p>
+                    </div>
+                  )}
                 </div>
+                {onAddToDeck && (
+                  <div className="mt-4">
+                    <button
+                      className="btn btn-primary w-full"
+                      onClick={() => {
+                        onAddToDeck(card);
+                        setIsExpanded(false);
+                      }}
+                      disabled={!canAddToDeck?.(card)}
+                    >
+                      デッキに追加
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>

@@ -23,6 +23,15 @@ interface CardListProps {
 
   /** カードの種類（幼女/お菓子） */
   cardType: CardType; // カードの種類（幼女/お菓子）を指定
+
+  /** 幼女デッキ */
+  yojoDeck?: CardInfo[];
+  /** お菓子デッキ */
+  sweetDeck?: CardInfo[];
+  /** デッキに追加可能かどうかを判定する関数 */
+  canAddToDeck?: (card: CardInfo) => boolean;
+  /** カードがデッキに追加されたときのコールバック関数 */
+  onAddToDeck?: (card: CardInfo) => void;
 }
 
 /**
@@ -38,9 +47,15 @@ const CardList: React.FC<CardListProps> = ({
   draggable = false,
   onDragStart,
   cardType = '幼女', // カードの種類（幼女/お菓子）をデフォルトで設定
+  canAddToDeck,
+  onAddToDeck,
 }) => {
   // フルーツのフィルタリング用の状態
   const [fruitFilter, setFruitFilter] = useState<FruitType | 'all'>('all');
+  // お菓子タイプのフィルタリング用の状態
+  const [sweetTypeFilter, setSweetTypeFilter] = useState<string | 'all'>('all');
+  // 役職のフィルタリング用の状態
+  const [roleFilter, setRoleFilter] = useState<string | 'all'>('all');
   // 検索用の状態
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -51,6 +66,16 @@ const CardList: React.FC<CardListProps> = ({
       return false;
     }  
     
+    // お菓子タイプでフィルタリング
+    if (sweetTypeFilter !== 'all' && card.sweetType !== sweetTypeFilter) {
+      return false;
+    }
+
+    // 役職でフィルタリング
+    if (roleFilter !== 'all' && card.role !== roleFilter) {
+      return false;
+    }
+    
     // 検索クエリでフィルタリング
     if (searchQuery && !card.name.toLowerCase().includes(searchQuery.toLowerCase())) {
       return false;
@@ -58,6 +83,11 @@ const CardList: React.FC<CardListProps> = ({
     
     return true;
   });
+
+  // お菓子タイプのリストを取得
+  const sweetTypes = Array.from(new Set(cards.filter(card => card.sweetType).map(card => card.sweetType)));
+  // 役職のリストを取得
+  const roles = Array.from(new Set(cards.filter(card => card.role).map(card => card.role)));
 
   // カードが選択されたときの処理
   const handleCardSelect = (card: CardInfo) => {
@@ -72,27 +102,55 @@ const CardList: React.FC<CardListProps> = ({
       <div className="space-y-4">
         <h2 className="text-xl font-bold text-pink-600">{cardType}</h2>
         <div className="flex flex-col sm:flex-row gap-2">
-        {/* フルーツのフィルター */}
-        <select
+          {/* フルーツのフィルター */}
+          <select
             className="px-3 py-2 border rounded-md"
             value={fruitFilter}
             onChange={(e) => setFruitFilter(e.target.value as FruitType | 'all')}
-        >
+          >
             <option value="all">すべてのフルーツ</option>
             <option value="いちご">いちご</option>
             <option value="ぶどう">ぶどう</option>
             <option value="めろん">めろん</option>
             <option value="おれんじ">おれんじ</option>
-        </select>
+          </select>
 
-        <input
-          type="text"
-          placeholder="カード名で検索..."
-          className="px-3 py-2 border rounded-md flex-grow"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-      </div>
+          {/* お菓子タイプのフィルター */}
+          {cardType === 'お菓子' && (
+            <select
+              className="px-3 py-2 border rounded-md"
+              value={sweetTypeFilter}
+              onChange={(e) => setSweetTypeFilter(e.target.value)}
+            >
+              <option value="all">すべてのお菓子タイプ</option>
+              {sweetTypes.map(type => (
+                <option key={type} value={type}>{type}</option>
+              ))}
+            </select>
+          )}
+
+          {/* 役職のフィルター */}
+          {cardType === 'プレイアブル' && (
+            <select
+              className="px-3 py-2 border rounded-md"
+              value={roleFilter}
+              onChange={(e) => setRoleFilter(e.target.value)}
+            >
+              <option value="all">すべての役職</option>
+              {roles.map(role => (
+                <option key={role} value={role}>{role}</option>
+              ))}
+            </select>
+          )}
+
+          <input
+            type="text"
+            placeholder="カード名で検索..."
+            className="px-3 py-2 border rounded-md flex-grow"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
         <div className="grid grid-cols-4 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-4 overflow-auto max-h-[calc(70vh-50px)]">
           {filteredCards
             .filter(card => card.type === cardType) // カードの種類でフィルタリング
@@ -104,6 +162,8 @@ const CardList: React.FC<CardListProps> = ({
                   onClick={handleCardSelect}
                   draggable={draggable}
                   onDragStart={onDragStart}
+                  canAddToDeck={canAddToDeck}
+                  onAddToDeck={onAddToDeck}
                 />
               </div>
             ))}
