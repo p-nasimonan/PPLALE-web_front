@@ -36,15 +36,43 @@ export default function Home() {
   // インポートポップアップの表示状態
   const [showImportPopup, setShowImportPopup] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [progress, setProgress] = useState(0);
 
   const { isDarkMode } = useDarkMode();
   const { isTwoCardLimit } = useSettings();
 
-  let loadedImages = 0;
-
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDarkMode);
   }, [isDarkMode]);
+
+  useEffect(() => {
+    // 画像URLリストを作成
+    const allImageUrls = [
+      ...allYojoCards.map(card => card.imageUrl),
+      ...allSweetCards.map(card => card.imageUrl),
+      // 必要ならallPlayableCardsも
+    ];
+    let loaded = 0;
+    const total = allImageUrls.length;
+
+    if (total === 0) {
+      setIsLoading(false);
+      setProgress(100);
+      return;
+    }
+
+    allImageUrls.forEach(url => {
+      const img = new window.Image();
+      img.src = url;
+      img.onload = img.onerror = () => {
+        loaded++;
+        setProgress(Math.round((loaded / total) * 100));
+        if (loaded === total) {
+          setIsLoading(false);
+        }
+      };
+    });
+  }, []);
 
   // デッキの状態を保持するための useEffect
   useEffect(() => {
@@ -58,43 +86,7 @@ export default function Home() {
     if (savedSweetDeck) {
       setSweetDeck(JSON.parse(savedSweetDeck));
     }
-
-    // 画像の読み込みが完了したらローディング画面を非表示にする
-    const images = document.querySelectorAll('img');
-
-    const totalImages = images.length;
-
-    const handleImageLoad = () => {
-      loadedImages++;
-      if (loadedImages === totalImages) {
-        setIsLoading(false);
-      }
-    };
-
-    images.forEach(img => {
-      if (img.complete) {
-        handleImageLoad();
-      } else {
-        img.addEventListener('load', handleImageLoad);
-      }
-    });
-
-    // 5秒後に強制的にローディング画面を非表示にする
-    const timeout = setTimeout(() => {
-      setIsLoading(false);
-    }, 5000);
-
-    return () => {
-      clearTimeout(timeout);
-      images.forEach(img => {
-        img.removeEventListener('load', handleImageLoad);
-      });
-    };
   }, []);
-
-  useEffect(() => {
-    console.log(loadedImages);
-  }, );
 
   // デッキが更新されたときに localStorage に保存
   useEffect(() => {
@@ -250,7 +242,7 @@ export default function Home() {
 
   return (
     <div>
-      <LoadingScreen isLoading={isLoading} />
+      <LoadingScreen isLoading={isLoading} progress={progress} />
       <div className={showImportPopup||showExportPopup ? 'blur-sm container' : 'container'}>
         <header>
           <div className="flex justify-between items-center">

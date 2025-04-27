@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 interface LoadingScreenProps {
   isLoading: boolean;
+  progress: number;
 }
 
 const LoadingScreen: React.FC<LoadingScreenProps> = ({ isLoading }) => {
