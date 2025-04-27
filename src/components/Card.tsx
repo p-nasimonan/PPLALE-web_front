@@ -24,7 +24,7 @@ interface CardProps {
   /** カードの重複数 */
   count?: number;
   /** カード画像の幅 */
-  width?: number;
+  width?: number ;
   /** カード画像の高さ */
   height?: number;
   /** カードが削除されたときのコールバック関数 */
@@ -52,8 +52,8 @@ const Card: React.FC<CardProps> = ({
   draggable = false,
   onDragStart,
   count = 1,
-  width = 128, // デフォルト幅
-  height = 190, // デフォルト高さ
+  width = 140, // デフォルト幅
+  height = 210, // デフォルト高さ
   onRemove,
   showRemoveButton = false,
   onAddToDeck,
@@ -138,14 +138,18 @@ const Card: React.FC<CardProps> = ({
         height={height}
         className={`rounded-lg ${isDownloading ? 'pixelated' : ''}`}
         sizes="(max-width: 800px) 100vw, (max-width: 1200px) 50vw, 25vw"
-        priority={true}
-        quality={75}
+        priority={false}
+        quality={60}
         unoptimized={false}
-        style={isDownloading ? {
-          imageRendering: 'pixelated',
-        } : undefined}
+        style={{
+          ...(isDownloading ? {
+            imageRendering: 'pixelated',
+            width: '64px',
+            height: '64px',
+          } : {})
+        }}
         placeholder="blur"
-        loading="eager"
+        loading="lazy"
         blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGwAZQAgAEkAbgBjAC4AIAAyADAAMQA2/9sAQwAUDg8SDw0UEhASFxUUTHx+Hh4eGhodJC0lICQoICQoICQoICQoICQoICQoICQoICQoICQoICQoICQoICQoICQoICQoICQoICQoIP/YAERCAAoACgMBIgACEQEDEQH/xAAVAQEBAAAAAAAAAAAAAAAAAAAAAv/EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAhADEAAAAJ0AGZf/2Q=="
         />
         {isDownloading && (
@@ -175,10 +179,15 @@ const Card: React.FC<CardProps> = ({
       {/* カード詳細ポップアップ */}
       {isExpanded && (
         <CardDetail
-        card={card}
-        onClose={() => setIsExpanded(false)}
-        onAddToDeck={onAddToDeck}
-        canAddToDeck={typeof canAddToDeck === 'function' ? (card) => canAddToDeck(card) : undefined}
+          card={card}
+          onClose={() => setIsExpanded(false)}
+          onAddToDeck={(card) => {
+            if (onAddToDeck) {
+              onAddToDeck(card);
+              setIsExpanded(false);
+            }
+          }}
+          canAddToDeck={typeof canAddToDeck === 'function' ? (card) => canAddToDeck(card) : undefined}
         />
       )}
     </>
