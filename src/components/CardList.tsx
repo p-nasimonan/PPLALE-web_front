@@ -54,13 +54,18 @@ const CardList: React.FC<CardListProps> = ({
   const [fruitFilter, setFruitFilter] = useState<FruitType | 'all'>('all');
   // お菓子タイプのフィルタリング用の状態
   const [sweetTypeFilter, setSweetTypeFilter] = useState<string | 'all'>('all');
-  // 役職のフィルタリング用の状態
-  const [roleFilter, setRoleFilter] = useState<string | 'all'>('all');
+  // バージョンのフィルタリング用の状態
+  const [versionFilter, setVersionFilter] = useState<string | 'all'>('all');
   // 検索用の状態
   const [searchQuery, setSearchQuery] = useState('');
 
   // フィルタリングされたカードを取得
   const filteredCards = cards.filter(card => {
+    // バージョンでフィルタリング
+    if (versionFilter !== 'all' && card.version !== versionFilter) {
+      return false;
+    }
+
     // フルーツでフィルタリング
     if (fruitFilter !== 'all' && card.fruit !== fruitFilter) {
       return false;
@@ -71,10 +76,6 @@ const CardList: React.FC<CardListProps> = ({
       return false;
     }
 
-    // 役職でフィルタリング
-    if (roleFilter !== 'all' && card.role !== roleFilter) {
-      return false;
-    }
     
     // 検索クエリでフィルタリング
     if (searchQuery && !card.name.toLowerCase().includes(searchQuery.toLowerCase())) {
@@ -86,8 +87,8 @@ const CardList: React.FC<CardListProps> = ({
 
   // お菓子タイプのリストを取得
   const sweetTypes = Array.from(new Set(cards.filter(card => card.sweetType).map(card => card.sweetType)));
-  // 役職のリストを取得
-  const roles = Array.from(new Set(cards.filter(card => card.role).map(card => card.role)));
+  // バージョンのリストを取得
+  const versions = Array.from(new Set(cards.filter(card => card.version).map(card => card.version)));
 
   // カードが選択されたときの処理
   const handleCardSelect = (card: CardInfo) => {
@@ -103,18 +104,19 @@ const CardList: React.FC<CardListProps> = ({
         <h2 className="text-xl font-bold text-pink-600">{cardType}</h2>
         <div className="flex flex-col sm:flex-row gap-2">
           {/* フルーツのフィルター */}
-          <select
-            className="px-3 py-2 border rounded-md"
-            value={fruitFilter}
-            onChange={(e) => setFruitFilter(e.target.value as FruitType | 'all')}
-          >
-            <option value="all">すべてのフルーツ</option>
-            <option value="いちご">いちご</option>
-            <option value="ぶどう">ぶどう</option>
-            <option value="めろん">めろん</option>
-            <option value="おれんじ">おれんじ</option>
-          </select>
-
+          {(cardType !== 'プレイアブル') && (
+            <select
+              className="px-3 py-2 border rounded-md"
+              value={fruitFilter}
+              onChange={(e) => setFruitFilter(e.target.value as FruitType | 'all')}
+            >
+              <option value="all">すべてのフルーツ</option>
+              <option value="いちご">いちご</option>
+              <option value="ぶどう">ぶどう</option>
+              <option value="めろん">めろん</option>
+              <option value="おれんじ">おれんじ</option>
+            </select>
+          )}
           {/* お菓子タイプのフィルター */}
           {cardType === 'お菓子' && (
             <select
@@ -129,18 +131,21 @@ const CardList: React.FC<CardListProps> = ({
             </select>
           )}
 
-          {/* 役職のフィルター */}
+          {/* プレイアブルのフィルター */}
           {cardType === 'プレイアブル' && (
-            <select
-              className="px-3 py-2 border rounded-md"
-              value={roleFilter}
-              onChange={(e) => setRoleFilter(e.target.value)}
-            >
-              <option value="all">すべての役職</option>
-              {roles.map(role => (
-                <option key={role} value={role}>{role}</option>
-              ))}
-            </select>
+            <>
+              {/* バージョンのフィルター */}
+              <select
+                className="px-3 py-2 border rounded-md"
+                value={versionFilter}
+                onChange={(e) => setVersionFilter(e.target.value)}
+              >
+                <option value="all">すべてのバージョン</option>
+                {versions.map(version => (
+                  <option key={version} value={version}>{version}</option>
+                ))}
+              </select>
+            </>
           )}
 
           <input
@@ -154,6 +159,7 @@ const CardList: React.FC<CardListProps> = ({
         <div className="grid grid-cols-4 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-4 overflow-auto max-h-[calc(70vh-50px)]">
           {filteredCards
             .filter(card => card.type === cardType) // カードの種類でフィルタリング
+            .sort((a, b) => (a.version || '').localeCompare(b.version || '')) // バージョンでソート
             .map((card) => (
               <div key={card.id} className="flex justify-center">
                 <Card
@@ -166,6 +172,7 @@ const CardList: React.FC<CardListProps> = ({
                   onAddToDeck={onAddToDeck}
                 />
               </div>
+              
             ))}
         </div>
       </div>

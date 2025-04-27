@@ -75,7 +75,7 @@ const ExportPopup: React.FC<ExportPopupProps> = ({ yojoDeck, sweetDeck, onClose 
           <div className="mb-4">
             <h4 className="font-bold mb-2">幼女デッキ</h4>
             <div className="bg-gray-100 p-3 rounded border border-gray-300 overflow-auto max-h-40">
-              <pre className="whitespace-pre-wrap">{yojoDeck.map(card => extractNumber(card.id)).join(',')}</pre>
+              <pre>{yojoDeck.map(card => extractNumber(card.id)).join(',')}</pre>
             </div>
             <button
               className="btn btn-primary mt-2"
@@ -88,7 +88,7 @@ const ExportPopup: React.FC<ExportPopupProps> = ({ yojoDeck, sweetDeck, onClose 
           <div className="mb-4">
             <h4 className="font-bold mb-2">お菓子デッキ</h4>
             <div className="bg-gray-100 p-3 rounded border border-gray-300 overflow-auto max-h-40">
-              <pre className="whitespace-pre-wrap">{sweetDeck.map(card => extractNumber(card.id)).join(',')}</pre>
+              <pre>{sweetDeck.map(card => extractNumber(card.id)).join(',')}</pre>
             </div>
             <button
               className="btn btn-primary mt-2"

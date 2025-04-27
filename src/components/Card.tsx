@@ -8,6 +8,7 @@
 import React, { useState, useEffect} from 'react'; 
 import Image from 'next/image';
 import { CardInfo } from '@/types/card';
+import CardDetail from './CardDetail';
 
 interface CardProps {
   /** 表示するカードのデータ */
@@ -30,14 +31,12 @@ interface CardProps {
   onRemove?: (card: CardInfo) => void;
   /** 削除ボタンを表示するかどうか */
   showRemoveButton?: boolean;
-  /** 幼女デッキ */
-  yojoDeck?: CardInfo[];
-  /** お菓子デッキ */
-  sweetDeck?: CardInfo[];
-  /** デッキに追加可能かどうかを判定する関数 */
-  canAddToDeck?: (card: CardInfo) => boolean;
-  /** カードがデッキに追加されたときのコールバック関数 */
+  /** デッキに追加するコールバック関数 */
   onAddToDeck?: (card: CardInfo) => void;
+  /** デッキに追加できるかどうか */
+  canAddToDeck?: (card: CardInfo) => boolean;
+  /** カードの詳細を表示できるか */
+  showDetail?: boolean;
 }
 
 /**
@@ -57,9 +56,9 @@ const Card: React.FC<CardProps> = ({
   height = 190, // デフォルト高さ
   onRemove,
   showRemoveButton = false,
-
-  canAddToDeck,
   onAddToDeck,
+  canAddToDeck = false,
+  showDetail = true,
 }) => {
     
   // 環境に応じて画像のパスを切り替え
@@ -118,135 +117,69 @@ const Card: React.FC<CardProps> = ({
   return (
     <>
       <div
-        className={`
-          relative rounded-lg shadow-md overflow-hidden
-          ${getCardColor()} 
-          ${isSelected ? 'ring-4 ring-blue-500' : ''}
-          transition-all duration-200 hover:shadow-lg
-          cursor-pointer flex-shrink-0
-        `}
-        style={{ width: `${width}px`, height: `${height}px` }}
-        onClick={handleClick}
-        draggable={draggable}
-        onDragStart={handleDragStart}
+      className={`
+        relative rounded-lg shadow-md overflow-hidden
+        ${getCardColor()} 
+        ${isSelected ? 'ring-4 ring-blue-500' : ''}
+        transition-all duration-200 hover:shadow-lg
+        cursor-pointer flex-shrink-0
+      `}
+      style={{ width: `${width}px`, height: `${height}px` }}
+      onClick={showDetail ? handleClick : undefined}
+      draggable={draggable}
+      onDragStart={handleDragStart}
       >
-        {/* カードの画像 */}
-        <div className="w-full h-full flex items-center justify-center">
-          <Image
-            src={isDownloading ? loadingImagePath : imagePath}
-            alt={isDownloading ? "ロード中..." : card.name}
-            width={width}
-            height={height}
-            className={`rounded-lg ${isDownloading ? 'pixelated' : ''}`}
-            sizes="(max-width: 800px) 100vw, (max-width: 1200px) 50vw, 25vw"
-            priority={true}
-            quality={75}
-            unoptimized={false}
-            style={isDownloading ? {
-              imageRendering: 'pixelated',
-            } : undefined}
-            placeholder="blur"
-            loading="eager"
-            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx4eHRoaHSQtJSAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCAkKCD/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
-          />
-          {isDownloading && (
-            <h2 className='top-4 w-full h-full flex items-center justify-center'>ロード中</h2>
-          )}
-        </div>
-
-        {/* 重複数の表示 */}
-        {count > 1 && !isDownloading && (
-          <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm">
-            ×{count}
-          </div>
-        )}
-
-        {/* 削除ボタン */}
-        {showRemoveButton && !isDownloading && (
-          <button
-            className="absolute top-1 right-1 bg-gray-300 text-gray-700 rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-500 hover:text-white transition-colors duration-200"
-            onClick={handleRemove}
-            aria-label={`${card.name}を削除`}
-          >
-            ×
-          </button>
+      {/* カードの画像 */}
+      <div className="w-full h-full flex items-center justify-center">
+        <Image
+        src={isDownloading ? loadingImagePath : imagePath}
+        alt={isDownloading ? "ロード中..." : card.name}
+        width={width}
+        height={height}
+        className={`rounded-lg ${isDownloading ? 'pixelated' : ''}`}
+        sizes="(max-width: 800px) 100vw, (max-width: 1200px) 50vw, 25vw"
+        priority={true}
+        quality={75}
+        unoptimized={false}
+        style={isDownloading ? {
+          imageRendering: 'pixelated',
+        } : undefined}
+        placeholder="blur"
+        loading="eager"
+        blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGwAZQAgAEkAbgBjAC4AIAAyADAAMQA2/9sAQwAUDg8SDw0UEhASFxUUTHx+Hh4eGhodJC0lICQoICQoICQoICQoICQoICQoICQoICQoICQoICQoICQoICQoICQoICQoICQoICQoIP/YAERCAAoACgMBIgACEQEDEQH/xAAVAQEBAAAAAAAAAAAAAAAAAAAAAv/EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAhADEAAAAJ0AGZf/2Q=="
+        />
+        {isDownloading && (
+        <h2 className='top-4 w-full h-full flex items-center justify-center'>ロード中</h2>
         )}
       </div>
 
-      {/* 拡大表示ポップアップ */}
-      {isExpanded && (
-        <div className="fixed inset-0 flex items-center justify-center w-full h-full z-50" onClick={() => setIsExpanded(false)}>
-          {card.type === 'プレイアブル' ? (
-<></>
-          ) : (
-            // 通常のカード用のレイアウト
-            <div className="bg-white p-4 rounded-lg max-w-2xl w-full mx-4" onClick={e => e.stopPropagation()}>
-              <div className="flex justify-between items-start mb-4">
-                <h2 className="text-2xl font-bold">{card.name}</h2>
-                <button
-                  className="text-gray-500 hover:text-gray-700"
-                  onClick={() => setIsExpanded(false)}
-                >
-                  ×
-                </button>
-              </div>
-              <div className="flex flex-col md:flex-row gap-4">
-                <div className="flex-shrink-0">
-                  <Image
-                    src={imagePath}
-                    alt={card.name}
-                    width={width * 2}
-                    height={height * 2}
-                    className="rounded-lg"
-                    priority={true}
-                    quality={100}
-                  />
-                </div>
-                <div className="flex-grow">
-                  <p className="text-gray-700 mb-2">{card.description}</p>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <span className="font-bold">種類:</span> {card.type}
-                    </div>
-                    <div>
-                      <span className="font-bold">フルーツ:</span> {card.fruit}
-                    </div>
-                    {card.role && (
-                      <div>
-                        <span className="font-bold">役職:</span> {card.role}
-                      </div>
-                    )}
-                    {card.sweetType && (
-                      <div>
-                        <span className="font-bold">お菓子タイプ:</span> {card.sweetType}
-                      </div>
-                    )}
-                    {card.effect && (
-                      <div className="col-span-2">
-                        <span className="font-bold">効果:</span>
-                        <p className="text-sm mt-1">{card.effect}</p>
-                      </div>
-                    )}
-                  </div>
-                  {onAddToDeck && (
-                    <div className="mt-4">
-                      <button
-                        className="btn btn-primary w-full"
-                        onClick={() => {
-                          onAddToDeck(card);
-                          setIsExpanded(false);
-                        }}
-                        disabled={!canAddToDeck?.(card)}
-                      >
-                        デッキに追加
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
+      {/* 重複数の表示 */}
+      {count > 1 && !isDownloading && (
+        <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm">
+        ×{count}
         </div>
+      )}
+
+      {/* 削除ボタン */}
+      {showRemoveButton && !isDownloading && (
+        <button
+        className="absolute top-1 right-1 bg-gray-300 text-gray-700 rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-500 hover:text-white transition-colors duration-200"
+        onClick={handleRemove}
+        aria-label={`${card.name}を削除`}
+        >
+        ×
+        </button>
+      )}
+      </div>
+
+      {/* カード詳細ポップアップ */}
+      {isExpanded && (
+        <CardDetail
+        card={card}
+        onClose={() => setIsExpanded(false)}
+        onAddToDeck={onAddToDeck}
+        canAddToDeck={typeof canAddToDeck === 'function' ? (card) => canAddToDeck(card) : undefined}
+        />
       )}
     </>
   );

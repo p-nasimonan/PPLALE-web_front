@@ -208,7 +208,7 @@ export default function Home() {
 
   return (
     <div>
-    <div className={showImportPopup||showExportPopup ? 'blur-sm ' : 'container'}>
+    <div className={showImportPopup||showExportPopup ? 'blur-sm container' : 'container'}>
       <header>
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold text-center">ぷぷりえーる デッキ構築</h1>
@@ -306,7 +306,7 @@ export default function Home() {
           {/* カードリスト */}
           <div className="card">
             <CardList
-              cards={allPlayableCards}
+              cards={[...allPlayableCards].sort((a, b) => (a.version || '').localeCompare(b.version || ''))} // バージョンでソート
               onCardSelect={handleCardSelect}
               selectedCardId={selectedCard?.id}
               draggable={true}
@@ -318,24 +318,23 @@ export default function Home() {
           </div>
         </div>
       </div>
+      </div>
+    {/* エクスポートポップアップ */}
+    {showExportPopup && (
+      <ExportPopup
+        yojoDeck={yojoDeck}
+        sweetDeck={sweetDeck}
+        onClose={() => setShowExportPopup(false)}
+      />
+    )}
 
-      {/* エクスポートポップアップ */}
-      {showExportPopup && (
-        <ExportPopup
-          yojoDeck={yojoDeck}
-          sweetDeck={sweetDeck}
-          onClose={() => setShowExportPopup(false)}
-        />
-      )}
-
-      {/* インポートポップアップ */}
-      {showImportPopup && (
-        <ImportPopup
-          onImport={handleImportDeck}
-          onClose={() => setShowImportPopup(false)}
-        />
-      )}
-    </div>
-    </div>
+    {/* インポートポップアップ */}
+    {showImportPopup && (
+      <ImportPopup
+        onImport={handleImportDeck}
+        onClose={() => setShowImportPopup(false)}
+      />
+    )}
+  </div>
   );
 }

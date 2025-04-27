@@ -93,6 +93,13 @@ label{
   color: var(--text-color);
 }
 
+pre{
+  background-color: var(--background-color);
+  color: var(--text-light);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
 
 header::before {
   content: '';

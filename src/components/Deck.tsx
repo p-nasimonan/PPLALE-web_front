@@ -5,7 +5,7 @@
  * カードの追加・削除・並べ替えなどの機能を提供する
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CardInfo, CardType } from '@/types/card';
 import Card from './Card';
 
@@ -21,6 +21,29 @@ interface DeckProps {
   /**カードを消せるか */
   removeable?: boolean;
 }
+
+/**
+ * デッキ内のカードをソートする関数
+ * @param cards - ソート対象のカードリスト
+ * @param criteria - ソート基準 ('none', 'id', 'name', 'cost', 'attack', 'hp')
+ * @returns ソートされたカードリスト
+ */
+const sortCards = (cards: CardInfo[], criteria: 'none' | 'id' | 'name' | 'cost' | 'attack' | 'hp'): CardInfo[] => {
+  if (criteria === 'none') {
+    return cards; // ソートしない
+  }
+  return [...cards].sort((a, b) => {
+    if (criteria === 'name') {
+      return a.name.localeCompare(b.name);
+    }
+    if (criteria === 'id') {
+      const idA = parseInt(a.id.replace(/\D/g, ''), 10); // 数字部分を抽出
+      const idB = parseInt(b.id.replace(/\D/g, ''), 10); // 数字部分を抽出
+      return idA - idB;
+    }
+    return (a[criteria] || 0) - (b[criteria] || 0);
+  });
+};
 
 /**
  * デッキコンポーネント
@@ -46,15 +69,25 @@ const Deck: React.FC<DeckProps> = ({
         ? 10
         : 0;
 
+  // ソート基準の状態
+  const [sortCriteria, setSortCriteria] = useState<'none' | 'id' | 'name' | 'cost' | 'attack' | 'hp'>('none');
+
+  // ソートされたカードリスト（重複を除く）
+  const [uniqueSortedCards, setUniqueSortedCards] = useState<CardInfo[]>([]);
+
+  // ソート基準が変更されたときにデッキを更新
+  useEffect(() => {
+    const sortedCards = sortCards(
+      cards.filter((card, index, self) => index === self.findIndex(c => c.id === card.id)),
+      sortCriteria
+    );
+    setUniqueSortedCards(sortedCards);
+  }, [cards, sortCriteria]);
+
   // カードの重複数を計算する関数
   const getCardCount = (card: CardInfo) => {
     return cards.filter(c => c.id === card.id).length;
   };
-
-  // 重複を除いたカードリストを作成
-  const uniqueCards = cards.filter((card, index, self) => 
-    index === self.findIndex(c => c.id === card.id)
-  );
 
   // カードがドラッグ開始されたときの処理
   const handleDragStart = (e: React.DragEvent, index: number) => {
@@ -119,16 +152,25 @@ const Deck: React.FC<DeckProps> = ({
         <h2 className={`text-xl font-bold ${getTextColor()}`}>
           {type}デッキ ({cards.length}/{maxCards})
         </h2>
-        {cards.length > maxCards && (
-          <div className="text-red-500 text-sm">
-            デッキが最大枚数を超えています
-          </div>
-        )}
+        <div className="relative">
+          <select
+            className="px-2 py-1 border rounded-md bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={sortCriteria}
+            onChange={(e) => setSortCriteria(e.target.value as 'none' | 'id' | 'name' | 'cost' | 'attack' | 'hp')}
+          >
+            <option value="none">ソートしない</option>
+            <option value="id">ID順</option>
+            <option value="name">名前順</option>
+            <option value="cost">コスト順</option>
+            <option value="attack">攻撃力順</option>
+            <option value="hp">HP順</option>
+          </select>
+        </div>
       </div>
 
       {/* デッキのカードリスト */}
       <div className="grid grid-cols-4 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-4 overflow-auto max-h-[calc(70vh-50px)]">
-        {uniqueCards.map((card, index) => (
+        {uniqueSortedCards.map((card, index) => (
           <div
             key={card.id}
             draggable
@@ -141,7 +183,7 @@ const Deck: React.FC<DeckProps> = ({
             <Card
               card={card}
               draggable={false}
-              count={getCardCount(card)}
+              count={getCardCount(card)} // 重複数を表示
               onRemove={removeable ? handleCardRemove : undefined}
               showRemoveButton={removeable}
             />

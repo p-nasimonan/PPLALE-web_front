@@ -21,4 +21,5 @@ export const allPlayableCards: CardInfo[] = playableData.playable.map(card => ({
   ...card,
   type: card.type as CardType,
   fruit: card.fruit as FruitType,
+  version: card.version, 
 }));
