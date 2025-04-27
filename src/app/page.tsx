@@ -17,7 +17,7 @@ import Link from 'next/link';
 import { useDarkMode } from "./DarkModeProvider";
 import { useSettings } from "./SettingsProvider";
 import { allYojoCards, allSweetCards, allPlayableCards } from '@/data/cards';
-import LoadingScreen from '@/components/LoadingScreen';
+/*import LoadingScreen from '@/components/LoadingScreen';
 
 /**
  * メインページコンポーネント
@@ -35,8 +35,8 @@ export default function Home() {
   const [showExportPopup, setShowExportPopup] = useState(false);
   // インポートポップアップの表示状態
   const [showImportPopup, setShowImportPopup] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [progress, setProgress] = useState(0);
+  /*const [isLoading, setIsLoading] = useState(true);
+  const [progress, setProgress] = useState(0);*/
 
   const { isDarkMode } = useDarkMode();
   const { isTwoCardLimit } = useSettings();
@@ -44,35 +44,6 @@ export default function Home() {
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDarkMode);
   }, [isDarkMode]);
-
-  useEffect(() => {
-    // 画像URLリストを作成
-    const allImageUrls = [
-      ...allYojoCards.map(card => card.imageUrl),
-      ...allSweetCards.map(card => card.imageUrl),
-      // 必要ならallPlayableCardsも
-    ];
-    let loaded = 0;
-    const total = allImageUrls.length;
-
-    if (total === 0) {
-      setIsLoading(false);
-      setProgress(100);
-      return;
-    }
-
-    allImageUrls.forEach(url => {
-      const img = new window.Image();
-      img.src = url;
-      img.onload = img.onerror = () => {
-        loaded++;
-        setProgress(Math.round((loaded / total) * 100));
-        if (loaded === total) {
-          setIsLoading(false);
-        }
-      };
-    });
-  }, []);
 
   // デッキの状態を保持するための useEffect
   useEffect(() => {
@@ -242,7 +213,7 @@ export default function Home() {
 
   return (
     <div>
-      <LoadingScreen isLoading={isLoading} progress={progress} />
+      {/*<LoadingScreen isLoading={isLoading} progress={progress} />*/}
       <div className={showImportPopup||showExportPopup ? 'blur-sm container' : 'container'}>
         <header>
           <div className="flex justify-between items-center">
