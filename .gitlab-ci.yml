@@ -13,14 +13,15 @@ setup:
   tags:
     - web
   script:
-    - echo "Node.js version: "
-    - node -v
-    - echo "NPM version: "
-    - npm -v
-    - echo "NPM config list: "
-    - npm config list
-    - echo "NPM cache verify: "
-    - npm cache verify
+    - |
+      echo "Node.js version: "
+      node -v
+      echo "NPM version: "
+      npm -v
+      echo "NPM config list: "
+      npm config list
+      echo "NPM cache verify: "
+      npm cache verify
   allow_failure: false
 
 build:
@@ -28,13 +29,14 @@ build:
   tags:
     - web
   script:
-    - echo "Starting build process..."
-    - echo "Installing dependencies..."
-    - npm ci
-    - echo "Building application..."
-    - npm run build
-    - echo "Build completed. Checking output directory..."
-    - ls -la out/
+    - |
+      echo "Starting build process..."
+      echo "Installing dependencies..."
+      npm ci
+      echo "Building application..."
+      npm run build
+      echo "Build completed. Checking output directory..."
+      ls -la out/
   artifacts:
     paths:
       - out/
@@ -46,11 +48,12 @@ test:
   tags:
     - web
   script:
-    - echo "Starting tests..."
-    - echo "Checking build output..."
-    - ls -la out/
-    - echo "Verifying file permissions..."
-    - find out/ -type f -exec ls -l {} \;
+    - |
+      echo "Starting tests..."
+      echo "Checking build output..."
+      ls -la out/
+      echo "Verifying file permissions..."
+      find out/ -type f -exec ls -l {} \;
   dependencies:
     - build
   allow_failure: false
@@ -60,13 +63,14 @@ deploy:
   tags:
     - web
   script:
-    - echo "Starting deployment..."
-    - echo "Checking source files..."
-    - ls -la out/
-    - echo "Deploying to server..."
-    - rsync -avz --delete --progress out/ ubuntu:/var/www/pplale.pgw.jp/
-    - echo "Verifying deployment..."
-    - ssh ubuntu "ls -la /var/www/pplale.pgw.jp/"
+    - |
+      echo "Starting deployment..."
+      echo "Checking source files..."
+      ls -la out/
+      echo "Deploying to server..."
+      rsync -avz --delete --progress out/ ubuntu:/var/www/pplale.pgw.jp/
+      echo "Verifying deployment..."
+      ssh ubuntu "ls -la /var/www/pplale.pgw.jp/"
   environment:
     name: production
     url: https://pplale.pgw.jp
