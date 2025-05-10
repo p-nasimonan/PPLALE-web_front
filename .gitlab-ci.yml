@@ -1,26 +1,71 @@
-image: node:22
-
 stages:
+  - setup
   - build
+  - test
   - deploy
+
+variables:
+  NODE_VERSION: "22"
+  NPM_VERSION: "latest"
+
+setup:
+  stage: setup
+  tags:
+    - web
+  script:
+    - echo "Node.js version: $(node -v)"
+    - echo "NPM version: $(npm -v)"
+    - npm config list
+    - npm cache verify
+  allow_failure: false
 
 build:
   stage: build
   tags:
     - web
   script:
+    - echo "Starting build process..."
+    - echo "Installing dependencies..."
     - npm ci
+    - echo "Building application..."
     - npm run build
+    - echo "Build completed. Checking output directory..."
+    - ls -la out/
   artifacts:
     paths:
       - out/
     expire_in: 1 week
+  allow_failure: false
+
+test:
+  stage: test
+  tags:
+    - web
+  script:
+    - echo "Starting tests..."
+    - echo "Checking build output..."
+    - ls -la out/
+    - echo "Verifying file permissions..."
+    - find out/ -type f -exec ls -l {} \;
+  dependencies:
+    - build
+  allow_failure: false
 
 deploy:
   stage: deploy
   tags:
     - web
   script:
-    - rsync -avz --delete out/ ubuntu:/var/www/pplale.pgw.jp/
+    - echo "Starting deployment..."
+    - echo "Checking source files..."
+    - ls -la out/
+    - echo "Deploying to server..."
+    - rsync -avz --delete --progress out/ ubuntu:/var/www/pplale.pgw.jp/
+    - echo "Verifying deployment..."
+    - ssh ubuntu "ls -la /var/www/pplale.pgw.jp/"
+  environment:
+    name: production
+    url: https://pplale.pgw.jp
   only:
-    - main 
+    - main
+  allow_failure: false 
