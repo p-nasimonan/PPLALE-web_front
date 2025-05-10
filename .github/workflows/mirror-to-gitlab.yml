@@ -48,4 +48,4 @@ jobs:
           echo "Username: ${GITLAB_USERNAME}"
           
           # プッシュ実行
-          git push --mirror gitlab
+          git push -p gitlab origin main:main

@@ -120,7 +120,6 @@ const Card: React.FC<CardProps> = ({
       className={`
         relative rounded-lg shadow-md overflow-hidden
         ${getCardColor()} 
-        ${isSelected ? 'ring-4 ring-blue-500' : ''}
         transition-all duration-200 hover:shadow-lg
         cursor-pointer flex-shrink-0
       `}
@@ -156,6 +155,13 @@ const Card: React.FC<CardProps> = ({
         <h2 className='top-4 w-full h-full flex items-center justify-center'>ロード中</h2>
         )}
       </div>
+
+      {/* 選択中のオーバーレイ */}
+      {isSelected && card.type === 'プレイアブル' && (
+        <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+          <p className="text-white text-lg font-bold">選択中</p>
+        </div>
+      )}
 
       {/* 重複数の表示 */}
       {count > 1 && !isDownloading && (

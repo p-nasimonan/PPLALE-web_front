@@ -126,6 +126,10 @@ export default function TwoPick() {
     localStorage.setItem('sweetDeck', JSON.stringify(sweetDeck));
   }, [sweetDeck]);
 
+  useEffect(() => {
+    localStorage.setItem('selectedPlayableCard', JSON.stringify(selectedPlayableCard));
+  }, [selectedPlayableCard]);
+
   // カードが選択されたときの処理
   const handleCardSelect = (card1: CardInfo, card2: CardInfo) => {
     if (yojoDeck.length >= 20 && sweetDeck.length >= 10) {
@@ -414,16 +418,22 @@ export default function TwoPick() {
           >
             デッキ確認
           </button>
-        <button
-          className="btn-danger"
-          onClick={restart}
-        >やり直す</button>
         </div>
        </div>
       )}
       {/* デッキ確認 */}
       {isShowDeck && (
           <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 gap-2 mt-2">
+            {selectedPlayableCard && (
+              <div className="flex justify-center">
+                
+                <Card
+                  card={selectedPlayableCard}
+                  width={340}
+                  height={500}
+                />
+              </div>
+            )}
             <Deck
               cards={yojoDeck}
               type="幼女"
@@ -434,13 +444,6 @@ export default function TwoPick() {
               type="お菓子"
               removeable={false}
             />
-              {selectedPlayableCard && (
-                <Card
-                  card={selectedPlayableCard}
-                  width={340}
-                  height={500}
-                />
-              )}
           </div>
         )}
 

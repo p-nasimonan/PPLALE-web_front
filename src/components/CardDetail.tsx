@@ -70,7 +70,7 @@ const CardDetail: React.FC<CardDetailProps> = ({ card, onClose, canAddToDeck, on
                 onClick={() => onAddToDeck(card)}
                 disabled={!canAddToDeck(card)}
               >
-                デッキに追加
+                {card.type === 'プレイアブル' ? '選択する' : 'デッキに追加'}
               </button>
             )}
           </div>

@@ -29,6 +29,10 @@ export default function Home() {
   const [yojoDeck, setYojoDeck] = useState<CardInfo[]>([]);
   // お菓子デッキのカード
   const [sweetDeck, setSweetDeck] = useState<CardInfo[]>([]);
+  // プレイアブルカード
+  const [selectedPlayableCard, setSelectedPlayableCard] = useState<CardInfo | null>(null);
+
+
   // 選択されているカード
   const [selectedCard, setSelectedCard] = useState<CardInfo | null>(null);
   // エクスポートポップアップの表示状態
@@ -50,6 +54,7 @@ export default function Home() {
     // 初回読み込み時にデッキを localStorage から取得
     const savedYojoDeck = localStorage.getItem('yojoDeck');
     const savedSweetDeck = localStorage.getItem('sweetDeck');
+    const savedSelectedPlayableCard = localStorage.getItem('selectedPlayableCard');
 
     if (savedYojoDeck) {
       setYojoDeck(JSON.parse(savedYojoDeck));
@@ -57,6 +62,9 @@ export default function Home() {
     if (savedSweetDeck) {
       setSweetDeck(JSON.parse(savedSweetDeck));
     }
+    if (savedSelectedPlayableCard) {
+      setSelectedPlayableCard(JSON.parse(savedSelectedPlayableCard));
+    } 
   }, []);
 
   // デッキが更新されたときに localStorage に保存
@@ -99,6 +107,9 @@ export default function Home() {
       const updatedSweetDeck = [...sweetDeck, card];
       setSweetDeck(updatedSweetDeck);
       localStorage.setItem('sweetDeck', JSON.stringify(updatedSweetDeck));
+    } else if (card.type === 'プレイアブル') {
+      setSelectedPlayableCard(card);
+      localStorage.setItem('selectedPlayableCard', JSON.stringify(card));
     }
   };
 
@@ -314,7 +325,7 @@ export default function Home() {
               <CardList
                 cards={[...allPlayableCards].sort((a, b) => (a.version || '').localeCompare(b.version || ''))} // バージョンでソート
                 onCardSelect={handleCardSelect}
-                selectedCardId={selectedCard?.id}
+                selectedCardId={selectedPlayableCard?.id}
                 draggable={true}
                 onDragStart={handleDragStart}
                 cardType="プレイアブル"
