@@ -13,9 +13,13 @@ setup:
   tags:
     - web
   script:
-    - echo "Node.js version: $(node -v)"
-    - echo "NPM version: $(npm -v)"
+    - echo "Node.js version: "
+    - node -v
+    - echo "NPM version: "
+    - npm -v
+    - echo "NPM config list: "
     - npm config list
+    - echo "NPM cache verify: "
     - npm cache verify
   allow_failure: false
 
