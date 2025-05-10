@@ -8,7 +8,6 @@ build:
   stage: build
   tags:
     - web
-    - front
   script:
     - npm ci
     - npm run build
@@ -21,7 +20,6 @@ deploy:
   stage: deploy
   tags:
     - web
-    - front
   script:
     - rsync -avz --delete out/ ubuntu:/var/www/pplale.pgw.jp/
   only:
