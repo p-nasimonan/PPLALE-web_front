@@ -1,0 +1,22 @@
+image: node:22
+
+stages:
+  - build
+  - deploy
+
+build:
+  stage: build
+  script:
+    - npm ci
+    - npm run build
+  artifacts:
+    paths:
+      - out/
+    expire_in: 1 week
+
+deploy:
+  stage: deploy
+  script:
+    - rsync -avz --delete out/ ubuntu:/var/www/pplale.pgw.jp/
+  only:
+    - main 

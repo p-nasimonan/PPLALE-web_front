@@ -3,6 +3,7 @@ import type { NextConfig } from 'next';
 const isProd = process.env.NODE_ENV === 'production';
 
 const config: NextConfig = {
+  output: 'export', // 静的ファイルとしてエクスポート
   assetPrefix: isProd ? '/PPLALE-web_front' : '', // 環境に応じて設定
   images: {
     domains: ['localhost'],
@@ -11,7 +12,9 @@ const config: NextConfig = {
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     formats: ['image/webp'],
     minimumCacheTTL: 60,
-    unoptimized: true, // 日本語ファイル名の問題を回避するため
+    unoptimized: false, // 画像の最適化を有効化
+    loader: 'custom',
+    loaderFile: './image-loader.js', // カスタムローダーの設定
   },
   experimental: {
     optimizeCss: true,
