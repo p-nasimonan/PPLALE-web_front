@@ -1,0 +1,23 @@
+name: Mirror to GitLab
+
+on:
+  push:
+    branches:
+      - main  # ←ミラーしたいブランチ
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout GitHub repo
+        uses: actions/checkout@v2
+
+      - name: Push to GitLab
+        env:
+          GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
+          GITLAB_USERNAME: root
+        run: |
+          git config --global user.name "${GITLAB_USERNAME}"
+          git config --global user.email "${GITLAB_USERNAME}@users.noreply.gitlab.p-nasi.pgw.jp"
+          git remote add gitlab https://${GITLAB_USERNAME}:${GITLAB_TOKEN}@gitlab.p-nasi.pgw.jp/${GITLAB_USERNAME}/pplale/pplale-web_front.git
+          git push --mirror gitlab
