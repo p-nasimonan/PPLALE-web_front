@@ -90,7 +90,7 @@ deploy:
       echo "Deploying to server..."
       rsync -avz --delete --progress out/ ubuntu:/var/www/pplale.pgw.jp/
       echo "Setting permissions..."
-      ssh ubuntu "chown -R www-data:www-data /var/www/pplale.pgw.jp && chmod -R 755 /var/www/pplale.pgw.jp"
+      ssh ubuntu "chown -R yokan /var/www/pplale.pgw.jp && chmod -R 755 /var/www/pplale.pgw.jp"
       echo "Restarting Nginx..."
       ssh ubuntu "sudo systemctl restart nginx"
       echo "Verifying deployment..."
