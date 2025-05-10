@@ -341,6 +341,7 @@ export default function Home() {
         <ExportPopup
           yojoDeck={yojoDeck}
           sweetDeck={sweetDeck}
+          playableCard={selectedPlayableCard}
           onClose={() => setShowExportPopup(false)}
         />
       )}

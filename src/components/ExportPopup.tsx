@@ -8,7 +8,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { CardInfo } from '@/types/card'; // CardをCardInfoに変更
+import { CardInfo } from '@/types/card'; 
+import Card from './Card';
 
 /**
  * エクスポートポップアップのプロパティ
@@ -17,13 +18,18 @@ interface ExportPopupProps {
   /**
    * 幼女デッキのカード配列
    */
-  yojoDeck: CardInfo[]; // CardをCardInfoに変更
+  yojoDeck: CardInfo[];
   
   /**
    * お菓子デッキのカード配列
    */
-  sweetDeck: CardInfo[]; // CardをCardInfoに変更
-  
+  sweetDeck: CardInfo[]; 
+
+  /**
+   * プレイアブルキャラの情報
+   */
+  playableCard: CardInfo | null; 
+
   /**
    * ポップアップを閉じる関数
    */
@@ -36,7 +42,7 @@ interface ExportPopupProps {
  * @param props コンポーネントのプロパティ
  * @returns エクスポートポップアップコンポーネント
  */
-const ExportPopup: React.FC<ExportPopupProps> = ({ yojoDeck, sweetDeck, onClose }) => {
+const ExportPopup: React.FC<ExportPopupProps> = ({ yojoDeck, sweetDeck, playableCard, onClose }) => {
   // 幼女デッキのコピー状態
   const [yojoCopied, setYojoCopied] = useState(false);
   // お菓子デッキのコピー状態
@@ -66,6 +72,8 @@ const ExportPopup: React.FC<ExportPopupProps> = ({ yojoDeck, sweetDeck, onClose 
     setSweetCopied(true);
     setTimeout(() => setSweetCopied(false), 2000);
   };
+
+
 
   return (
     <div className="fixed inset-0 bg-opacity-40 flex items-center justify-center z-50">
@@ -97,6 +105,22 @@ const ExportPopup: React.FC<ExportPopupProps> = ({ yojoDeck, sweetDeck, onClose 
               {sweetCopied ? 'コピーしました！' : 'お菓子デッキをコピー'}
             </button>
           </div>
+
+            {playableCard?.name && (
+            <div className="mb-4">
+            <h4 className="font-bold mb-2">プレイアブルキャラ</h4>
+              <Card
+                card={playableCard}
+                isSelected={false}
+                onClick={() => {}}
+                width={100}
+                height={150}
+                draggable={false}
+                showRemoveButton={false}
+                />
+              </div>
+              )}
+          
         </div>
         <div className="flex justify-end">
           <button

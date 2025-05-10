@@ -36,13 +36,25 @@ interface CardProps {
   /** デッキに追加できるかどうか */
   canAddToDeck?: (card: CardInfo) => boolean;
   /** カードの詳細を表示できるか */
-  showDetail?: boolean;
+  canShowDetail?: boolean;
 }
 
 /**
  * カードコンポーネント
  * 
- * @param props - コンポーネントのプロパティ
+ * @param card 表示するカードのデータ
+ * @param isSelected カードが選択されているかどうか
+ * @param onClick カードがクリックされたときのコールバック関数
+ * @param draggable カードがドラッグ可能かどうか
+ * @param onDragStart ドラッグ開始時のコールバック関数
+ * @param count カードの重複数
+ * @param width カード画像の幅
+ * @param height カード画像の高さ
+ * @param onRemove カードが削除されたときのコールバック関数
+ * @param showRemoveButton 削除ボタンを表示するかどうか
+ * @param onAddToDeck デッキに追加するコールバック関数
+ * @param canAddToDeck デッキに追加できるかどうか
+ * @param canShowDetail カードの詳細を表示できるか
  * @returns カードコンポーネント
  */
 const Card: React.FC<CardProps> = ({
@@ -58,7 +70,7 @@ const Card: React.FC<CardProps> = ({
   showRemoveButton = false,
   onAddToDeck,
   canAddToDeck = false,
-  showDetail = true,
+  canShowDetail = true,
 }) => {
     
   // 環境に応じて画像のパスを切り替え
@@ -124,7 +136,7 @@ const Card: React.FC<CardProps> = ({
         cursor-pointer flex-shrink-0
       `}
       style={{ width: `${width}px`, height: `${height}px` }}
-      onClick={showDetail ? handleClick : undefined}
+      onClick={canShowDetail ? handleClick : undefined}
       draggable={draggable}
       onDragStart={handleDragStart}
       >

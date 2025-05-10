@@ -454,6 +454,7 @@ export default function TwoPick() {
         <ExportPopup
           yojoDeck={yojoDeck}
           sweetDeck={sweetDeck}
+          playableCard={selectedPlayableCard}
           onClose={() => setShowExportPopup(false)}
         />
       )}
