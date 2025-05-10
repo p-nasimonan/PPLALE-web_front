@@ -14,10 +14,39 @@ jobs:
 
       - name: Push to GitLab
         env:
-          GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
+          GITLAB_SSH_KEY: ${{ secrets.GITLAB_SSH_KEY }}
           GITLAB_USERNAME: root
+          GITLAB_URL: gitlab.p-nasi.pgw.jp
         run: |
+          # SSH鍵の設定
+          mkdir -p ~/.ssh
+          echo "$GITLAB_SSH_KEY" > ~/.ssh/gitlab_key
+          chmod 600 ~/.ssh/gitlab_key
+          
+          # SSH設定
+          cat >> ~/.ssh/config << EOF
+          Host gitlab
+            HostName ${GITLAB_URL}
+            User git
+            IdentityFile ~/.ssh/gitlab_key
+            StrictHostKeyChecking no
+          EOF
+          
+          # Git設定
           git config --global user.name "${GITLAB_USERNAME}"
           git config --global user.email "${GITLAB_USERNAME}@users.noreply.gitlab.p-nasi.pgw.jp"
-          git remote add gitlab https://${GITLAB_USERNAME}:${GITLAB_TOKEN}@gitlab.p-nasi.pgw.jp/pplale/pplale-web_front.git
-          git push --mirror gitlab
+          
+          # リモートの追加（既存のリモートを削除してから追加）
+          git remote remove gitlab || true
+          git remote add gitlab "git@gitlab:pplale/pplale-web_front.git"
+          
+          # デバッグ情報の出力
+          echo "Pushing to GitLab..."
+          echo "GitLab URL: ${GITLAB_URL}"
+          echo "Username: ${GITLAB_USERNAME}"
+          
+          # プッシュ実行
+          git push --mirror gitlab || {
+            echo "Error: Failed to push to GitLab"
+            exit 1
+          }
