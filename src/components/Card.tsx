@@ -63,7 +63,7 @@ const Card: React.FC<CardProps> = ({
     
   // 環境に応じて画像のパスを切り替え
   const isProd = process.env.NODE_ENV === 'production';
-  const basePath = isProd ? '/PPLALE-web_front' : '';
+  const basePath = isProd ? '' : '';
   const imagePath = `${basePath}${card.imageUrl}`;
   const loadingImagePath = `${basePath}/images/yokan.png`;
 
