@@ -36,7 +36,7 @@ jobs:
           
           # Git設定
           git config --global user.name "${GITLAB_USERNAME}"
-          git config --global user.email "${GITLAB_USERNAME}@users.noreply.gitlab.p-nasi.pgw.jp"
+          git config --global user.email "${GITLAB_USERNAME}@${GITLAB_URL}"
           
           # リモートの追加（既存のリモートを削除してから追加）
           git remote remove gitlab || true
@@ -48,4 +48,4 @@ jobs:
           echo "Username: ${GITLAB_USERNAME}"
           
           # プッシュ実行
-          git push --mirror gitlab
+          git push gitlab main
