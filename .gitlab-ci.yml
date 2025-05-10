@@ -62,6 +62,19 @@ deploy:
   stage: deploy
   tags:
     - web
+  before_script:
+    - |
+      mkdir -p ~/.ssh
+      echo "$SSH_PRIVATE_KEY" > ~/.ssh/ubuntu
+      chmod 600 ~/.ssh/ubuntu
+      cat >> ~/.ssh/config << EOF
+      Host ubuntu
+        User yokan
+        HostName 192.168.0.5
+        IdentityFile ~/.ssh/ubuntu
+        StrictHostKeyChecking no
+      EOF
+      chmod 600 ~/.ssh/config
   script:
     - |
       echo "Starting deployment..."
