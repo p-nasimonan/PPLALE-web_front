@@ -12,6 +12,8 @@ setup:
   stage: setup
   tags:
     - web
+  before_script:
+    - sleep 5  # Runnerの完全な起動を待つ
   script:
     - |
       echo "Node.js version: "
@@ -28,6 +30,8 @@ build:
   stage: build
   tags:
     - web
+  before_script:
+    - sleep 0
   script:
     - |
       echo "Starting build process..."
@@ -47,6 +51,8 @@ test:
   stage: test
   tags:
     - web
+  before_script:
+    - sleep 0
   script:
     - |
       echo "Starting tests..."
@@ -63,6 +69,7 @@ deploy:
   tags:
     - web
   before_script:
+    - sleep 0
     - |
       mkdir -p ~/.ssh
       echo "$SSH_PRIVATE_KEY" > ~/.ssh/ubuntu
