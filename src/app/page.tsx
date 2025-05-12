@@ -17,7 +17,7 @@ import Link from 'next/link';
 import { useDarkMode } from "./DarkModeProvider";
 import { useSettings } from "./SettingsProvider";
 import { allYojoCards, allSweetCards, allPlayableCards } from '@/data/cards';
-/*import LoadingScreen from '@/components/LoadingScreen';
+
 
 /**
  * メインページコンポーネント
@@ -39,8 +39,6 @@ export default function Home() {
   const [showExportPopup, setShowExportPopup] = useState(false);
   // インポートポップアップの表示状態
   const [showImportPopup, setShowImportPopup] = useState(false);
-  /*const [isLoading, setIsLoading] = useState(true);
-  const [progress, setProgress] = useState(0);*/
 
   const { isDarkMode } = useDarkMode();
   const { isTwoCardLimit } = useSettings();

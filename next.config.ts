@@ -1,6 +1,7 @@
 import type { NextConfig } from 'next';
 
 const isProd = process.env.NODE_ENV === 'production';
+const isGitHubPages = process.env.GITHUB_PAGES === 'true';
 
 const config: NextConfig = {
   output: 'export',
@@ -25,7 +26,7 @@ const config: NextConfig = {
       },
     ];
   },
-  basePath: '',
+  basePath: isGitHubPages ? '/PPLALE-web_front' : '',
   trailingSlash: false,
 };
 
