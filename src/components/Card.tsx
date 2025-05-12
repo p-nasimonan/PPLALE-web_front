@@ -9,6 +9,7 @@ import React, { useState, useEffect} from 'react';
 import Image from 'next/image';
 import { CardInfo } from '@/types/card';
 import CardDetail from './CardDetail';
+import { basePath } from '@/config/env';
 
 interface CardProps {
   /** 表示するカードのデータ */
@@ -72,10 +73,6 @@ const Card: React.FC<CardProps> = ({
   canAddToDeck = false,
   canShowDetail = true,
 }) => {
-    
-  // 環境に応じて画像のパスを切り替え
-  const isProd = process.env.NODE_ENV === 'production';
-  const basePath = isProd ? '' : '';
   const imagePath = `${basePath}${card.imageUrl}`;
   const loadingImagePath = `${basePath}/images/yokan.png`;
 
@@ -97,15 +94,17 @@ const Card: React.FC<CardProps> = ({
 
   // カードがクリックされたときの処理
   const handleClick = () => {
-    if (onClick) {
+    if (onClick && !isExpanded) {
       onClick(card);
     }
-    setIsExpanded(true);
+    if (canShowDetail) {
+      setIsExpanded(true);
+    }
   };
 
   // ドラッグ開始時の処理
   const handleDragStart = (e: React.DragEvent) => {
-    if (onDragStart) {
+    if (onDragStart && !isExpanded) {
       onDragStart(e, card);
     }
   };
@@ -120,10 +119,10 @@ const Card: React.FC<CardProps> = ({
 
   useEffect(() => {
     setIsDownloading(true);
-    // 0.002秒後にダウンロード完了
+    // 0秒後にダウンロード完了
     setTimeout(() => {
       setIsDownloading(false);
-    }, 2);
+    }, 0);
   }, [card]);
 
   return (
@@ -134,10 +133,11 @@ const Card: React.FC<CardProps> = ({
         ${getCardColor()} 
         transition-all duration-200 hover:shadow-lg
         cursor-pointer flex-shrink-0
+        ${isExpanded ? 'pointer-events-none' : ''}
       `}
       style={{ width: `${width}px`, height: `${height}px` }}
       onClick={canShowDetail ? handleClick : undefined}
-      draggable={draggable}
+      draggable={draggable && !isExpanded}
       onDragStart={handleDragStart}
       >
       {/* カードの画像 */}
@@ -189,13 +189,13 @@ const Card: React.FC<CardProps> = ({
         onClick={handleRemove}
         aria-label={`${card.name}を削除`}
         >
-        ×
+          ×
         </button>
       )}
       </div>
 
-      {/* カード詳細ポップアップ */}
-      {isExpanded && (
+      {/* カードの詳細 */}
+      {isExpanded && canShowDetail && (
         <CardDetail
           card={card}
           onClose={() => setIsExpanded(false)}

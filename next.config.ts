@@ -1,7 +1,5 @@
 import type { NextConfig } from 'next';
-
-const isGitHubPages = process.env.GITHUB_PAGES === 'true';
-const basePath = isGitHubPages ? '/PPLALE-web_front' : '';
+import { basePath } from './src/config/env'; // env.tsをインポート
 
 const config: NextConfig = {
   output: 'export',
@@ -31,6 +29,22 @@ const config: NextConfig = {
   publicRuntimeConfig: {
     basePath,
   },
+  webpack: (config) => {
+    config.module.rules.push({
+      test: /\.(png|jpe?g|gif|svg)$/i,
+      use: [
+        {
+          loader: 'file-loader',
+          options: {
+            publicPath: `${basePath}/images`,  // 画像のURLパス
+            outputPath: 'images',              // 出力ディレクトリ
+            name: '[name].[hash].[ext]',
+          },
+        },
+      ],
+    });
+    return config;
+  }
 };
 
 export default config;
