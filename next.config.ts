@@ -1,15 +1,14 @@
 import type { NextConfig } from 'next';
 
-const isProd = process.env.NODE_ENV === 'production';
 const isGitHubPages = process.env.GITHUB_PAGES === 'true';
 
 const config: NextConfig = {
   output: 'export',
-  assetPrefix: isProd ? '' : '', // 本番環境では空文字列
+  assetPrefix: isGitHubPages ? '/PPLALE-web_front' : '',
   images: {
     unoptimized: true,
     domains: ['localhost', 'pplale.pgw.jp'],
-    path: isProd ? '' : '',
+    path: isGitHubPages ? '/PPLALE-web_front' : '',
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     formats: ['image/webp'],
