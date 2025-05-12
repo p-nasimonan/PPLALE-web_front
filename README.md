@@ -1,5 +1,6 @@
 # VRChatにあるカードゲーム「ぷぷりえーる」のデッキ構築などができるwebアプリのフロントエンド
-URL: https://p-nasimonan.github.io/PPLALE-web_front/  (画像が最適化されないため、初回ロードに時間がかかるかもしれません）  
+URL: https://p-nasimonan.github.io/PPLALE-web_front/  （画像が最適化されないため、初回ロードに時間がかかるかもしれません）  
+自宅鯖： https://pplale.pgw.jp/　（今のところIPv6しか対応してません）  
 <img width="1619" alt="スクリーンショット 2025-05-01 15 34 43" src="https://github.com/user-attachments/assets/5a895727-011e-4c35-8c57-66b94f290253" />
 
 ## ぷぷりえーるとは
@@ -25,6 +26,8 @@ VRChatのイベントロリっ子喫茶ぷぷりえのカードゲーム！推�
 ```
 
 # 開発について
+こんな感じでGitHubにプッシュすると自宅鯖にGitlabCI/CDでデプロイされてます  
+![alt text](drawio/deploy.drawio.svg)
 
 ## Next.js使います
 
@@ -43,7 +46,3 @@ npm --version
 ```bash
 npm install
 ```
-
-## GitHub ActionsでCI/CD設定
-
-
