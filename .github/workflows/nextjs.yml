@@ -54,7 +54,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: "18"
           cache: ${{ steps.detect-package-manager.outputs.manager }}
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -79,7 +79,7 @@ jobs:
       - name: Install dependencies
         run: |
           ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
-          npm install -D tailwindcss@3 postcss@8.4.24 autoprefixer@10.4.14
+          npm install -D tailwindcss@3.3.3 postcss@8.4.24 autoprefixer@10.4.14 cross-env
           npm audit fix
           # 設定ファイルを手動で作成
           echo 'module.exports = {content: ["./src/**/*.{js,ts,jsx,tsx}"],theme: {extend: {}},plugins: []}' > tailwind.config.js
