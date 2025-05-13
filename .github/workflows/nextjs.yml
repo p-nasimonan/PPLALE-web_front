@@ -79,8 +79,10 @@ jobs:
       - name: Install dependencies
         run: |
           ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
-          npm install -D tailwindcss@3.3.3 postcss@8.4.24 autoprefixer@10.4.14 cross-env
-          npm audit fix
+          # グローバルにTailwindをインストール
+          npm install -g tailwindcss postcss autoprefixer
+          # ローカルにもインストール
+          npm install --save-dev tailwindcss@3.3.3 postcss@8.4.24 autoprefixer@10.4.14 cross-env
           # 設定ファイルを手動で作成
           echo 'module.exports = {content: ["./src/**/*.{js,ts,jsx,tsx}"],theme: {extend: {}},plugins: []}' > tailwind.config.js
           echo 'module.exports = {plugins: {tailwindcss: {},autoprefixer: {}}}' > postcss.config.js
@@ -95,6 +97,18 @@ jobs:
           cat postcss.config.js
           echo "Next.js version:"
           npm list next
+      - name: Update globals.css
+        run: |
+          # globals.cssの内容を確認
+          if [ -f "src/app/globals.css" ]; then
+            echo "Updating globals.css..."
+            # @importの代わりに@tailwindを使用するよう修正
+            sed -i 's/@import/\/* @import *\//' src/app/globals.css
+            sed -i '1s/^/@tailwind base;\n@tailwind components;\n@tailwind utilities;\n\n/' src/app/globals.css
+            cat src/app/globals.css | head -10
+          else
+            echo "globals.css not found"
+          fi
       - name: Build with Next.js
         run: ${{ steps.detect-package-manager.outputs.runner }} next build --debug
       - name: Upload artifact
