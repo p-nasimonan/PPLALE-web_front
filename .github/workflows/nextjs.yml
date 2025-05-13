@@ -74,19 +74,31 @@ jobs:
           # If source files changed but packages didn't, rebuild from a prior cache.
           restore-keys: |
             ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}-
+      - name: check-npm
+        run: npm -v
       - name: Install dependencies
         run: |
           ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
           npm install -D tailwindcss@3 postcss@8.4.24 autoprefixer@10.4.14
           npx tailwindcss init -p
           npm audit fix
+          # デバッグ情報を出力
+          echo "Node version: $(node -v)"
+          echo "NPM version: $(npm -v)"
+          echo "Installed packages:"
+          npm list --depth=0
+          echo "Tailwind config:"
+          cat tailwind.config.js
+          echo "PostCSS config:"
+          cat postcss.config.js
+          echo "Next.js version:"
+          npm list next
       - name: Build with Next.js
-        run: ${{ steps.detect-package-manager.outputs.runner }} next build
+        run: ${{ steps.detect-package-manager.outputs.runner }} next build --debug
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./out
-
 
   # Deployment job
   deploy:
