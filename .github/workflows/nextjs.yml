@@ -78,25 +78,14 @@ jobs:
         run: npm -v
       - name: Install dependencies
         run: |
+          # package.jsonを正確に使用
           ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
-          # グローバルにTailwindをインストール
-          npm install -g tailwindcss postcss autoprefixer
-          # ローカルにもインストール
-          npm install --save-dev tailwindcss@3.3.3 postcss@8.4.24 autoprefixer@10.4.14 cross-env
-          # 設定ファイルを手動で作成
-          echo 'module.exports = {content: ["./src/**/*.{js,ts,jsx,tsx}"],theme: {extend: {}},plugins: []}' > tailwind.config.js
-          echo 'module.exports = {plugins: {tailwindcss: {},autoprefixer: {}}}' > postcss.config.js
-          # デバッグ情報を出力
-          echo "Node version: $(node -v)"
-          echo "NPM version: $(npm -v)"
-          echo "Installed packages:"
-          npm list --depth=0
-          echo "Tailwind config:"
-          cat tailwind.config.js
-          echo "PostCSS config:"
-          cat postcss.config.js
-          echo "Next.js version:"
-          npm list next
+          # 明示的にパッケージをインストール
+          npm install tailwindcss@3.3.3 --save-dev
+          # インストール結果を確認
+          npm list tailwindcss
+          # node_modulesディレクトリを確認
+          ls -la node_modules/tailwindcss || echo "tailwindcss directory not found"
       - name: Update globals.css
         run: |
           # globals.cssの内容を確認
