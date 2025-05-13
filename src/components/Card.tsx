@@ -9,7 +9,9 @@ import React, { useState, useEffect} from 'react';
 import Image from 'next/image';
 import { CardInfo } from '@/types/card';
 import CardDetail from './CardDetail';
-import { basePath } from '@/config/env';
+
+const isGitHubPages = process.env.NEXT_PUBLIC_GITHUB_PAGES === 'true';
+const basePath = isGitHubPages ? '/PPLALE-web_front' : '';
 
 interface CardProps {
   /** 表示するカードのデータ */

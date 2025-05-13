@@ -1,5 +1,6 @@
 import type { NextConfig } from 'next';
-import { basePath } from './src/config/env'; // env.tsをインポート
+const isGitHubPages = process.env.NEXT_PUBLIC_GITHUB_PAGES === 'true';
+const basePath = isGitHubPages ? '/PPLALE-web_front' : '';
 
 const config: NextConfig = {
   output: 'export',
