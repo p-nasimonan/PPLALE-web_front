@@ -80,8 +80,10 @@ jobs:
         run: |
           ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
           npm install -D tailwindcss@3 postcss@8.4.24 autoprefixer@10.4.14
-          npx tailwindcss init -p
           npm audit fix
+          # 設定ファイルを手動で作成
+          echo 'module.exports = {content: ["./src/**/*.{js,ts,jsx,tsx}"],theme: {extend: {}},plugins: []}' > tailwind.config.js
+          echo 'module.exports = {plugins: {tailwindcss: {},autoprefixer: {}}}' > postcss.config.js
           # デバッグ情報を出力
           echo "Node version: $(node -v)"
           echo "NPM version: $(npm -v)"
