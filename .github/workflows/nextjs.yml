@@ -78,7 +78,8 @@ jobs:
         run: |
           ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
           npm install -D tailwindcss@3 postcss@8.4.24 autoprefixer@10.4.14
-          $(npm bin)/tailwindcss init -p
+          npx tailwindcss init -p
+          npm audit fix
       - name: Build with Next.js
         run: ${{ steps.detect-package-manager.outputs.runner }} next build
       - name: Upload artifact
