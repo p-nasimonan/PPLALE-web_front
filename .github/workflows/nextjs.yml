@@ -78,26 +78,27 @@ jobs:
         run: npm -v
       - name: Install dependencies
         run: |
-          # package.jsonを正確に使用
+          # まず依存関係をクリーンインストール
           ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
-          # 明示的にパッケージをインストール
-          npm install tailwindcss@3.3.3 --save-dev
-          # インストール結果を確認
+          
+          # package.jsonを直接編集してTailwindとPostCSSのバージョンを固定
+          echo "Updating package.json with specific Tailwind version"
+          sed -i 's/"tailwindcss": ".*"/"tailwindcss": "3.3.3"/' package.json
+          sed -i 's/"postcss": ".*"/"postcss": "8.4.24"/' package.json
+          sed -i 's/"autoprefixer": ".*"/"autoprefixer": "10.4.14"/' package.json
+          cat package.json
+          
+          # 再インストール
+          npm install
+          
+          # 設定ファイルを作成
+          echo 'module.exports = {content: ["./src/**/*.{js,ts,jsx,tsx}"],theme: {extend: {}},plugins: []}' > tailwind.config.js
+          echo 'module.exports = {plugins: {tailwindcss: {},autoprefixer: {}}}' > postcss.config.js
+          
+          # インストール確認
+          echo "Checking installed packages:"
+          npm list --depth=0
           npm list tailwindcss
-          # node_modulesディレクトリを確認
-          ls -la node_modules/tailwindcss || echo "tailwindcss directory not found"
-      - name: Update globals.css
-        run: |
-          # globals.cssの内容を確認
-          if [ -f "src/app/globals.css" ]; then
-            echo "Updating globals.css..."
-            # @importの代わりに@tailwindを使用するよう修正
-            sed -i 's/@import/\/* @import *\//' src/app/globals.css
-            sed -i '1s/^/@tailwind base;\n@tailwind components;\n@tailwind utilities;\n\n/' src/app/globals.css
-            cat src/app/globals.css | head -10
-          else
-            echo "globals.css not found"
-          fi
       - name: Build with Next.js
         run: ${{ steps.detect-package-manager.outputs.runner }} next build --debug
       - name: Upload artifact
