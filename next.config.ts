@@ -1,5 +1,5 @@
 import type { NextConfig } from 'next';
-const isGitHubPages = process.env.NEXT_PUBLIC_GITHUB_PAGES === 'true';
+const isGitHubPages = process.env.GITHUB_PAGES === 'true';
 const basePath = isGitHubPages ? '/PPLALE-web_front' : '';
 
 const config: NextConfig = {
