@@ -4,6 +4,7 @@ import "./globals.css";
 import DarkModeProvider from './DarkModeProvider';
 import { SettingsProvider } from './SettingsProvider';
 import SettingsButton from '@/components/SettingsButton';
+import FireBaseLogin from '@/components/FireBaseLogin';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,7 +33,8 @@ export default function RootLayout({
       >
         <DarkModeProvider>
           <SettingsProvider>
-            <div className="fixed top-4 right-4 z-50">
+            <div className="fixed bottom-4 left-4 z-50 flex items-center gap-4">
+              <FireBaseLogin />
               <SettingsButton />
             </div>
             {children}
