@@ -5,13 +5,27 @@
  * カードの種類（幼女/お菓子）に応じて表示を変更する
  */
 
-import React, { useState, useEffect} from 'react'; 
+'use client';
+
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { CardInfo } from '@/types/card';
 import CardDetail from './CardDetail';
 
 const isGitHubPages = process.env.NEXT_PUBLIC_GITHUB_PAGES === 'true';
 const basePath = isGitHubPages ? '/PPLALE-web_front' : '';
+
+interface CardSize {
+  width: number;
+  height: number;
+}
+
+interface CardSizes {
+  base: CardSize;
+  sm: CardSize;
+  md: CardSize;
+  lg: CardSize;
+}
 
 interface CardProps {
   /** 表示するカードのデータ */
@@ -26,10 +40,8 @@ interface CardProps {
   onDragStart?: (e: React.DragEvent, card: CardInfo) => void;
   /** カードの重複数 */
   count?: number;
-  /** カード画像の幅 */
-  width?: number ;
-  /** カード画像の高さ */
-  height?: number;
+  /** カードのサイズ設定 */
+  sizes?: Partial<CardSizes>;
   /** カードが削除されたときのコールバック関数 */
   onRemove?: (card: CardInfo) => void;
   /** 削除ボタンを表示するかどうか */
@@ -42,6 +54,13 @@ interface CardProps {
   canShowDetail?: boolean;
 }
 
+const defaultSizes: CardSizes = {
+  base: { width: 100, height: 151 },
+  sm: { width: 140, height: 210 },
+  md: { width: 140, height: 210 },
+  lg: { width: 140, height: 210 }
+};
+
 /**
  * カードコンポーネント
  * 
@@ -51,8 +70,7 @@ interface CardProps {
  * @param draggable カードがドラッグ可能かどうか
  * @param onDragStart ドラッグ開始時のコールバック関数
  * @param count カードの重複数
- * @param width カード画像の幅
- * @param height カード画像の高さ
+ * @param sizes カードのサイズ設定
  * @param onRemove カードが削除されたときのコールバック関数
  * @param showRemoveButton 削除ボタンを表示するかどうか
  * @param onAddToDeck デッキに追加するコールバック関数
@@ -67,19 +85,26 @@ const Card: React.FC<CardProps> = ({
   draggable = false,
   onDragStart,
   count = 1,
-  width = 140, // デフォルト幅
-  height = 210, // デフォルト高さ
+  sizes,
   onRemove,
   showRemoveButton = false,
   onAddToDeck,
   canAddToDeck = false,
   canShowDetail = true,
 }) => {
-  const imagePath = `${basePath}${card.imageUrl}`;
-  const loadingImagePath = `${basePath}/images/yokan.png`;
-
   const [isDownloading, setIsDownloading] = useState(true);
   const [isExpanded, setIsExpanded] = useState(false);
+
+  // サイズ設定をマージ
+  const cardSizes: CardSizes = {
+    base: { ...defaultSizes.base, ...sizes?.base },
+    sm: { ...defaultSizes.sm, ...sizes?.sm },
+    md: { ...defaultSizes.md, ...sizes?.md },
+    lg: { ...defaultSizes.lg, ...sizes?.lg }
+  };
+
+  const imagePath = `${basePath}${card.imageUrl}`;
+  const loadingImagePath = `${basePath}/images/yokan.png`;
 
   // カードの種類に応じた背景色を設定
   const getCardColor = () => {
@@ -121,7 +146,6 @@ const Card: React.FC<CardProps> = ({
 
   useEffect(() => {
     setIsDownloading(true);
-    // 0秒後にダウンロード完了
     setTimeout(() => {
       setIsDownloading(false);
     }, 0);
@@ -130,70 +154,107 @@ const Card: React.FC<CardProps> = ({
   return (
     <>
       <div
-      className={`
-        relative rounded-lg shadow-md overflow-hidden
-        ${getCardColor()} 
-        transition-all duration-200 hover:shadow-lg
-        cursor-pointer flex-shrink-0
-        ${isExpanded ? 'pointer-events-none' : ''}
-      `}
-      style={{ width: `${width}px`, height: `${height}px` }}
-      onClick={canShowDetail ? handleClick : undefined}
-      draggable={draggable && !isExpanded}
-      onDragStart={handleDragStart}
-      >
-      {/* カードの画像 */}
-      <div className="w-full h-full flex items-center justify-center">
-        <Image
-        src={isDownloading ? loadingImagePath : imagePath}
-        alt={isDownloading ? "ロード中..." : card.name}
-        width={width}
-        height={height}
-        className={`rounded-lg ${isDownloading ? 'pixelated' : ''}`}
-        sizes="(max-width: 800px) 100vw, (max-width: 1200px) 50vw, 25vw"
-        priority={false}
-        quality={60}
-        unoptimized={false}
+        className={`
+          relative rounded-lg shadow-md overflow-hidden card-container
+          ${getCardColor()} 
+          transition-all duration-200 hover:shadow-lg
+          cursor-pointer flex-shrink-0
+          ${isExpanded ? 'pointer-events-none' : ''}
+        `}
         style={{
-          ...(isDownloading ? {
-            imageRendering: 'pixelated',
-            width: '64px',
-            height: '64px',
-          } : {})
+          width: `${cardSizes.base.width}px`,
+          height: `${cardSizes.base.height}px`,
         }}
-        placeholder="blur"
-        loading="lazy"
-        blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGwAZQAgAEkAbgBjAC4AIAAyADAAMQA2/9sAQwAUDg8SDw0UEhASFxUUTHx+Hh4eGhodJC0lICQoICQoICQoICQoICQoICQoICQoICQoICQoICQoICQoICQoICQoICQoICQoICQoIP/YAERCAAoACgMBIgACEQEDEQH/xAAVAQEBAAAAAAAAAAAAAAAAAAAAAv/EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAhADEAAAAJ0AGZf/2Q=="
-        />
-        {isDownloading && (
-        <h2 className='top-4 w-full h-full flex items-center justify-center'>ロード中</h2>
+        onClick={canShowDetail ? handleClick : undefined}
+        draggable={draggable && !isExpanded}
+        onDragStart={handleDragStart}
+      >
+        <style jsx>{`
+          .card-container {
+            width: ${cardSizes.base.width}px;
+            height: ${cardSizes.base.height}px;
+          }
+          @media (min-width: 640px) {
+            .card-container {
+              width: ${cardSizes.sm.width}px !important;
+              height: ${cardSizes.sm.height}px !important;
+            }
+          }
+          @media (min-width: 768px) {
+            .card-container {
+              width: ${cardSizes.md.width}px !important;
+              height: ${cardSizes.md.height}px !important;
+            }
+          }
+          @media (min-width: 1024px) {
+            .card-container {
+              width: ${cardSizes.lg.width}px !important;
+              height: ${cardSizes.lg.height}px !important;
+            }
+          }
+        `}</style>
+        {/* カードの画像 */}
+        <div className="w-full h-full flex items-center justify-center relative">
+          {isDownloading ? (
+            <>
+              <Image
+                src={loadingImagePath}
+                alt="ロード中..."
+                width={64}
+                height={64}
+                className="pixelated"
+                priority={false}
+                quality={60}
+                unoptimized={false}
+              />
+              <h2 className='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2'>
+                ロード中
+              </h2>
+            </>
+          ) : (
+            <Image
+              src={imagePath}
+              alt={card.name}
+              fill
+              className="rounded-lg object-contain"
+              sizes={`(max-width: 640px) ${cardSizes.base.width}px, 
+                     (max-width: 768px) ${cardSizes.sm.width}px, 
+                     (max-width: 1024px) ${cardSizes.md.width}px, 
+                     ${cardSizes.lg.width}px`}
+              priority={false}
+              quality={60}
+              unoptimized={false}
+              placeholder="blur"
+              loading="lazy"
+              blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGwAZQAgAEkAbgBjAC4AIAAyADAAMQA2/9sAQwAUDg8SDw0UEhASFxUUTHx+Hh4eGhodJC0lICQoICQoICQoICQoICQoICQoICQoICQoICQoICQoICQoICQoICQoICQoICQoICQoIP/YAERCAAoACgMBIgACEQEDEQH/xAAVAQEBAAAAAAAAAAAAAAAAAAAAAv/EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAhADEAAAAJ0AGZf/2Q=="
+            />
+          )}
+        </div>
+
+        {/* 選択中のオーバーレイ */}
+        {isSelected && card.type === 'プレイアブル' && (
+          <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+            <p className="text-white text-lg font-bold">選択中</p>
+          </div>
         )}
-      </div>
 
-      {/* 選択中のオーバーレイ */}
-      {isSelected && card.type === 'プレイアブル' && (
-        <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-          <p className="text-white text-lg font-bold">選択中</p>
-        </div>
-      )}
+        {/* 重複数の表示 */}
+        {count > 1 && !isDownloading && (
+          <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 text-white rounded-full w-6 h-6 flex items-center justify-center text-s">
+            ×{count}
+          </div>
+        )}
 
-      {/* 重複数の表示 */}
-      {count > 1 && !isDownloading && (
-        <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm">
-        ×{count}
-        </div>
-      )}
-
-      {/* 削除ボタン */}
-      {showRemoveButton && !isDownloading && (
-        <button
-        className="absolute top-1 right-1 bg-gray-300 text-gray-700 rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-500 hover:text-white transition-colors duration-200"
-        onClick={handleRemove}
-        aria-label={`${card.name}を削除`}
-        >
-          ×
-        </button>
-      )}
+        {/* 削除ボタン */}
+        {showRemoveButton && !isDownloading && (
+          <button
+            className="absolute top-1 right-1 bg-gray-300 text-gray-700 rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-500 hover:text-white transition-colors duration-200"
+            onClick={handleRemove}
+            aria-label={`${card.name}を削除`}
+          >
+            ×
+          </button>
+        )}
       </div>
 
       {/* カードの詳細 */}

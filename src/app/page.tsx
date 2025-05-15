@@ -13,7 +13,6 @@ import CardList from '@/components/CardList';
 import Deck from '@/components/Deck';
 import ExportPopup from '@/components/ExportPopup';
 import ImportPopup from '@/components/ImportPopup';
-import Link from 'next/link';
 import { useDarkMode } from "./DarkModeProvider";
 import { useSettings } from "./SettingsProvider";
 import { allYojoCards, allSweetCards, allPlayableCards } from '@/data/cards';
@@ -166,12 +165,7 @@ export default function Home() {
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
   };
-
-  // デッキをエクスポートする処理
-  const handleExportDeck = () => {
-    setShowExportPopup(true);
-  };
-
+  
   // デッキをインポートする処理
   const handleImportDeck = (yojoCardIds: string, sweetCardIds: string) => {
     try {
@@ -239,7 +233,6 @@ export default function Home() {
 
   return (
     <div>
-      {/*<LoadingScreen isLoading={isLoading} progress={progress} />*/}
       <div className={showImportPopup||showExportPopup ? 'blur-sm container' : 'container'}>
         <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 gap-2">
           {/* デッキ構築エリア */}

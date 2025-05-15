@@ -46,7 +46,7 @@ export default function HeaderNavigation() {
       ) : is2PickPage ? (
         <Link
           href="/"
-          className="lnk-important"
+          className="lnk-important truncate"
         >
           通常構築に戻る
         </Link>
