@@ -14,7 +14,7 @@ import Deck from '@/components/Deck';
 import ExportPopup from '@/components/ExportPopup';
 import ImportPopup from '@/components/ImportPopup';
 import { useDarkMode } from "./DarkModeProvider";
-import { useSettings } from "./SettingsProvider";
+import { useSettings } from "./SideMenuProvider";
 import { allYojoCards, allSweetCards, allPlayableCards } from '@/data/cards';
 
 
