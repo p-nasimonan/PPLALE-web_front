@@ -113,8 +113,6 @@ const ExportPopup: React.FC<ExportPopupProps> = ({ yojoDeck, sweetDeck, playable
                 card={playableCard}
                 isSelected={false}
                 onClick={() => {}}
-                width={100}
-                height={150}
                 draggable={false}
                 showRemoveButton={false}
                 />

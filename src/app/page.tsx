@@ -13,7 +13,6 @@ import CardList from '@/components/CardList';
 import Deck from '@/components/Deck';
 import ExportPopup from '@/components/ExportPopup';
 import ImportPopup from '@/components/ImportPopup';
-import Link from 'next/link';
 import { useDarkMode } from "./DarkModeProvider";
 import { useSettings } from "./SettingsProvider";
 import { allYojoCards, allSweetCards, allPlayableCards } from '@/data/cards';
@@ -166,12 +165,7 @@ export default function Home() {
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
   };
-
-  // デッキをエクスポートする処理
-  const handleExportDeck = () => {
-    setShowExportPopup(true);
-  };
-
+  
   // デッキをインポートする処理
   const handleImportDeck = (yojoCardIds: string, sweetCardIds: string) => {
     try {
@@ -220,44 +214,27 @@ export default function Home() {
     }
   };
 
+  // イベントリスナーの設定
+  useEffect(() => {
+    const handleResetDeck = () => resetAllDeck();
+    const handleExportDeck = () => setShowExportPopup(true);
+    const handleImportDeck = () => setShowImportPopup(true);
+
+    window.addEventListener('resetDeck', handleResetDeck);
+    window.addEventListener('exportDeck', handleExportDeck);
+    window.addEventListener('importDeck', handleImportDeck);
+
+    return () => {
+      window.removeEventListener('resetDeck', handleResetDeck);
+      window.removeEventListener('exportDeck', handleExportDeck);
+      window.removeEventListener('importDeck', handleImportDeck);
+    };
+  }, []);
+
   return (
     <div>
-      {/*<LoadingScreen isLoading={isLoading} progress={progress} />*/}
       <div className={showImportPopup||showExportPopup ? 'blur-sm container' : 'container'}>
-        <header>
-          <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-center">ぷぷりえーる デッキ構築</h1>
-            <div className="flex items-center gap-2">
-              <button
-                className="btn-reset"
-                onClick={resetAllDeck}
-              >
-                リセット
-              </button>
-            </div>
-            <div className="flex justify-center gap-4 mt-4">
-              <button
-                className="btn-export"
-                onClick={handleExportDeck}
-              >
-                デッキをエクスポート
-              </button>
-              <button
-                className="btn-import"
-                onClick={() => setShowImportPopup(true)}
-              >
-                デッキをインポート
-              </button>
-              <Link
-                className="lnk-important"
-                href="/2pick">
-                2pickで構築する
-              </Link>
-            </div>
-          </div>
-        </header>
-
-        <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 gap-2 mt-2">
+        <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 gap-2">
           {/* デッキ構築エリア */}
           <div className="space-y-6">
             {/* 幼女デッキ */}

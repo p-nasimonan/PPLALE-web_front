@@ -20,7 +20,16 @@ const CardDetail: React.FC<CardDetailProps> = ({ card, onClose, canAddToDeck, on
           ×
         </button>
         <div className="flex flex-col items-center">
-          <Card card={card} width={300} height={450} canShowDetail = {false} />
+          <Card 
+            card={card} 
+            sizes={{
+              base: { width: 200, height: 300 },
+              sm: { width: 250, height: 375 },
+              md: { width: 300, height: 450 },
+              lg: { width: 300, height: 450 }
+            }}
+            canShowDetail={false} 
+          />
           <div className="mt-4">
             {card.type === 'プレイアブル' ? (
               <div className="grid grid-cols-2 gap-2">

@@ -4,7 +4,6 @@ import React, { useState, useEffect, useCallback} from 'react';
 import { useForm, Controller, ControllerRenderProps } from 'react-hook-form';
 import { CardInfo, CardType, FruitType } from '@/types/card';
 import { allYojoCards, allSweetCards, allPlayableCards } from '@/data/cards'; // 通常構築のデータをインポート
-import Link from 'next/link';
 import { useSettings } from "../SettingsProvider";
 import Deck from '@/components/Deck';
 import CardSelection from './components/CardSelection';
@@ -202,15 +201,6 @@ export default function TwoPick() {
   return (
   <div>
     <div className={showExportPopup ? 'blur-sm ' : '"container relative"'}>
-      <header>
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-center">2pick デッキ構築</h1>
-          <Link href="/" className="text-1xl text-center">
-            通常構築に戻る
-          </Link>
-        </div>
-      </header>
-
       {selectionPhase === 'fruitSelection' ? (
         <div className="flex flex-col items-center mt-8">
           <h2 className="text-xl font-bold mb-4">カードのフルーツを選択してください</h2>
@@ -279,14 +269,18 @@ export default function TwoPick() {
       ) : selectionPhase === 'playablePreview' ? (
         <div className="flex flex-col items-center mt-8">
           <h2 className="text-xl font-bold mb-4">プレイアブルカードを確認してください</h2>
-          <div className="flex gap-4">
+          <div className="grid grid-cols-3 gap-4 w-full max-w-6xl mx-auto place-items-center">
             {playableChoices.map(card => (
               <Card
                 key={card.id}
                 card={card}
                 onClick={() => setSelectedPlayableCard(card)}
-                width={300}
-                height={450}
+                sizes={{
+                  base: { width: 140, height: 210 },
+                  sm: { width: 200, height: 300 },
+                  md: { width: 280, height: 420 },
+                  lg: { width: 300, height: 450 }
+                }}
               />
             ))}
           </div>
@@ -300,7 +294,7 @@ export default function TwoPick() {
             <h2 className="text-xl font-bold mb-4 text-center">
               {round} / {currentPhase === "幼女" ? 10 : 5}: {currentPhase}カードを選択してください
             </h2>
-            <div className="flex justify-between w-full max-w-4xl items-center">
+            <div className="flex justify-between items-center">
 
               {/* 左側のカード選択 */}
               {currentChoices.length >= 2 && (
@@ -309,8 +303,7 @@ export default function TwoPick() {
                     return null;
                   })()}
                   <CardSelection
-                    card1={currentChoices[0]}
-                    card2={currentChoices[1]}
+                    cards={[currentChoices[0],currentChoices[1]]}
                     onSelect={() => handleCardSelect(currentChoices[0], currentChoices[1])}
                   />
                 </>
@@ -333,8 +326,7 @@ export default function TwoPick() {
                     return null;
                   })()}
                   <CardSelection
-                    card1={currentChoices[2]}
-                    card2={currentChoices[3]}
+                    cards={[currentChoices[2],currentChoices[3]]}
                     onSelect={() => handleCardSelect(currentChoices[2], currentChoices[3])}
                   />
                 </>
@@ -343,7 +335,7 @@ export default function TwoPick() {
           </>
         </div>
       ) : selectionPhase === 'playableSelection' ? (
-        <div className="mt-4 flex flex-col items-center">
+        <div className="mt-4 flex flex-col items-center ">
           <h2 className="text-xl font-bold mb-4 text-center">プレイアブルカードを選択してください</h2>
           {!selectedPlayableCard && (
             <div>
@@ -353,8 +345,12 @@ export default function TwoPick() {
                     key={card.id}
                     card={card}
                     onClick={() => setSelectedPlayableCard(card)}
-                    width={300}
-                    height={450}
+                    sizes={{
+                      base: { width: 140, height: 210 },
+                      sm: { width: 200, height: 300 },
+                      md: { width: 280, height: 420 },
+                      lg: { width: 300, height: 450 }
+                    }}
                   />
                 ))}
               </div>
@@ -363,27 +359,31 @@ export default function TwoPick() {
 
           {/* スライド表示されたカード */}
           {selectedPlayableCard && (
-            <div className="fixed inset-0 flex items-center justify-center z-50">
-              <div className="relative w-full max-w-4xl mx-auto">
-                <div
-                  className={`flex items-center justify-center w-full transform-slide ${
-                    isCardDisappearing ? 'animate-disappear' : ''
-                  }`}
-                >
-                  <Card
-                    card={selectedPlayableCard}
-                    width={340}
-                    height={500}
-                  />
-                  <div className="description w-96 h-96 overflow-auto p-4 bg-gray-100 rounded-lg ml-4">
+            <div className="inset-0 flex items-center justify-center z-50">
+              <div className="relative w-full max-w-4xl mx-auto p-4">
+                <div className={`flex flex-col lg:flex-row items-center justify-center gap-4 w-full transform-slide ${
+                  isCardDisappearing ? 'animate-disappear' : ''
+                }`}>
+                  <div className="w-full lg:w-1/2 flex justify-center">
+                    <Card
+                      card={selectedPlayableCard}
+                      sizes={{
+                        base: { width: 200, height: 300 },
+                        sm: { width: 250, height: 375 },
+                        md: { width: 300, height: 450 },
+                        lg: { width: 340, height: 510 }
+                      }}
+                    />
+                  </div>
+                  <div className="w-full lg:w-1/2 h-auto lg:h-[600px] overflow-auto p-4 rounded-lg">
                     {selectedPlayableCard.description && (
                       <div className="mt-4">
-                      <p className="text-lg font-semibold text-gray-800 mt-1 whitespace-pre-line">{selectedPlayableCard.description}</p>
+                        <p className="text-lg font-semibold mt-1 whitespace-pre-line">{selectedPlayableCard.description}</p>
                       </div>
                     )}
                   </div>
                 </div>
-                <div className="flex justify-between mt-8 px-20">
+                <div className="flex justify-between mt-8">
                   <button
                     className="btn-secondary"
                     onClick={() => setSelectedPlayableCard(null)}
@@ -429,8 +429,12 @@ export default function TwoPick() {
                 
                 <Card
                   card={selectedPlayableCard}
-                  width={340}
-                  height={500}
+                  sizes={{
+                    base: { width: 140, height: 210 },
+                    sm: { width: 200, height: 300 },
+                    md: { width: 280, height: 420 },
+                    lg: { width: 300, height: 450 }
+                  }}
                 />
               </div>
             )}
