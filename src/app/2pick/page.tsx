@@ -202,15 +202,6 @@ export default function TwoPick() {
   return (
   <div>
     <div className={showExportPopup ? 'blur-sm ' : '"container relative"'}>
-      <header>
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-center">2pick デッキ構築</h1>
-          <Link href="/" className="text-1xl text-center">
-            通常構築に戻る
-          </Link>
-        </div>
-      </header>
-
       {selectionPhase === 'fruitSelection' ? (
         <div className="flex flex-col items-center mt-8">
           <h2 className="text-xl font-bold mb-4">カードのフルーツを選択してください</h2>
@@ -363,7 +354,7 @@ export default function TwoPick() {
 
           {/* スライド表示されたカード */}
           {selectedPlayableCard && (
-            <div className="fixed inset-0 flex items-center justify-center z-50">
+            <div className="inset-0 flex items-center justify-center z-50">
               <div className="relative w-full max-w-4xl mx-auto">
                 <div
                   className={`flex items-center justify-center w-full transform-slide ${
@@ -378,7 +369,7 @@ export default function TwoPick() {
                   <div className="description w-96 h-96 overflow-auto p-4 bg-gray-100 rounded-lg ml-4">
                     {selectedPlayableCard.description && (
                       <div className="mt-4">
-                      <p className="text-lg font-semibold text-gray-800 mt-1 whitespace-pre-line">{selectedPlayableCard.description}</p>
+                      <p className="text-lg font-semibold mt-1 whitespace-pre-line">{selectedPlayableCard.description}</p>
                       </div>
                     )}
                   </div>
