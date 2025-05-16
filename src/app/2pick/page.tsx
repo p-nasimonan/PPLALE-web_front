@@ -9,6 +9,7 @@ import Deck from '@/components/Deck';
 import CardSelection from './components/CardSelection';
 import ExportPopup from '@/components/ExportPopup';
 import Card from '@/components/Card';
+import Image from 'next/image';
 
 export default function TwoPick() {
   // 幼女カード
@@ -236,7 +237,7 @@ export default function TwoPick() {
                       <div className={`relative rounded-xl overflow-hidden transition-all duration-300 ${
                         field.value.includes(fruit) ? 'ring-4 ring-special' : 'ring-2 ring-gray-200'
                       }`}>
-                        <img
+                        <Image
                           src={`/images/fruits/${fruit}.png`}
                           alt={fruit}
                           className="w-full h-32 object-cover"
@@ -284,7 +285,7 @@ export default function TwoPick() {
                       <div className={`relative rounded-xl overflow-hidden transition-all duration-300 ${
                         field.value.includes(version) ? 'ring-4 ring-special' : 'ring-2 ring-gray-200'
                       }`}>
-                        <img
+                        <Image
                           src={`/images/versions/${version}.png`}
                           alt={version}
                           className="w-full h-48 object-cover"

@@ -7,7 +7,16 @@ const config: NextConfig = {
   assetPrefix: basePath,
   images: {
     unoptimized: true,
-    domains: ['localhost', 'pplale.pgw.jp'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'pplale.pgw.jp',
+      },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+      }
+    ],
     path: basePath,
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
@@ -16,14 +25,6 @@ const config: NextConfig = {
   },
   experimental: {
     optimizeCss: true,
-  },
-  async rewrites() {
-    return [
-      {
-        source: '/images/:path*',
-        destination: '/images/:path*',
-      },
-    ];
   },
   basePath,
   trailingSlash: false,
@@ -37,8 +38,8 @@ const config: NextConfig = {
         {
           loader: 'file-loader',
           options: {
-            publicPath: `${basePath}/images`,  // 画像のURLパス
-            outputPath: 'images',              // 出力ディレクトリ
+            publicPath: `${basePath}/images`,
+            outputPath: 'images',
             name: '[name].[hash].[ext]',
           },
         },

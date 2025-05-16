@@ -18,6 +18,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://pplale.pgw.jp'),
   title: "ぷぷりえーる デッキ構築",
   description: "VRChatにあるカードゲーム「ぷぷりえーる」のデッキ構築などができるwebアプリ。通常構築や2pick構築が可能で、カードの組み合わせを自由に試せます。",
   keywords: "ぷぷりえーる, VRChat, カードゲーム, デッキ構築, 2pick, カード組み合わせ",
@@ -32,7 +33,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "ぷぷりえーる デッキ構築",
     description: "VRChatにあるカードゲーム「ぷぷりえーる」のデッキ構築などができるwebアプリ",
-    url: "https://pplale.pgw.jp/",
+    url: "https://pplale.pgw.jp",
     siteName: "ぷぷりえーる デッキ構築",
     images: [
       {
@@ -72,7 +73,7 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <head>
-        <link rel="canonical" href="https://pplale-web.vercel.app" />
+        <link rel="canonical" href="https://pplale.pgw.jp" />
         <meta name="theme-color" content="#3b82f6" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <script
@@ -83,7 +84,7 @@ export default function RootLayout({
               "@type": "WebApplication",
               "name": "ぷぷりえーる デッキ構築",
               "description": "VRChatにあるカードゲーム「ぷぷりえーる」のデッキ構築などができるwebアプリ",
-              "url": "https://pplale-web.vercel.app",
+              "url": "https://pplale.pgw.jp",
               "applicationCategory": "Game",
               "operatingSystem": "Web",
               "offers": {
