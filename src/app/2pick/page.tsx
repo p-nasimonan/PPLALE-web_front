@@ -36,13 +36,13 @@ export default function TwoPick() {
 
   const { control, handleSubmit, watch } = useForm<{ fruits: FruitType[]; playableVersions: string[] }>({
     defaultValues: {
-      fruits: ['いちご', 'ぶどう'], // 初期選択
-      playableVersions: ['通常', 'β'], // プレイアブルカードの初期選択
+      fruits: ['いちご'], // 初期選択を1つに変更
+      playableVersions: ['通常'], // 初期選択を1つに変更
     },
   });
 
-  const selectedFruits = watch('fruits'); // フルーツ選択の監視
-  const selectedPlayableVersions = watch('playableVersions'); // プレイアブルバージョン選択の監視
+  const selectedFruits = watch('fruits');
+  const selectedPlayableVersions = watch('playableVersions');
   const [selectedPlayableCard, setSelectedPlayableCard] = useState<CardInfo | null>(null); // 選択されたプレイアブルカード
   const [isCardDisappearing, setIsCardDisappearing] = useState(false); // カードが消えるアニメーションの状態
 
@@ -182,13 +182,16 @@ export default function TwoPick() {
 
   // フルーツ選択画面のフォーム送信処理
   const handleFruitSelectionSubmit = () => {
+    if (selectedFruits.length === 0 || selectedPlayableVersions.length === 0) {
+      return; // 最低1つ以上の選択が必要
+    }
     setYojoDeck([]);
     setSweetDeck([]);
-    updatePlayableChoices(); // プレイアブルカード選択肢を更新
-    setSelectionPhase('playablePreview'); // プレイアブル確認フェーズに移行
-    setSelectedPlayableCard(null); // 拡大表示を解除
-    setRound(1); // ラウンドをリセット
-    setIsShowDeck(false); // デッキ確認ポップアップを非表示
+    updatePlayableChoices();
+    setSelectionPhase('playablePreview');
+    setSelectedPlayableCard(null);
+    setRound(1);
+    setIsShowDeck(false);
   };
 
   // プレイアブル確認フェーズでの次へボタン処理
@@ -203,19 +206,19 @@ export default function TwoPick() {
     <div className={showExportPopup ? 'blur-sm ' : '"container relative"'}>
       {selectionPhase === 'fruitSelection' ? (
         <div className="flex flex-col items-center mt-8">
-          <h2 className="text-xl font-bold mb-4">カードのフルーツを選択してください</h2>
+          <h2 className="text-xl font-bold mb-8">カードのフルーツを選択してください</h2>
           <form
             onSubmit={handleSubmit(handleFruitSelectionSubmit)}
-            className="space-y-4"
+            className="space-y-8 w-full max-w-4xl"
           >
-            <div className="space-y-2">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {(['いちご', 'ぶどう', 'めろん', 'おれんじ'] as FruitType[]).map(fruit => (
                 <Controller
                   key={fruit}
                   name="fruits"
                   control={control}
                   render={({ field }: { field: ControllerRenderProps<{ fruits: FruitType[]; playableVersions: string[] }, 'fruits'> }) => (
-                    <label className="flex items-center">
+                    <label className="relative cursor-pointer group">
                       <input
                         type="checkbox"
                         value={fruit}
@@ -223,26 +226,47 @@ export default function TwoPick() {
                         onChange={e => {
                           const newValue = e.target.checked
                             ? [...field.value, fruit]
-                            : field.value.filter(f => f !== fruit);
+                            : field.value.length > 1 // 最低1つは残す
+                              ? field.value.filter(f => f !== fruit)
+                              : field.value;
                           field.onChange(newValue);
                         }}
-                        className="mr-2"
+                        className="hidden"
                       />
-                      {fruit}
+                      <div className={`relative rounded-xl overflow-hidden transition-all duration-300 ${
+                        field.value.includes(fruit) ? 'ring-4 ring-special' : 'ring-2 ring-gray-200'
+                      }`}>
+                        <img
+                          src={`/images/fruits/${fruit}.png`}
+                          alt={fruit}
+                          className="w-full h-32 object-cover"
+                        />
+                        {field.value.includes(fruit) && (
+                          <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                            <div className="w-12 h-12 bg-special rounded-full flex items-center justify-center">
+                              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
+                              </svg>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-center mt-2 font-medium">{fruit}</p>
                     </label>
                   )}
                 />
               ))}
             </div>
-            <h2 className="text-xl font-bold mb-4 mt-6">プレイアブルカードのバージョンを選択してください</h2>
-            <div className="space-y-2">
+
+            <h2 className="text-xl font-bold mb-8 mt-12">プレイアブルカードのバージョンを選択してください（1つ以上）</h2>
+            <div className="grid grid-cols-2 gap-6">
               {(['通常', 'β'] as string[]).map(version => (
                 <Controller
                   key={version}
                   name="playableVersions"
                   control={control}
                   render={({ field }: { field: ControllerRenderProps<{ fruits: FruitType[]; playableVersions: string[] }, 'playableVersions'> }) => (
-                    <label className="flex items-center">
+                    <label className="relative cursor-pointer group">
                       <input
                         type="checkbox"
                         value={version}
@@ -250,20 +274,50 @@ export default function TwoPick() {
                         onChange={e => {
                           const newValue = e.target.checked
                             ? [...field.value, version]
-                            : field.value.filter(v => v !== version);
+                            : field.value.length > 1 // 最低1つは残す
+                              ? field.value.filter(v => v !== version)
+                              : field.value;
                           field.onChange(newValue);
                         }}
-                        className="mr-2"
+                        className="hidden"
                       />
-                      {version}
+                      <div className={`relative rounded-xl overflow-hidden transition-all duration-300 ${
+                        field.value.includes(version) ? 'ring-4 ring-special' : 'ring-2 ring-gray-200'
+                      }`}>
+                        <img
+                          src={`/images/versions/${version}.png`}
+                          alt={version}
+                          className="w-full h-48 object-cover"
+                        />
+                        {field.value.includes(version) && (
+                          <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                            <div className="w-12 h-12 bg-special rounded-full flex items-center justify-center">
+                              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
+                              </svg>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-center mt-2 font-medium">{version}</p>
                     </label>
                   )}
                 />
               ))}
             </div>
-            <button type="submit" className="btn-primary">
-              次へ
-            </button>
+            <div className="flex justify-center mt-8">
+              <button 
+                type="submit" 
+                className={`btn-primary text-lg px-8 py-3 ${
+                  selectedFruits.length === 0 || selectedPlayableVersions.length === 0
+                    ? 'opacity-50 cursor-not-allowed'
+                    : ''
+                }`}
+                disabled={selectedFruits.length === 0 || selectedPlayableVersions.length === 0}
+              >
+                次へ
+              </button>
+            </div>
           </form>
         </div>
       ) : selectionPhase === 'playablePreview' ? (

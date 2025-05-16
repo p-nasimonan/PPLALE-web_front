@@ -20,7 +20,7 @@ export default function HeaderNavigation() {
           </button>
           <Link
             href="/2pick"
-            className="lnk-important truncate"
+            className="lnk-mode truncate"
           >
             2pick
           </Link>
@@ -28,9 +28,9 @@ export default function HeaderNavigation() {
       ) : is2PickPage ? (
         <Link
           href="/"
-          className="lnk-important truncate"
+          className="lnk-mode truncate"
         >
-          通常構築に戻る
+          通常構築
         </Link>
       ) : null}
     </div>

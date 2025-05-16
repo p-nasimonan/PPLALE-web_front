@@ -12,6 +12,7 @@
   --danger-color: #ef4444;
   --danger-hover: #dc2626;
   --background-color: #f3f4f6;
+  --hover-back-color: #9e9e9e;
   --card-background: #ffffff;
   --text-color: #1f2937;
   --text-light: #6b7280;
@@ -26,6 +27,7 @@
 
 :root.dark {
   --background-color: #1f2937;
+  --hover-back-color: #000000;
   --card-background: #374151;
   --text-color: #f3f4f6;
   --text-light: #9ca3af;
@@ -34,6 +36,16 @@
   --revers-text-color: #1f2937;
   --revers-background-color: #f3f4f6;
   --revers-card-background: #ffffff;
+}
+
+.main-color {
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+.main-color:hover {
+  background-color: var(--hover-back-color);
+  color: var(--text-light);
 }
 
 .reverse-color {
@@ -58,6 +70,21 @@ article {
   z-index: auto;
 }
 
+select {
+  background-color: var(--background-color);
+  color: var(--text-light);
+}
+
+option {
+  background-color: var(--background-color);
+  color: var(--text-light);
+}
+
+input {
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
 .container {
   max-width: 1500px;
   margin: 0 auto;
@@ -77,6 +104,12 @@ header {
   padding: 2rem;
   border-radius: var(--border-radius);
   margin-bottom: 2rem;
+}
+
+header h1{
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: white;
 }
 
 p{
@@ -225,6 +258,7 @@ header > * {
   position: fixed;
   bottom: 1rem;
   right: 1rem;
+  border-radius: 20px;
   background-color: var(--special);
   color: var(--text-color);
   border: 1px solid var(--text-light);
@@ -240,27 +274,22 @@ header > * {
 }
 
 
-a {
+a.lnk-mode {
   display: inline-block;
-  padding: 0.75rem 1.5rem;
-  border-radius: 9999px;
+  padding: 0.55rem 1.5rem;
+  border-radius: 10px;
+  background-color: var(--background-color);
+  color: var(--text-color);
   font-weight: 600;
   font-size: 1rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  border: none;
+  border: 1px solid var(--special);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-
-
-a.lnk-important {
-  background-color: var(--danger-color);
-  color: white;
-}
-
-a.lnk-important:hover {
-  background-color: var(--danger-hover);
+a.lnk-mode:hover {
+  background-color: var(--special-hover);
   transform: scale(1.05);
 }
 

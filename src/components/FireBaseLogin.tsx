@@ -77,7 +77,7 @@ const FireBaseLogin: React.FC = () => {
     return (
       <button
         onClick={login_with_google}
-        className="flex items-center justify-center gap-2 bg-white text-gray-600 px-4 py-2 rounded-md shadow-md hover:bg-gray-100 transition-colors truncate"
+        className="main-color flex items-center justify-center gap-2 px-4 py-2 rounded-md shadow-md transition-colors truncate"
       >
         <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <path 
