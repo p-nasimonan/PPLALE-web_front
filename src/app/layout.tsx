@@ -32,7 +32,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "ぷぷりえーる デッキ構築",
     description: "VRChatにあるカードゲーム「ぷぷりえーる」のデッキ構築などができるwebアプリ",
-    url: "https://pplale-web.vercel.app",
+    url: "https://pplale.pgw.jp/",
     siteName: "ぷぷりえーる デッキ構築",
     images: [
       {
@@ -61,9 +61,6 @@ export const metadata: Metadata = {
       'max-image-preview': 'large',
       'max-snippet': -1,
     },
-  },
-  verification: {
-    google: "your-google-site-verification",
   },
 };
 
