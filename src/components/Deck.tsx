@@ -20,6 +20,8 @@ interface DeckProps {
   type: CardType;
   /**カードを消せるか */
   removeable?: boolean;
+  /** ソート基準 */
+  defaultSortCriteria?: 'none' | 'id' | 'name' | 'cost' | 'attack' | 'hp';
 }
 
 /**
@@ -57,6 +59,7 @@ const Deck: React.FC<DeckProps> = ({
   onCardsReorder,
   type,
   removeable = true,
+  defaultSortCriteria = 'none'
 }) => {
   // ドラッグ中のカードのインデックス
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
@@ -70,7 +73,7 @@ const Deck: React.FC<DeckProps> = ({
         : 0;
 
   // ソート基準の状態
-  const [sortCriteria, setSortCriteria] = useState<'none' | 'id' | 'name' | 'cost' | 'attack' | 'hp'>('none');
+  const [sortCriteria, setSortCriteria] = useState<'none' | 'id' | 'name' | 'cost' | 'attack' | 'hp'>(defaultSortCriteria);
 
   // ソートされたカードリスト（重複を除く）
   const [uniqueSortedCards, setUniqueSortedCards] = useState<CardInfo[]>([]);
@@ -154,7 +157,7 @@ const Deck: React.FC<DeckProps> = ({
         </h2>
         <div className="relative">
           <select
-            className="px-2 py-1 border rounded-md bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="px-2 py-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={sortCriteria}
             onChange={(e) => setSortCriteria(e.target.value as 'none' | 'id' | 'name' | 'cost' | 'attack' | 'hp')}
           >
