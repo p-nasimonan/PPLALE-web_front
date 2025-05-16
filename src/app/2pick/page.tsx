@@ -359,9 +359,8 @@ export default function TwoPick() {
 
           {/* スライド表示されたカード */}
           {selectedPlayableCard && (
-            <div className="inset-0 flex items-center justify-center z-50">
               <div className="relative w-full max-w-4xl mx-auto p-4">
-                <div className={`flex flex-col lg:flex-row items-center justify-center gap-4 w-full transform-slide ${
+                <div className={`flex flex-col  items-center justify-center gap-6 w-full transform-slide ${
                   isCardDisappearing ? 'animate-disappear' : ''
                 }`}>
                   <div className="w-full lg:w-1/2 flex justify-center">
@@ -371,11 +370,12 @@ export default function TwoPick() {
                         base: { width: 200, height: 300 },
                         sm: { width: 250, height: 375 },
                         md: { width: 300, height: 450 },
-                        lg: { width: 340, height: 510 }
+                        lg: { width: 500, height: 750 }
                       }}
+                      canShowDetail={false}
                     />
                   </div>
-                  <div className="w-full lg:w-1/2 h-auto lg:h-[600px] overflow-auto p-4 rounded-lg">
+                  <div className="w-full h-auto overflow-auto p-4 rounded-lg">
                     {selectedPlayableCard.description && (
                       <div className="mt-4">
                         <p className="text-lg font-semibold mt-1 whitespace-pre-line">{selectedPlayableCard.description}</p>
@@ -383,22 +383,19 @@ export default function TwoPick() {
                     )}
                   </div>
                 </div>
-                <div className="flex justify-between mt-8">
-                  <button
-                    className="btn-secondary"
-                    onClick={() => setSelectedPlayableCard(null)}
-                  >
-                    ◀︎キャンセル
-                  </button>
-                  <button
-                    className="btn-select"
-                    onClick={handlePlayableCardConfirm}
-                  >
-                    選択
-                  </button>
-                </div>
+                <button
+                      className="btn-select absolute bottom-40 right-0"
+                      onClick={handlePlayableCardConfirm}
+                    >
+                      選択
+                </button>
+                <button
+                  className="btn-secondary absolute top-0 left-0"
+                  onClick={() => setSelectedPlayableCard(null)}
+                >
+                  ◀︎戻る
+                </button>
               </div>
-            </div>
           )}
         </div>
       ) : (
@@ -424,6 +421,7 @@ export default function TwoPick() {
       {/* デッキ確認 */}
       {isShowDeck && (
           <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 gap-2 mt-2">
+            {/* プレイアブルカード */}
             {selectedPlayableCard && (
               <div className="flex justify-center">
                 
@@ -438,15 +436,19 @@ export default function TwoPick() {
                 />
               </div>
             )}
+            {/* 幼女デッキ */}
             <Deck
               cards={yojoDeck}
               type="幼女"
               removeable={false}
+              defaultSortCriteria="id"
             />
+            {/* お菓子デッキ */}
             <Deck
               cards={sweetDeck}
               type="お菓子"
               removeable={false}
+              defaultSortCriteria="id"
             />
           </div>
         )}

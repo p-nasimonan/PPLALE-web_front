@@ -113,15 +113,6 @@ header > * {
   z-index: 1;
 }
 
-/* ボタンスタイル */
-button {
-
-}
-
-button:hover {
-  transform: scale(1.05);
-}
-
 .btn-primary {
   background-color: var(--primary-color);
   color: white;
