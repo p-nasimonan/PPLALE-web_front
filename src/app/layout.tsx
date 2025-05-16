@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     siteName: "ぷぷりえーる デッキ構築",
     images: [
       {
-        url: "/images/ogp.png",
+        url: "/images/ogp.webp",
         width: 1200,
         height: 630,
         alt: "ぷぷりえーる デッキ構築",
@@ -50,7 +50,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "ぷぷりえーる デッキ構築",
     description: "VRChatにあるカードゲーム「ぷぷりえーる」のデッキ構築などができるwebアプリ",
-    images: ["/images/ogp.png"],
+    images: ["/images/ogp.webp"],
   },
   robots: {
     index: true,
