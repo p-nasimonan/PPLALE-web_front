@@ -18,7 +18,7 @@ interface DeckDocData {
   playableCardId?: string | null;
   updatedAt?: Date;
   name?: string;
-  [key: string]: any;
+  is2pick?: boolean;
 }
 
 export default function DeckPage() {
@@ -186,7 +186,6 @@ export default function DeckPage() {
   };
 
   const handleRemoveFromYojoDeck = (card: CardInfo) => {
-    console.log(card)
     const updatedYojoDeck = yojoDeck.filter(c => c.id !== card.id);
     setYojoDeck(updatedYojoDeck);
     handleDeckUpdate();
@@ -198,7 +197,7 @@ export default function DeckPage() {
     handleDeckUpdate();
   };
 
-  const handleRemovePlayableCard = (card: CardInfo) => {
+  const handleRemovePlayableCard = () => {
     setSelectedPlayableCard(null);
     handleDeckUpdate();
   };

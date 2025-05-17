@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useDarkMode } from './DarkModeProvider';
 import { collection, getDocs, query, orderBy, limit, doc, setDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/lib/auth';
@@ -18,7 +17,6 @@ interface Deck {
 
 export default function Home() {
   const router = useRouter();
-  const { isDarkMode } = useDarkMode();
   const { user } = useAuth();
   const [recentDecks, setRecentDecks] = useState<Deck[]>([]);
   const [loading, setLoading] = useState(true);
