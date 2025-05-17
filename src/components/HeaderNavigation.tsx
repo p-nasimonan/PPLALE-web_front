@@ -5,12 +5,12 @@ import Link from 'next/link';
 
 export default function HeaderNavigation() {
   const pathname = usePathname();
-  const isMainPage = pathname === '/';
-  const is2PickPage = pathname === '/2pick';
+  const isNormalPage = pathname === '/deck/normal';
+  const is2PickPage = pathname === '/deck/2pick';
 
   return (
     <div className="flex items-center gap-4 ">
-      {isMainPage ? (
+      {isNormalPage ? (
         <>
           <button
             className="btn-reset"
@@ -18,20 +18,9 @@ export default function HeaderNavigation() {
           >
             リセット
           </button>
-          <Link
-            href="/2pick"
-            className="lnk-mode truncate"
-          >
-            2pick
-          </Link>
         </>
       ) : is2PickPage ? (
-        <Link
-          href="/"
-          className="lnk-mode truncate"
-        >
-          通常構築
-        </Link>
+      <></>
       ) : null}
     </div>
   );

@@ -100,8 +100,7 @@ const CardList: React.FC<CardListProps> = ({
   return (
     <div className="flex flex-col gap-4">
       {/* 幼女カードリスト */}
-      <div className="space-y-4">
-        <h2 className="text-xl font-bold text-pink-600">{cardType}</h2>
+      <div className="space-y-3">
         <div className="flex flex-col sm:flex-row gap-2">
           {/* フルーツのフィルター */}
           {(cardType !== 'プレイアブル') && (
@@ -156,7 +155,7 @@ const CardList: React.FC<CardListProps> = ({
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-        <div className="grid grid-cols-4 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-4 overflow-auto max-h-[calc(70vh-50px)]">
+        <div className="grid grid-cols-4 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-4 overflow-auto  max-h-[calc(70vh-50px)]">
           {filteredCards
             .filter(card => card.type === cardType) // カードの種類でフィルタリング
             .sort((a, b) => (a.version || '').localeCompare(b.version || '')) // バージョンでソート

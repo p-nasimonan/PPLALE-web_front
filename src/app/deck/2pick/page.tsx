@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback} from 'react';
 import { useForm, Controller, ControllerRenderProps } from 'react-hook-form';
 import { CardInfo, CardType, FruitType } from '@/types/card';
 import { allYojoCards, allSweetCards, allPlayableCards } from '@/data/cards'; // 通常構築のデータをインポート
-import { useSettings } from "../SideMenuProvider";
+import { useSettings } from "../../SideMenuProvider";
 import Deck from '@/components/Deck';
 import CardSelection from './components/CardSelection';
 import ExportPopup from '@/components/ExportPopup';

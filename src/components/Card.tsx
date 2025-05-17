@@ -158,7 +158,7 @@ const Card: React.FC<CardProps> = ({
           relative rounded-lg shadow-md overflow-hidden card-container
           ${getCardColor()} 
           transition-all duration-200 hover:shadow-lg
-          cursor-pointer flex-shrink-0
+          ${canShowDetail ? 'cursor-pointer' : ''} flex-shrink-0
           ${isExpanded ? 'pointer-events-none' : ''}
         `}
         style={{
