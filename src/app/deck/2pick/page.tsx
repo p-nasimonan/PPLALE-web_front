@@ -240,6 +240,8 @@ export default function TwoPick() {
                         <Image
                           src={`/images/fruits/${fruit}.png`}
                           alt={fruit}
+                          width={200}
+                          height={200}
                           className="w-full h-32 object-cover"
                         />
                         {field.value.includes(fruit) && (
@@ -259,7 +261,7 @@ export default function TwoPick() {
               ))}
             </div>
 
-            <h2 className="text-xl font-bold mb-8 mt-12">プレイアブルカードのバージョンを選択してください（1つ以上）</h2>
+            <h2 className="text-xl font-bold mb-8 mt-12">プレイアブルカードのバージョンを選択してください</h2>
             <div className="grid grid-cols-2 gap-6">
               {(['通常', 'β'] as string[]).map(version => (
                 <Controller
@@ -289,6 +291,8 @@ export default function TwoPick() {
                           src={`/images/versions/${version}.png`}
                           alt={version}
                           className="w-full h-48 object-cover"
+                          width={200}
+                          height={200}
                         />
                         {field.value.includes(version) && (
                           <div className="absolute inset-0 bg-black/20 flex items-center justify-center">

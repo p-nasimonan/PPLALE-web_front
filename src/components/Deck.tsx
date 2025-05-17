@@ -189,6 +189,7 @@ const Deck: React.FC<DeckProps> = ({
               count={getCardCount(card)} // 重複数を表示
               onRemove={removeable ? handleCardRemove : undefined}
               showRemoveButton={removeable}
+              isInDeck={true}
             />
           </div>
         ))}

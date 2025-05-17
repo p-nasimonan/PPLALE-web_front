@@ -3,6 +3,7 @@
 import React from 'react';
 import { useSettings } from '@/app/SideMenuProvider';
 import { useDarkMode } from '@/app/DarkModeProvider';
+import { usePathname } from 'next/navigation';
 
 export default function SettingsButton() {
   const { 
@@ -12,6 +13,9 @@ export default function SettingsButton() {
     setIsTwoCardLimit
   } = useSettings();
   const { isDarkMode, toggleDarkMode } = useDarkMode();
+  const pathname = usePathname();
+  const isNormalPage = pathname === '/deck/normal';
+  const is2PickPage = pathname === '/deck/2pick';
 
   return (
     <div className="relative">
@@ -53,6 +57,7 @@ export default function SettingsButton() {
             </p>
 
             {/* エクスポート/インポートボタン */}
+            {isNormalPage ?(
             <div className="flex flex-col gap-2">
               <button
                 className="btn-export w-full flex items-center justify-center gap-2 hover:scale-105 transition-transform duration-200"
@@ -72,7 +77,10 @@ export default function SettingsButton() {
                 </svg>
                 <span>インポート</span>
               </button>
-            </div>
+          </div>
+            ): is2PickPage ? (
+          <></>
+          ) : null}
           </div>
         </article>
       )}

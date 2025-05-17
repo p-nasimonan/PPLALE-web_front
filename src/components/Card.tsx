@@ -33,7 +33,7 @@ interface CardProps {
   /** カードが選択されているかどうか */
   isSelected?: boolean;
   /** カードがクリックされたときのコールバック関数 */
-  onClick?: (card: CardInfo) => void;
+  onClick?: () => void;
   /** カードがドラッグ可能かどうか */
   draggable?: boolean;
   /** ドラッグ開始時のコールバック関数 */
@@ -41,7 +41,12 @@ interface CardProps {
   /** カードの重複数 */
   count?: number;
   /** カードのサイズ設定 */
-  sizes?: Partial<CardSizes>;
+  sizes?: {
+    base: { width: number; height: number };
+    sm: { width: number; height: number };
+    md: { width: number; height: number };
+    lg: { width: number; height: number };
+  };
   /** カードが削除されたときのコールバック関数 */
   onRemove?: (card: CardInfo) => void;
   /** 削除ボタンを表示するかどうか */
@@ -50,6 +55,8 @@ interface CardProps {
   onAddToDeck?: (card: CardInfo) => void;
   /** デッキに追加できるかどうか */
   canAddToDeck?: (card: CardInfo) => boolean;
+  /**デッキに追加されているかどうか */
+  isInDeck?: boolean;
   /** カードの詳細を表示できるか */
   canShowDetail?: boolean;
 }
@@ -75,6 +82,7 @@ const defaultSizes: CardSizes = {
  * @param showRemoveButton 削除ボタンを表示するかどうか
  * @param onAddToDeck デッキに追加するコールバック関数
  * @param canAddToDeck デッキに追加できるかどうか
+ * @param isInDeck デッキに追加されているかどうか
  * @param canShowDetail カードの詳細を表示できるか
  * @returns カードコンポーネント
  */
@@ -89,19 +97,20 @@ const Card: React.FC<CardProps> = ({
   onRemove,
   showRemoveButton = false,
   onAddToDeck,
-  canAddToDeck = false,
+  canAddToDeck,
+  isInDeck = false,
   canShowDetail = true,
 }) => {
   const [isDownloading, setIsDownloading] = useState(true);
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [showDetail, setShowDetail] = useState(false);
 
-  // サイズ設定をマージ
-  const cardSizes: CardSizes = {
-    base: { ...defaultSizes.base, ...sizes?.base },
-    sm: { ...defaultSizes.sm, ...sizes?.sm },
-    md: { ...defaultSizes.md, ...sizes?.md },
-    lg: { ...defaultSizes.lg, ...sizes?.lg }
-  };
+    // サイズ設定をマージ
+    const cardSizes: CardSizes = {
+      base: { ...defaultSizes.base, ...sizes?.base },
+      sm: { ...defaultSizes.sm, ...sizes?.sm },
+      md: { ...defaultSizes.md, ...sizes?.md },
+      lg: { ...defaultSizes.lg, ...sizes?.lg }
+    };
 
   const imagePath = `${basePath}${card.imageUrl}`;
   const loadingImagePath = `${basePath}/images/yokan.png`;
@@ -121,17 +130,16 @@ const Card: React.FC<CardProps> = ({
 
   // カードがクリックされたときの処理
   const handleClick = () => {
-    if (onClick && !isExpanded) {
-      onClick(card);
-    }
     if (canShowDetail) {
-      setIsExpanded(true);
+      setShowDetail(true);
+    } else if (onClick) {
+      onClick();
     }
   };
 
   // ドラッグ開始時の処理
   const handleDragStart = (e: React.DragEvent) => {
-    if (onDragStart && !isExpanded) {
+    if (onDragStart && !showDetail) {
       onDragStart(e, card);
     }
   };
@@ -159,14 +167,15 @@ const Card: React.FC<CardProps> = ({
           ${getCardColor()} 
           transition-all duration-200 hover:shadow-lg
           ${canShowDetail ? 'cursor-pointer' : ''} flex-shrink-0
-          ${isExpanded ? 'pointer-events-none' : ''}
+          ${showDetail ? 'pointer-events-none' : ''}
         `}
         style={{
           width: `${cardSizes.base.width}px`,
           height: `${cardSizes.base.height}px`,
         }}
-        onClick={canShowDetail ? handleClick : undefined}
-        draggable={draggable && !isExpanded}
+
+        onClick={handleClick}
+        draggable={draggable && !showDetail}
         onDragStart={handleDragStart}
       >
         <style jsx>{`
@@ -258,17 +267,19 @@ const Card: React.FC<CardProps> = ({
       </div>
 
       {/* カードの詳細 */}
-      {isExpanded && canShowDetail && (
+      {showDetail && canShowDetail && (
         <CardDetail
           card={card}
-          onClose={() => setIsExpanded(false)}
+          onClose={() => setShowDetail(false)}
           onAddToDeck={(card) => {
             if (onAddToDeck) {
               onAddToDeck(card);
-              setIsExpanded(false);
+              setShowDetail(false);
             }
           }}
           canAddToDeck={typeof canAddToDeck === 'function' ? (card) => canAddToDeck(card) : undefined}
+          isInDeck={isInDeck}
+          handleCardRemove={() => onRemove?.(card)}
         />
       )}
     </>

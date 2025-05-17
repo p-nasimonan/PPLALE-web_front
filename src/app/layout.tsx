@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import Link from 'next/link';
 import DarkModeProvider from './DarkModeProvider';
 import { SettingsProvider } from './SideMenuProvider';
+import { AuthProvider } from '@/lib/auth';
 import HeaderNavigation from '@/components/HeaderNavigation';
 import SettingsButton from '@/components/SideMenu';
 import FireBaseLogin from '@/components/FireBaseLogin';
@@ -99,23 +101,25 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <DarkModeProvider>
-          <SettingsProvider>
-            <header className="fixed top-0 left-0 right-0 h-16 z-40">
-              <div className="max-w-screen-2xl mx-auto px-4 h-full flex items-center justify-between">
-                <h1 className="text-xl font-bold truncate">ぷぷりえーる デッキ構築</h1>
-                <div className="flex items-center gap-4">
-                  <SettingsButton />
-                  <HeaderNavigation />
-                  <FireBaseLogin />
+        <AuthProvider>
+          <DarkModeProvider>
+            <SettingsProvider>
+              <header className="fixed top-0 left-0 right-0 h-16 z-40">
+                <div className="max-w-screen-2xl mx-auto px-4 h-full flex items-center justify-between">
+                  <Link className="text-xl font-bold truncate" href="/">ぷぷりえーる デッキ構築</Link>
+                  <div className="flex items-center gap-4">
+                    <SettingsButton />
+                    <HeaderNavigation />
+                    <FireBaseLogin />
+                  </div>
                 </div>
-              </div>
-            </header>
-            <main className="pt-20 px-4">
-              {children}
-            </main>
-          </SettingsProvider>
-        </DarkModeProvider>
+              </header>
+              <main className="pt-20 px-4">
+                {children}
+              </main>
+            </SettingsProvider>
+          </DarkModeProvider>
+        </AuthProvider>
       </body>
     </html>
   );
