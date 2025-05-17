@@ -3,7 +3,8 @@ const isGitHubPages = process.env.GITHUB_PAGES === 'true';
 const basePath = isGitHubPages ? '/PPLALE-web_front' : '';
 
 const config: NextConfig = {
-  output: 'standalone',
+  output: isGitHubPages ? 'export' : 'standalone',
+  distDir: 'out',
   assetPrefix: basePath,
   images: {
     unoptimized: true,
@@ -32,7 +33,7 @@ const config: NextConfig = {
     optimizeCss: true,
   },
   basePath,
-  trailingSlash: false,
+  trailingSlash: true,
   publicRuntimeConfig: {
     basePath,
   },

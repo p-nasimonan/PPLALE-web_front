@@ -7,6 +7,8 @@ stages:
 variables:
   NODE_VERSION: "22"
   NPM_VERSION: "latest"
+  # GitHub Pages用の環境変数
+  GITHUB_PAGES: "false"
 
 setup:
   stage: setup
