@@ -18,12 +18,10 @@ interface DeckProps {
   onCardsReorder?: (cards: CardInfo[]) => void;
   /** デッキの種類（幼女またはお菓子） */
   type: CardType;
-  /**カードを消せるか */
-  removeable?: boolean;
+  /** デッキを読み取り専用にするか */
+  readOnly?: boolean;
   /** ソート基準 */
   defaultSortCriteria?: 'none' | 'id' | 'name' | 'cost' | 'attack' | 'hp';
-  /** カードが削除されたときのコールバック関数 */
-  onRemove?: (card: CardInfo) => void;
 }
 
 /**
@@ -60,9 +58,8 @@ const Deck: React.FC<DeckProps> = ({
   onCardRemove,
   onCardsReorder,
   type,
-  removeable = true,
-  defaultSortCriteria = 'none',
-  onRemove
+  readOnly = false,
+  defaultSortCriteria = 'none'
 }) => {
   // ドラッグ中のカードのインデックス
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
@@ -132,7 +129,9 @@ const Deck: React.FC<DeckProps> = ({
 
   // カードが削除されたときの処理
   const handleCardRemove = (card: CardInfo) => {
+    console.log(card)
     if (onCardRemove) {
+      
       onCardRemove(card);
     }
   };
@@ -175,11 +174,11 @@ const Deck: React.FC<DeckProps> = ({
       </div>
 
       {/* デッキのカードリスト */}
-      <div className="grid grid-cols-4 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-4 overflow-auto max-h-[calc(70vh-50px)]">
+      <div className="grid grid-cols-4 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-5 xl:grid-cols-5 gap-4 overflow-auto max-h-[calc(70vh-50px)]">
         {uniqueSortedCards.map((card, index) => (
           <div
             key={card.id}
-            draggable
+            draggable={!readOnly}
             onDragStart={(e) => handleDragStart(e, index)}
             onDragOver={(e) => handleDragOver(e, index)}
             onDrop={handleDrop}
@@ -188,11 +187,10 @@ const Deck: React.FC<DeckProps> = ({
           >
             <Card
               card={card}
-              draggable={false}
-              count={getCardCount(card)} // 重複数を表示
-              onRemove={removeable ? handleCardRemove : undefined}
-              showRemoveButton={removeable}
-              isInDeck={true}
+              draggable={!readOnly}
+              count={getCardCount(card)}
+              onRemove={!readOnly ? handleCardRemove : undefined}
+              showRemoveButton={!readOnly}
             />
           </div>
         ))}

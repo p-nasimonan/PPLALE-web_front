@@ -5,7 +5,6 @@ import Link from 'next/link';
 import DarkModeProvider from './DarkModeProvider';
 import { SettingsProvider } from './SideMenuProvider';
 import { AuthProvider } from '@/lib/auth';
-import HeaderNavigation from '@/components/HeaderNavigation';
 import SettingsButton from '@/components/SideMenu';
 import FireBaseLogin from '@/components/FireBaseLogin';
 
@@ -100,6 +99,7 @@ export default function RootLayout({
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        suppressHydrationWarning
       >
         <AuthProvider>
           <DarkModeProvider>
@@ -108,7 +108,6 @@ export default function RootLayout({
                 <div className="max-w-screen-2xl mx-auto px-4 h-full flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <Link className="text-xl font-bold truncate" href="/">ぷぷりえーる デッキ構築</Link>
-                    <HeaderNavigation />
                   </div>
                   <div className="flex items-center gap-4">
                     <SettingsButton />

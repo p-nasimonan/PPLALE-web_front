@@ -14,7 +14,7 @@ export default function SettingsButton() {
   } = useSettings();
   const { isDarkMode, toggleDarkMode } = useDarkMode();
   const pathname = usePathname();
-  const isNormalPage = pathname === '/deck/normal';
+  const isMainPage = pathname === '/';
   const is2PickPage = pathname === '/deck/2pick';
 
   return (
@@ -57,7 +57,7 @@ export default function SettingsButton() {
             </p>
 
             {/* エクスポート/インポートボタン */}
-            {isNormalPage ?(
+            {!is2PickPage && !isMainPage ?(
             <div className="flex flex-col gap-2">
               <button
                 className="btn-export w-full flex items-center justify-center gap-2 hover:scale-105 transition-transform duration-200"

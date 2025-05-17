@@ -2,8 +2,9 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useDarkMode } from './DarkModeProvider';
-import { collection, getDocs, query, orderBy, limit } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, limit, doc, setDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/lib/auth';
 
@@ -16,10 +17,13 @@ interface Deck {
 }
 
 export default function Home() {
+  const router = useRouter();
   const { isDarkMode } = useDarkMode();
   const { user } = useAuth();
   const [recentDecks, setRecentDecks] = useState<Deck[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isCreating, setIsCreating] = useState(false);
+  const [deletingDeckId, setDeletingDeckId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchRecentDecks = async () => {
@@ -30,7 +34,7 @@ export default function Home() {
       }
 
       try {
-        const decksRef = collection(db, 'decks');
+        const decksRef = collection(db, 'users', user.uid, 'decks');
         const q = query(
           decksRef,
           orderBy('updatedAt', 'desc'),
@@ -54,6 +58,55 @@ export default function Home() {
     fetchRecentDecks();
   }, [user]);
 
+  const handleCreateDeck = async (type: string) => {
+    if (!user) {
+      alert('デッキを作成するにはログインが必要です');
+      return;
+    }
+
+    setIsCreating(true);
+    try {
+      if (type === '2pick') {
+        router.push('/deck/2pick');
+        return;
+      }
+
+      const deckId = Date.now().toString();
+      const deckRef = doc(db, 'users', user.uid, 'decks', deckId);
+
+      await setDoc(deckRef, {
+        name: '無名のデッキ',
+        yojoDeckIds: [],
+        sweetDeckIds: [],
+        playableCardId: null,
+        updatedAt: new Date()
+      });
+
+      router.push(`/deck/${user.uid}/${deckId}`);
+    } catch (error) {
+      console.error('デッキの作成に失敗しました:', error);
+      alert('デッキの作成に失敗しました');
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  const handleDeleteDeck = async (deckId: string) => {
+    if (!user) return;
+
+    try {
+      const deckRef = doc(db, 'users', user.uid, 'decks', deckId);
+      await deleteDoc(deckRef);
+      
+      // 削除したデッキをリストから除外
+      setRecentDecks(prevDecks => prevDecks.filter(deck => deck.id !== deckId));
+      setDeletingDeckId(null);
+    } catch (error) {
+      console.error('デッキの削除に失敗しました:', error);
+      alert('デッキの削除に失敗しました');
+    }
+  };
+
   return (
     <main className="min-h-screen p-8">
       <div className="max-w-7xl mx-auto">
@@ -62,8 +115,9 @@ export default function Home() {
         <section className="mb-12">
           <h2 className="text-2xl font-semibold mb-4 main-color">新しいデッキを作成</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Link 
-              href="/deck/normal"
+            <button 
+              onClick={() => handleCreateDeck('normal')}
+              disabled={isCreating}
               className="p-6 card hover:shadow-lg transition-shadow"
             >
               <div className="flex items-center gap-4">
@@ -77,10 +131,11 @@ export default function Home() {
                   <p className="description">新しいデッキを最初から構築します</p>
                 </div>
               </div>
-            </Link>
+            </button>
 
-            <Link 
-              href="/deck/2pick"
+            <button 
+              onClick={() => handleCreateDeck('2pick')}
+              disabled={isCreating}
               className="p-6 card hover:shadow-lg transition-shadow"
             >
               <div className="flex items-center gap-4">
@@ -94,7 +149,7 @@ export default function Home() {
                   <p className="description">2枚選択方式でデッキを構築します</p>
                 </div>
               </div>
-            </Link>
+            </button>
           </div>
         </section>
 
@@ -108,17 +163,27 @@ export default function Home() {
           ) : recentDecks.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {recentDecks.map((deck) => (
-                <Link
-                  key={deck.id}
-                  href={`/deck/${deck.id}`}
-                  className="card hover:shadow-lg transition-shadow"
-                >
-                  <div className="aspect-video bg-gray-100 dark:bg-gray-700 rounded mb-3"></div>
-                  <h3 className="font-medium light-color">{deck.name}</h3>
-                  <p className="description">
-                    最終更新: {deck.updatedAt.toLocaleDateString('ja-JP')}
-                  </p>
-                </Link>
+                <div key={deck.id} className="relative group">
+                  <Link
+                    href={`/deck/${user?.uid}/${deck.id}`}
+                    className="card hover:shadow-lg transition-shadow block"
+                  >
+                    <div className="aspect-video bg-gray-100 dark:bg-gray-700 rounded mb-3"></div>
+                    <h3 className="font-medium light-color">{deck.name}</h3>
+                    <p className="description">
+                      最終更新: {deck.updatedAt.toLocaleDateString('ja-JP')}
+                    </p>
+                  </Link>
+                  <button
+                    onClick={() => setDeletingDeckId(deck.id)}
+                    className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                    aria-label="デッキを削除"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
               ))}
             </div>
           ) : (
@@ -127,6 +192,30 @@ export default function Home() {
             </div>
           )}
         </section>
+
+        {/* 削除確認モーダル */}
+        {deletingDeckId && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg max-w-sm w-full mx-4">
+              <h3 className="text-lg font-bold mb-4 light-color">デッキの削除</h3>
+              <p className="mb-6 description">このデッキを削除してもよろしいですか？この操作は取り消せません。</p>
+              <div className="flex justify-end gap-4">
+                <button
+                  onClick={() => setDeletingDeckId(null)}
+                  className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+                >
+                  キャンセル
+                </button>
+                <button
+                  onClick={() => handleDeleteDeck(deletingDeckId)}
+                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                >
+                  削除する
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </main>
   );

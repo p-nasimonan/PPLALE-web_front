@@ -1,5 +1,6 @@
-import { initializeApp } from 'firebase/app';
+import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
 
 const firebaseConfig = {
   apiKey: "AIzaSyBTXnTZ7ZG5oYi2dE69Dls8bM6CVOlJAyA",
@@ -11,5 +12,7 @@ const firebaseConfig = {
   measurementId: "G-SZPZ5GN71F"
 };
 
-const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app); 
+// Firebaseの初期化（既存のアプリがある場合はそれを使用）
+export const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+export const db = getFirestore(app);
+export const auth = getAuth(app); 

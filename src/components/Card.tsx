@@ -33,7 +33,7 @@ interface CardProps {
   /** カードが選択されているかどうか */
   isSelected?: boolean;
   /** カードがクリックされたときのコールバック関数 */
-  onClick?: () => void;
+  onClick?: (card: CardInfo) => void;
   /** カードがドラッグ可能かどうか */
   draggable?: boolean;
   /** ドラッグ開始時のコールバック関数 */
@@ -64,9 +64,9 @@ interface CardProps {
 
 const defaultSizes: CardSizes = {
   base: { width: 100, height: 151 },
-  sm: { width: 140, height: 210 },
-  md: { width: 140, height: 210 },
-  lg: { width: 140, height: 210 }
+  sm: { width: 100, height: 151 },
+  md: { width: 130, height: 195 },
+  lg: { width: 130, height: 195 }
 };
 
 /**
@@ -134,7 +134,7 @@ const Card: React.FC<CardProps> = ({
     if (canShowDetail) {
       setShowDetail(true);
     } else if (onClick) {
-      onClick();
+      onClick(card);
     }
   };
 

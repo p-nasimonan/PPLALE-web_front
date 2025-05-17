@@ -92,6 +92,11 @@ input {
   color: var(--text-color);
 }
 
+textarea{
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
 .container {
   max-width: 1600px;
   margin: 0 auto;
