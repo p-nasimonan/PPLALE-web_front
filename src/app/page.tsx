@@ -1,333 +1,222 @@
-/**
- * メインページコンポーネント
- * 
- * ぷぷりえーるデッキ構築アプリのメインページ
- * カードリストとデッキ構築エリアを表示する
- */
-
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { CardInfo } from '@/types/card';
-import CardList from '@/components/CardList';
-import Deck from '@/components/Deck';
-import ExportPopup from '@/components/ExportPopup';
-import ImportPopup from '@/components/ImportPopup';
-import { useDarkMode } from "./DarkModeProvider";
-import { useSettings } from "./SideMenuProvider";
-import { allYojoCards, allSweetCards, allPlayableCards } from '@/data/cards';
+import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useDarkMode } from './DarkModeProvider';
+import { collection, getDocs, query, orderBy, limit, doc, setDoc, deleteDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import { useAuth } from '@/lib/auth';
 
+interface Deck {
+  id: string;
+  name: string;
+  createdAt: Date;
+  updatedAt: Date;
+  userId: string;
+}
 
-/**
- * メインページコンポーネント
- * 
- * @returns メインページコンポーネント
- */
 export default function Home() {
-  // 幼女デッキのカード
-  const [yojoDeck, setYojoDeck] = useState<CardInfo[]>([]);
-  // お菓子デッキのカード
-  const [sweetDeck, setSweetDeck] = useState<CardInfo[]>([]);
-  // プレイアブルカード
-  const [selectedPlayableCard, setSelectedPlayableCard] = useState<CardInfo | null>(null);
-
-
-  // 選択されているカード
-  const [selectedCard, setSelectedCard] = useState<CardInfo | null>(null);
-  // エクスポートポップアップの表示状態
-  const [showExportPopup, setShowExportPopup] = useState(false);
-  // インポートポップアップの表示状態
-  const [showImportPopup, setShowImportPopup] = useState(false);
-
+  const router = useRouter();
   const { isDarkMode } = useDarkMode();
-  const { isTwoCardLimit } = useSettings();
+  const { user } = useAuth();
+  const [recentDecks, setRecentDecks] = useState<Deck[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isCreating, setIsCreating] = useState(false);
+  const [deletingDeckId, setDeletingDeckId] = useState<string | null>(null);
 
   useEffect(() => {
-    document.documentElement.classList.toggle('dark', isDarkMode);
-  }, [isDarkMode]);
-
-  // デッキの状態を保持するための useEffect
-  useEffect(() => {
-    // 初回読み込み時にデッキを localStorage から取得
-    const savedYojoDeck = localStorage.getItem('yojoDeck');
-    const savedSweetDeck = localStorage.getItem('sweetDeck');
-    const savedSelectedPlayableCard = localStorage.getItem('selectedPlayableCard');
-
-    if (savedYojoDeck) {
-      setYojoDeck(JSON.parse(savedYojoDeck));
-    }
-    if (savedSweetDeck) {
-      setSweetDeck(JSON.parse(savedSweetDeck));
-    }
-    if (savedSelectedPlayableCard) {
-      setSelectedPlayableCard(JSON.parse(savedSelectedPlayableCard));
-    } 
-  }, []);
-
-  // デッキが更新されたときに localStorage に保存
-  useEffect(() => {
-    localStorage.setItem('yojoDeck', JSON.stringify(yojoDeck));
-  }, [yojoDeck]);
-
-  useEffect(() => {
-    localStorage.setItem('sweetDeck', JSON.stringify(sweetDeck));
-  }, [sweetDeck]);
-
-  const resetAllDeck = () => {
-    setYojoDeck([]);
-    setSweetDeck([]);
-  }
-
-  // カードが選択されたときの処理
-  const handleCardSelect = (card: CardInfo) => {
-    setSelectedCard(card);
-  };
-
-  // カードがデッキに追加されたときの処理
-  const onAddToDeck = (card: CardInfo) => {
-    if (isTwoCardLimit) {
-      // 2枚制限の場合、同じカードは最大2枚まで
-      const cardCount = card.type === '幼女' 
-        ? yojoDeck.filter(c => c.id === card.id).length
-        : sweetDeck.filter(c => c.id === card.id).length;
-      
-      if (cardCount >= 2) {
+    const fetchRecentDecks = async () => {
+      if (!user) {
+        setRecentDecks([]);
+        setLoading(false);
         return;
       }
-    }
 
-    if (card.type === '幼女' && yojoDeck.length < 20) {
-      const updatedYojoDeck = [...yojoDeck, card];
-      setYojoDeck(updatedYojoDeck);
-      localStorage.setItem('yojoDeck', JSON.stringify(updatedYojoDeck));
-    } else if (card.type === 'お菓子' && sweetDeck.length < 10) {
-      const updatedSweetDeck = [...sweetDeck, card];
-      setSweetDeck(updatedSweetDeck);
-      localStorage.setItem('sweetDeck', JSON.stringify(updatedSweetDeck));
-    } else if (card.type === 'プレイアブル') {
-      setSelectedPlayableCard(card);
-      localStorage.setItem('selectedPlayableCard', JSON.stringify(card));
-    }
-  };
-
-  // カードがデッキから削除されたときの処理
-  const handleRemoveFromDeck = (card: CardInfo, deckType: string) => {
-    if (deckType === '幼女') {
-      const updatedYojoDeck = yojoDeck.filter(c => c.id !== card.id);
-      setYojoDeck(updatedYojoDeck);
-      localStorage.setItem('yojoDeck', JSON.stringify(updatedYojoDeck));
-    } else {
-      const updatedSweetDeck = sweetDeck.filter(c => c.id !== card.id);
-      setSweetDeck(updatedSweetDeck);
-      localStorage.setItem('sweetDeck', JSON.stringify(updatedSweetDeck));
-    }
-  };
-
-  // デッキのカードが並べ替えられたときの処理
-  const handleDeckReorder = (cards: CardInfo[], deckType: string) => {
-    if (deckType === '幼女') {
-      setYojoDeck(cards);
-    } else {
-      setSweetDeck(cards);
-    }
-  };
-
-  // ドラッグ開始時の処理
-  const handleDragStart = (e: React.DragEvent, card: CardInfo) => {
-    e.dataTransfer.setData('text/plain', JSON.stringify(card));
-  };
-
-  // ドロップ時の処理
-  const handleDrop = (e: React.DragEvent, deckType: string) => {
-    e.preventDefault();
-    const cardData = e.dataTransfer.getData('text/plain');
-    const card = JSON.parse(cardData) as CardInfo;
-    
-    if (isTwoCardLimit) {
-      // 2枚制限の場合、同じカードは最大2枚まで
-      const cardCount = deckType === '幼女'
-        ? yojoDeck.filter(c => c.id === card.id).length
-        : sweetDeck.filter(c => c.id === card.id).length;
-      
-      if (cardCount >= 2) {
-        return;
+      try {
+        const decksRef = collection(db, 'users', user.uid, 'decks');
+        const q = query(
+          decksRef,
+          orderBy('updatedAt', 'desc'),
+          limit(6)
+        );
+        const querySnapshot = await getDocs(q);
+        const decks = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+          createdAt: doc.data().createdAt?.toDate(),
+          updatedAt: doc.data().updatedAt?.toDate(),
+        })) as Deck[];
+        setRecentDecks(decks);
+      } catch (error) {
+        console.error('デッキの取得に失敗しました:', error);
+      } finally {
+        setLoading(false);
       }
-    }
-    
-    if (deckType === '幼女' && card.type === '幼女' && yojoDeck.length < 20) {
-      setYojoDeck([...yojoDeck, card]);
-    } else if (deckType === 'お菓子' && card.type === 'お菓子' && sweetDeck.length < 10) {
-      setSweetDeck([...sweetDeck, card]);
-    }
-  };
-
-  // ドラッグオーバー時の処理
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-  };
-  
-  // デッキをインポートする処理
-  const handleImportDeck = (yojoCardIds: string, sweetCardIds: string) => {
-    try {
-      // 幼女デッキのカードIDを取得
-      const yojoIds = yojoCardIds
-        .split(',')
-        .filter(id => id.trim() !== '')
-        .map(id => parseInt(id.trim(), 10));
-
-      // 幼女デッキのカードを取得
-      const newYojoDeck = yojoIds
-        .map(id => allYojoCards.find(card => parseInt(card.id, 10) === id))
-        .filter((card): card is CardInfo => card !== undefined);
-
-      // お菓子デッキのカードIDを取得
-      const sweetIds = sweetCardIds
-        .split(',')
-        .filter(id => id.trim() !== '')
-        .map(id => parseInt(id.trim(), 10));
-
-      // お菓子デッキのカードを取得
-      const newSweetDeck = sweetIds
-        .map(id => allSweetCards.find(card => parseInt(card.id, 10) === id))
-        .filter((card): card is CardInfo => card !== undefined);
-
-      // デッキを更新
-      setYojoDeck(newYojoDeck);
-      setSweetDeck(newSweetDeck);
-
-      // ポップアップを閉じる
-      setShowImportPopup(false);
-    } catch (error) {
-      console.error('デッキのインポートに失敗しました:', error);
-      alert('デッキのインポートに失敗しました');
-    }
-  };
-
-  
-
-  // デッキに追加可能かどうかを判定
-  const canAddToDeck = (card: CardInfo) => {
-    if (card.type === '幼女') {
-      return yojoDeck.length < 20;
-    } else {
-      return sweetDeck.length < 10;
-    }
-  };
-
-  // イベントリスナーの設定
-  useEffect(() => {
-    const handleResetDeck = () => resetAllDeck();
-    const handleExportDeck = () => setShowExportPopup(true);
-    const handleImportDeck = () => setShowImportPopup(true);
-
-    window.addEventListener('resetDeck', handleResetDeck);
-    window.addEventListener('exportDeck', handleExportDeck);
-    window.addEventListener('importDeck', handleImportDeck);
-
-    return () => {
-      window.removeEventListener('resetDeck', handleResetDeck);
-      window.removeEventListener('exportDeck', handleExportDeck);
-      window.removeEventListener('importDeck', handleImportDeck);
     };
-  }, []);
+
+    fetchRecentDecks();
+  }, [user]);
+
+  const handleCreateDeck = async (type: string) => {
+    if (!user) {
+      alert('デッキを作成するにはログインが必要です');
+      return;
+    }
+
+    setIsCreating(true);
+    try {
+      if (type === '2pick') {
+        router.push('/deck/2pick');
+        return;
+      }
+
+      const deckId = Date.now().toString();
+      const deckRef = doc(db, 'users', user.uid, 'decks', deckId);
+
+      await setDoc(deckRef, {
+        name: '無名のデッキ',
+        yojoDeckIds: [],
+        sweetDeckIds: [],
+        playableCardId: null,
+        updatedAt: new Date()
+      });
+
+      router.push(`/deck/${user.uid}/${deckId}`);
+    } catch (error) {
+      console.error('デッキの作成に失敗しました:', error);
+      alert('デッキの作成に失敗しました');
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  const handleDeleteDeck = async (deckId: string) => {
+    if (!user) return;
+
+    try {
+      const deckRef = doc(db, 'users', user.uid, 'decks', deckId);
+      await deleteDoc(deckRef);
+      
+      // 削除したデッキをリストから除外
+      setRecentDecks(prevDecks => prevDecks.filter(deck => deck.id !== deckId));
+      setDeletingDeckId(null);
+    } catch (error) {
+      console.error('デッキの削除に失敗しました:', error);
+      alert('デッキの削除に失敗しました');
+    }
+  };
 
   return (
-    <div>
-      <div className={showImportPopup||showExportPopup ? 'blur-sm container' : 'container'}>
-        <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 gap-2">
-          {/* デッキ構築エリア */}
-          <div className="space-y-6">
-            {/* 幼女デッキ */}
-            <div 
-              className="card dropzone"
-              onDrop={(e) => handleDrop(e, '幼女')}
-              onDragOver={handleDragOver}
-            >
-              <h2 className="text-xl font-bold mb-4">幼女デッキ ({yojoDeck.length}/20)</h2>
-              <Deck
-                cards={yojoDeck}
-                type="幼女"
-                onCardRemove={(card) => handleRemoveFromDeck(card, '幼女')}
-                onCardsReorder={(cards) => handleDeckReorder(cards, '幼女')}
-              />
-            </div>
-
-            {/* カードリスト */}
-            <div className="card">
-              <CardList
-                cards={allYojoCards}
-                onCardSelect={handleCardSelect}
-                selectedCardId={selectedCard?.id}
-                draggable={true}
-                onDragStart={handleDragStart}
-                cardType="幼女"
-                canAddToDeck={canAddToDeck}
-                onAddToDeck={onAddToDeck}
-              />
-            </div>
+    <main className="min-h-screen p-8">
+      <div className="max-w-7xl mx-auto">
         
-            {/* お菓子デッキ */}
-            <div 
-              className="card dropzone"
-              onDrop={(e) => handleDrop(e, 'お菓子')}
-              onDragOver={handleDragOver}
+        {/* 新しいデッキ作成セクション */}
+        <section className="mb-12">
+          <h2 className="text-2xl font-semibold mb-4 main-color">新しいデッキを作成</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <button 
+              onClick={() => handleCreateDeck('normal')}
+              disabled={isCreating}
+              className="p-6 card hover:shadow-lg transition-shadow"
             >
-              <h2 className="text-xl font-bold mb-4">お菓子デッキ ({sweetDeck.length}/10)</h2>
-              <Deck
-                cards={sweetDeck}
-                type="お菓子"
-                onCardRemove={(card) => handleRemoveFromDeck(card, 'お菓子')}
-                onCardsReorder={(cards) => handleDeckReorder(cards, 'お菓子')}
-              />
-            </div>
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-blue-100 dark:bg-blue-200 rounded-full flex items-center justify-center">
+                  <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-lg font-medium light-color">通常構築</h3>
+                  <p className="description">新しいデッキを最初から構築します</p>
+                </div>
+              </div>
+            </button>
 
-            {/* カードリスト */}
-            <div className="card">
-              <CardList
-                cards={allSweetCards}
-                onCardSelect={handleCardSelect}
-                selectedCardId={selectedCard?.id}
-                draggable={true}
-                onDragStart={handleDragStart}
-                cardType="お菓子"
-                canAddToDeck={canAddToDeck}
-                onAddToDeck={onAddToDeck}
-              />
-            </div>
+            <button 
+              onClick={() => handleCreateDeck('2pick')}
+              disabled={isCreating}
+              className="p-6 card hover:shadow-lg transition-shadow"
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
+                  <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-lg font-medium light-color">2pick</h3>
+                  <p className="description">2枚選択方式でデッキを構築します</p>
+                </div>
+              </div>
+            </button>
+          </div>
+        </section>
 
-            {/* カードリスト */}
-            <div className="card">
-              <CardList
-                cards={[...allPlayableCards].sort((a, b) => (a.version || '').localeCompare(b.version || ''))} // バージョンでソート
-                onCardSelect={handleCardSelect}
-                selectedCardId={selectedPlayableCard?.id}
-                draggable={true}
-                onDragStart={handleDragStart}
-                cardType="プレイアブル"
-                canAddToDeck={canAddToDeck}
-                onAddToDeck={onAddToDeck}
-              />
+        {/* 最近作成したデッキセクション */}
+        <section>
+          <h2 className="text-2xl font-semibold mb-4 main-color">最近作成したデッキ</h2>
+          {loading ? (
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-color mx-auto"></div>
+            </div>
+          ) : recentDecks.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {recentDecks.map((deck) => (
+                <div key={deck.id} className="relative group">
+                  <Link
+                    href={`/deck/${user?.uid}/${deck.id}`}
+                    className="card hover:shadow-lg transition-shadow block"
+                  >
+                    <div className="aspect-video bg-gray-100 dark:bg-gray-700 rounded mb-3"></div>
+                    <h3 className="font-medium light-color">{deck.name}</h3>
+                    <p className="description">
+                      最終更新: {deck.updatedAt.toLocaleDateString('ja-JP')}
+                    </p>
+                  </Link>
+                  <button
+                    onClick={() => setDeletingDeckId(deck.id)}
+                    className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                    aria-label="デッキを削除"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8 description">
+              {user ? 'デッキがまだありません。新しいデッキを作成しましょう！' : 'ログインしてデッキを作成しましょう'}
+            </div>
+          )}
+        </section>
+
+        {/* 削除確認モーダル */}
+        {deletingDeckId && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg max-w-sm w-full mx-4">
+              <h3 className="text-lg font-bold mb-4 light-color">デッキの削除</h3>
+              <p className="mb-6 description">このデッキを削除してもよろしいですか？この操作は取り消せません。</p>
+              <div className="flex justify-end gap-4">
+                <button
+                  onClick={() => setDeletingDeckId(null)}
+                  className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+                >
+                  キャンセル
+                </button>
+                <button
+                  onClick={() => handleDeleteDeck(deletingDeckId)}
+                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                >
+                  削除する
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
-      {/* エクスポートポップアップ */}
-      {showExportPopup && (
-        <ExportPopup
-          yojoDeck={yojoDeck}
-          sweetDeck={sweetDeck}
-          playableCard={selectedPlayableCard}
-          onClose={() => setShowExportPopup(false)}
-        />
-      )}
-
-      {/* インポートポップアップ */}
-      {showImportPopup && (
-        <ImportPopup
-          onImport={handleImportDeck}
-          onClose={() => setShowImportPopup(false)}
-        />
-      )}
-    </div>
+    </main>
   );
 }

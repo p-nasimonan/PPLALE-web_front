@@ -13,7 +13,7 @@ const SettingsContext = createContext<SettingsContextType | undefined>(undefined
 
 export function SettingsProvider({ children }: { children: React.ReactNode }) {
   const [showSettings, setShowSettings] = useState(false);
-  const [isTwoCardLimit, setIsTwoCardLimit] = useState(false);
+  const [isTwoCardLimit, setIsTwoCardLimit] = useState(true);
 
   useEffect(() => {
     const savedTwoCardLimit = localStorage.getItem('isTwoCardLimit');

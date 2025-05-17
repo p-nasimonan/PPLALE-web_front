@@ -8,6 +8,14 @@
 'use client';
 
 import React, { useState } from 'react';
+import { CardInfo } from '@/types/card';
+import { allYojoCards, allSweetCards, allPlayableCards } from '@/data/cards';
+
+interface ImportedDeck {
+  yojoDeck: CardInfo[];
+  sweetDeck: CardInfo[];
+  playableCard: CardInfo | null;
+}
 
 /**
  * インポートポップアップのプロパティ
@@ -15,10 +23,9 @@ import React, { useState } from 'react';
 interface ImportPopupProps {
   /**
    * デッキをインポートする関数
-   * @param yojoCardIds 幼女デッキのカードID（カンマ区切り）
-   * @param sweetCardIds お菓子デッキのカードID（カンマ区切り）
+   * @param deck インポートするデッキの情報
    */
-  onImport: (yojoCardIds: string, sweetCardIds: string) => void;
+  onImport: (deck: ImportedDeck) => void;
   
   /**
    * ポップアップを閉じる関数
@@ -37,12 +44,57 @@ const ImportPopup: React.FC<ImportPopupProps> = ({ onImport, onClose }) => {
   const [yojoCardIds, setYojoCardIds] = useState('');
   // お菓子デッキのカードID
   const [sweetCardIds, setSweetCardIds] = useState('');
+  // プレイアブルカードのID
+  const [playableCardId, setPlayableCardId] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
   /**
    * デッキをインポートする
    */
   const handleImport = () => {
-    onImport(yojoCardIds, sweetCardIds);
+    try {
+      setError(null);
+
+      // 幼女デッキのカードIDを取得
+      const yojoIds = yojoCardIds
+        .split(',')
+        .map(id => id.trim())
+        .filter(id => id !== '')
+        .map(id => `y_${id.padStart(2, '0')}`);
+
+      // 幼女デッキのカードを取得
+      const newYojoDeck = yojoIds
+        .map(id => allYojoCards.find(card => card.id === id))
+        .filter((card): card is CardInfo => card !== undefined);
+
+      // お菓子デッキのカードIDを取得
+      const sweetIds = sweetCardIds
+        .split(',')
+        .map(id => id.trim())
+        .filter(id => id !== '')
+        .map(id => `s_${id.padStart(2, '0')}`);
+
+      // お菓子デッキのカードを取得
+      const newSweetDeck = sweetIds
+        .map(id => allSweetCards.find(card => card.id === id))
+        .filter((card): card is CardInfo => card !== undefined);
+
+      // プレイアブルカードのIDを取得
+      const playableId = playableCardId.trim();
+      const newPlayableCard = playableId
+        ? allPlayableCards.find(card => card.id === playableId) || null
+        : null;
+
+      // デッキを更新
+      onImport({
+        yojoDeck: newYojoDeck,
+        sweetDeck: newSweetDeck,
+        playableCard: newPlayableCard
+      });
+      onClose();
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'デッキのインポートに失敗しました');
+    }
   };
 
   /**
@@ -51,18 +103,25 @@ const ImportPopup: React.FC<ImportPopupProps> = ({ onImport, onClose }) => {
   const handleClose = () => {
     setYojoCardIds('');
     setSweetCardIds('');
+    setPlayableCardId('');
+    setError(null);
     onClose();
   };
 
   return (
-    <div className="fixed inset-0 bg-opacity-40 flex items-center justify-center z-50">
-      <div className="popup">
-        <h3 className="text-xl font-bold mb-4">デッキをインポート</h3>
-        <div className="mb-4">
-          <div className="mb-4">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white p-6 rounded-lg w-full max-w-lg main-color">
+        <h2 className="text-xl font-bold mb-4">デッキをインポート</h2>
+        {error && (
+          <div className="mb-4 p-2 bg-red-100 text-red-700 rounded">
+            {error}
+          </div>
+        )}
+        <div className="space-y-4">
+          <div>
             <h4 className="font-bold mb-2">幼女デッキ</h4>
             <textarea
-              className="w-full p-3 border border-gray-300 rounded"
+              className="w-full p-2 border rounded-md"
               rows={3}
               value={yojoCardIds}
               onChange={(e) => setYojoCardIds(e.target.value)}
@@ -70,26 +129,37 @@ const ImportPopup: React.FC<ImportPopupProps> = ({ onImport, onClose }) => {
             />
           </div>
           
-          <div className="mb-4">
+          <div>
             <h4 className="font-bold mb-2">お菓子デッキ</h4>
             <textarea
-              className="w-full p-3 border border-gray-300 rounded"
+              className="w-full p-2 border rounded-md"
               rows={3}
               value={sweetCardIds}
               onChange={(e) => setSweetCardIds(e.target.value)}
               placeholder="6,7,8,9,10"
             />
           </div>
+
+          <div>
+            <h4 className="font-bold mb-2">プレイアブルカード</h4>
+            <input
+              type="text"
+              className="w-full p-2 border rounded-md"
+              value={playableCardId}
+              onChange={(e) => setPlayableCardId(e.target.value)}
+              placeholder="p_01"
+            />
+          </div>
         </div>
-        <div className="flex justify-between">
-        <button
-            className="btn btn-cancel"
+        <div className="flex justify-end gap-4 mt-6">
+          <button
+            className="btn-secondary"
             onClick={handleClose}
           >
             キャンセル
           </button>
           <button
-            className="btn btn-import"
+            className="btn-primary"
             onClick={handleImport}
           >
             インポート

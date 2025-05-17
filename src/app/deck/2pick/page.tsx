@@ -4,14 +4,20 @@ import React, { useState, useEffect, useCallback} from 'react';
 import { useForm, Controller, ControllerRenderProps } from 'react-hook-form';
 import { CardInfo, CardType, FruitType } from '@/types/card';
 import { allYojoCards, allSweetCards, allPlayableCards } from '@/data/cards'; // 通常構築のデータをインポート
-import { useSettings } from "../SideMenuProvider";
+import { useSettings } from "../../SideMenuProvider";
 import Deck from '@/components/Deck';
 import CardSelection from './components/CardSelection';
 import ExportPopup from '@/components/ExportPopup';
 import Card from '@/components/Card';
 import Image from 'next/image';
+import { useAuth } from '@/lib/auth';
+import { doc, setDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import { useRouter } from 'next/navigation';
 
 export default function TwoPick() {
+  const { user } = useAuth();
+  const router = useRouter();
   // 幼女カード
   const [yojoCards] = useState<CardInfo[]>(allYojoCards);
   // お菓子カード
@@ -202,6 +208,34 @@ export default function TwoPick() {
     setSelectedPlayableCard(null); // 拡大表示を解除
   };
 
+  // デッキを保存する関数
+  const handleSaveDeck = async () => {
+    if (!user) {
+      alert('デッキを保存するにはログインが必要です');
+      return;
+    }
+
+    try {
+      const deckId = Date.now().toString();
+      const deckRef = doc(db, 'users', user.uid, 'decks', deckId);
+
+      await setDoc(deckRef, {
+        name: '2pickデッキ',
+        yojoDeckIds: yojoDeck.map(card => card.id),
+        sweetDeckIds: sweetDeck.map(card => card.id),
+        playableCardId: selectedPlayableCard?.id || null,
+        updatedAt: new Date(),
+        is2pick: true
+      });
+
+      // 保存成功後、デッキページに遷移
+      router.push(`/deck/${user.uid}/${deckId}`);
+    } catch (error) {
+      console.error('デッキの保存に失敗しました:', error);
+      alert('デッキの保存に失敗しました');
+    }
+  };
+
   return (
   <div>
     <div className={showExportPopup ? 'blur-sm ' : '"container relative"'}>
@@ -240,6 +274,8 @@ export default function TwoPick() {
                         <Image
                           src={`/images/fruits/${fruit}.png`}
                           alt={fruit}
+                          width={200}
+                          height={200}
                           className="w-full h-32 object-cover"
                         />
                         {field.value.includes(fruit) && (
@@ -259,7 +295,7 @@ export default function TwoPick() {
               ))}
             </div>
 
-            <h2 className="text-xl font-bold mb-8 mt-12">プレイアブルカードのバージョンを選択してください（1つ以上）</h2>
+            <h2 className="text-xl font-bold mb-8 mt-12">プレイアブルカードのバージョンを選択してください</h2>
             <div className="grid grid-cols-2 gap-6">
               {(['通常', 'β'] as string[]).map(version => (
                 <Controller
@@ -289,6 +325,8 @@ export default function TwoPick() {
                           src={`/images/versions/${version}.png`}
                           alt={version}
                           className="w-full h-48 object-cover"
+                          width={200}
+                          height={200}
                         />
                         {field.value.includes(version) && (
                           <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
@@ -406,6 +444,7 @@ export default function TwoPick() {
                       md: { width: 280, height: 420 },
                       lg: { width: 300, height: 450 }
                     }}
+                    canShowDetail={false}
                   />
                 ))}
               </div>
@@ -457,12 +496,22 @@ export default function TwoPick() {
         <div className="text-center">
         <h2 className="text-2xl font-bold mb-4">デッキ構築完了！</h2>
         <p className="mb-4">選択したカードでデッキが完成しました。</p>
-        <button
-          className="btn-export mb-4"
-          onClick={() => setShowExportPopup(true)}
-        >
-          エクスポート
-        </button>
+        <div className="flex justify-center gap-4 mb-4">
+          <button
+            className="btn-export"
+            onClick={() => setShowExportPopup(true)}
+          >
+            エクスポート
+          </button>
+          {user && (
+            <button
+              className="btn-primary"
+              onClick={handleSaveDeck}
+            >
+              デッキを保存
+            </button>
+          )}
+        </div>
         <div className="flex justify-center">
           <button
             className="btn-secondary"
@@ -495,14 +544,14 @@ export default function TwoPick() {
             <Deck
               cards={yojoDeck}
               type="幼女"
-              removeable={false}
+              readOnly={true}
               defaultSortCriteria="id"
             />
             {/* お菓子デッキ */}
             <Deck
               cards={sweetDeck}
               type="お菓子"
-              removeable={false}
+              readOnly={true}
               defaultSortCriteria="id"
             />
           </div>
