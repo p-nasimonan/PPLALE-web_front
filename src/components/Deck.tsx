@@ -22,6 +22,8 @@ interface DeckProps {
   removeable?: boolean;
   /** ソート基準 */
   defaultSortCriteria?: 'none' | 'id' | 'name' | 'cost' | 'attack' | 'hp';
+  /** カードが削除されたときのコールバック関数 */
+  onRemove?: (card: CardInfo) => void;
 }
 
 /**
@@ -59,7 +61,8 @@ const Deck: React.FC<DeckProps> = ({
   onCardsReorder,
   type,
   removeable = true,
-  defaultSortCriteria = 'none'
+  defaultSortCriteria = 'none',
+  onRemove
 }) => {
   // ドラッグ中のカードのインデックス
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);

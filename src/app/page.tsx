@@ -57,7 +57,6 @@ export default function Home() {
   return (
     <main className="min-h-screen p-8">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8 main-color">マイデッキ</h1>
         
         {/* 新しいデッキ作成セクション */}
         <section className="mb-12">
@@ -115,7 +114,7 @@ export default function Home() {
                   className="card hover:shadow-lg transition-shadow"
                 >
                   <div className="aspect-video bg-gray-100 dark:bg-gray-700 rounded mb-3"></div>
-                  <h3 className="font-medium main-color">{deck.name}</h3>
+                  <h3 className="font-medium light-color">{deck.name}</h3>
                   <p className="description">
                     最終更新: {deck.updatedAt.toLocaleDateString('ja-JP')}
                   </p>

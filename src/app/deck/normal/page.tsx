@@ -16,6 +16,9 @@ import ImportPopup from '@/components/ImportPopup';
 import { useDarkMode } from "../../DarkModeProvider";
 import { useSettings } from "../../SideMenuProvider";
 import { allYojoCards, allSweetCards, allPlayableCards } from '@/data/cards';
+import { collection, doc, setDoc, getDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import { useAuth } from '@/lib/auth';
 
 
 /**
@@ -24,6 +27,7 @@ import { allYojoCards, allSweetCards, allPlayableCards } from '@/data/cards';
  * @returns メインページコンポーネント
  */
 export default function Home() {
+  const { user } = useAuth();
   // 幼女デッキのカード
   const [yojoDeck, setYojoDeck] = useState<CardInfo[]>([]);
   // お菓子デッキのカード
@@ -46,32 +50,49 @@ export default function Home() {
     document.documentElement.classList.toggle('dark', isDarkMode);
   }, [isDarkMode]);
 
-  // デッキの状態を保持するための useEffect
+  // デッキの状態をFirebaseから取得
   useEffect(() => {
-    // 初回読み込み時にデッキを localStorage から取得
-    const savedYojoDeck = localStorage.getItem('yojoDeck');
-    const savedSweetDeck = localStorage.getItem('sweetDeck');
-    const savedSelectedPlayableCard = localStorage.getItem('selectedPlayableCard');
+    const fetchDeck = async () => {
+      if (!user) return;
 
-    if (savedYojoDeck) {
-      setYojoDeck(JSON.parse(savedYojoDeck));
-    }
-    if (savedSweetDeck) {
-      setSweetDeck(JSON.parse(savedSweetDeck));
-    }
-    if (savedSelectedPlayableCard) {
-      setSelectedPlayableCard(JSON.parse(savedSelectedPlayableCard));
-    } 
-  }, []);
+      try {
+        const deckRef = doc(db, 'decks', user.uid);
+        const deckDoc = await getDoc(deckRef);
+        
+        if (deckDoc.exists()) {
+          const data = deckDoc.data();
+          setYojoDeck(data.yojoDeck || []);
+          setSweetDeck(data.sweetDeck || []);
+          setSelectedPlayableCard(data.selectedPlayableCard || null);
+        }
+      } catch (error) {
+        console.error('デッキの取得に失敗しました:', error);
+      }
+    };
 
-  // デッキが更新されたときに localStorage に保存
+    fetchDeck();
+  }, [user]);
+
+  // デッキの状態をFirebaseに保存
   useEffect(() => {
-    localStorage.setItem('yojoDeck', JSON.stringify(yojoDeck));
-  }, [yojoDeck]);
+    const saveDeck = async () => {
+      if (!user) return;
 
-  useEffect(() => {
-    localStorage.setItem('sweetDeck', JSON.stringify(sweetDeck));
-  }, [sweetDeck]);
+      try {
+        const deckRef = doc(db, 'decks', user.uid);
+        await setDoc(deckRef, {
+          yojoDeck,
+          sweetDeck,
+          selectedPlayableCard,
+          updatedAt: new Date()
+        });
+      } catch (error) {
+        console.error('デッキの保存に失敗しました:', error);
+      }
+    };
+
+    saveDeck();
+  }, [user, yojoDeck, sweetDeck, selectedPlayableCard]);
 
   const resetAllDeck = () => {
     setYojoDeck([]);
@@ -99,14 +120,11 @@ export default function Home() {
     if (card.type === '幼女' && yojoDeck.length < 20) {
       const updatedYojoDeck = [...yojoDeck, card];
       setYojoDeck(updatedYojoDeck);
-      localStorage.setItem('yojoDeck', JSON.stringify(updatedYojoDeck));
     } else if (card.type === 'お菓子' && sweetDeck.length < 10) {
       const updatedSweetDeck = [...sweetDeck, card];
       setSweetDeck(updatedSweetDeck);
-      localStorage.setItem('sweetDeck', JSON.stringify(updatedSweetDeck));
     } else if (card.type === 'プレイアブル') {
       setSelectedPlayableCard(card);
-      localStorage.setItem('selectedPlayableCard', JSON.stringify(card));
     }
   };
 
@@ -115,11 +133,9 @@ export default function Home() {
     if (deckType === '幼女') {
       const updatedYojoDeck = yojoDeck.filter(c => c.id !== card.id);
       setYojoDeck(updatedYojoDeck);
-      localStorage.setItem('yojoDeck', JSON.stringify(updatedYojoDeck));
     } else {
       const updatedSweetDeck = sweetDeck.filter(c => c.id !== card.id);
       setSweetDeck(updatedSweetDeck);
-      localStorage.setItem('sweetDeck', JSON.stringify(updatedSweetDeck));
     }
   };
 

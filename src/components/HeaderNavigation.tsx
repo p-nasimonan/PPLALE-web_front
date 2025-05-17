@@ -3,7 +3,7 @@
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { useAuth } from '@/lib/auth';
-import { collection, doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 
 export default function HeaderNavigation() {
@@ -27,8 +27,7 @@ export default function HeaderNavigation() {
 
     setIsSaving(true);
     try {
-      const decksCollection = collection(db, 'decks');
-      const deckRef = doc(decksCollection, user.uid);
+      const deckRef = doc(db, 'decks', user.uid);
       await setDoc(deckRef, {
         name: deckName,
         updatedAt: new Date()
