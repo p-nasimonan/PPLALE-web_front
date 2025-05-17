@@ -410,6 +410,7 @@ export default function TwoPick() {
                       md: { width: 280, height: 420 },
                       lg: { width: 300, height: 450 }
                     }}
+                    canShowDetail={false}
                   />
                 ))}
               </div>

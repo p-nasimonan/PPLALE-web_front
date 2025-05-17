@@ -59,6 +59,7 @@ interface CardProps {
   isInDeck?: boolean;
   /** カードの詳細を表示できるか */
   canShowDetail?: boolean;
+  
 }
 
 const defaultSizes: CardSizes = {
@@ -166,7 +167,7 @@ const Card: React.FC<CardProps> = ({
           relative rounded-lg shadow-md overflow-hidden card-container
           ${getCardColor()} 
           transition-all duration-200 hover:shadow-lg
-          ${canShowDetail ? 'cursor-pointer' : ''} flex-shrink-0
+          ${(canShowDetail || onClick) ? 'cursor-pointer' : ''} flex-shrink-0
           ${showDetail ? 'pointer-events-none' : ''}
         `}
         style={{
