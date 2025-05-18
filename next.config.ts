@@ -32,7 +32,7 @@ const config: NextConfig = {
     optimizeCss: true,
   },
   // 本番環境用の設定
-  assetPrefix: process.env.NODE_ENV === 'production' ? 'https://pplale.pgw.jp' : '',
+  assetPrefix: '',
   basePath: '',
   trailingSlash: true,
   publicRuntimeConfig: {

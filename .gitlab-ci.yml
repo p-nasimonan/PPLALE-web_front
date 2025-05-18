@@ -7,6 +7,8 @@ stages:
 variables:
   NODE_VERSION: "22"
   NPM_VERSION: "latest"
+  DOCKER_IMAGE: "pplale-web"
+  DOCKER_TAG: "latest"
   # GitHub Pages用の環境変数
   GITHUB_PAGES: "false"
 
@@ -15,17 +17,15 @@ setup:
   tags:
     - web
   before_script:
-    - sleep 5  # Runnerの完全な起動を待つ
+    - sleep 5
   script:
     - |
       echo "Node.js version: "
       node -v
       echo "NPM version: "
       npm -v
-      echo "NPM config list: "
-      npm config list
-      echo "NPM cache verify: "
-      npm cache verify
+      echo "Docker version: "
+      docker --version
   allow_failure: false
 
 build:
@@ -36,16 +36,13 @@ build:
     - sleep 2
   script:
     - |
-      echo "Starting build process..."
-      echo "Installing dependencies..."
-      npm ci
-      echo "Building application..."
-      npm run build
-      echo "Build completed. Checking output directory..."
-      ls -la out/
+      echo "Building Docker image..."
+      docker build -t $DOCKER_IMAGE:$DOCKER_TAG .
+      echo "Saving Docker image..."
+      docker save $DOCKER_IMAGE:$DOCKER_TAG | gzip > $DOCKER_IMAGE.tar.gz
   artifacts:
     paths:
-      - out/
+      - $DOCKER_IMAGE.tar.gz
     expire_in: 1 week
   allow_failure: false
 
@@ -57,11 +54,13 @@ test:
     - sleep 2
   script:
     - |
-      echo "Starting tests..."
-      echo "Checking build output..."
-      ls -la out/
-      echo "Verifying file permissions..."
-      find out/ -type f -exec ls -l {} \;
+      echo "Testing Docker image..."
+      docker load < $DOCKER_IMAGE.tar.gz
+      docker run -d -p 3000:3000 --name test-container $DOCKER_IMAGE:$DOCKER_TAG
+      sleep 5
+      curl -f http://localhost:3000 || exit 1
+      docker stop test-container
+      docker rm test-container
   dependencies:
     - build
   allow_failure: false
@@ -87,19 +86,25 @@ deploy:
   script:
     - |
       echo "Starting deployment..."
-      echo "Checking source files..."
-      ls -la out/
+      echo "Copying Docker image to server..."
+      scp $DOCKER_IMAGE.tar.gz ubuntu:/tmp/
       echo "Deploying to server..."
-      # standaloneモード用のデプロイ
-      rsync -avz --delete --progress out/ ubuntu:/var/www/pplale.pgw.jp/
-      echo "Setting permissions..."
-      ssh ubuntu "chown -R yokan:yokan /var/www/pplale.pgw.jp && chmod -R 755 /var/www/pplale.pgw.jp"
-      echo "Restarting Next.js server..."
-      ssh ubuntu "sudo systemctl restart pplale"
+      ssh ubuntu "docker load < /tmp/$DOCKER_IMAGE.tar.gz && \
+                 docker stop pplale-web || true && \
+                 docker rm pplale-web || true && \
+                 docker run -d \
+                   --name pplale-web \
+                   --restart always \
+                   -p 3000:3000 \
+                   -v /var/www/pplale.pgw.jp/static:/app/static \
+                   -v /var/www/pplale.pgw.jp/public:/app/public \
+                   $DOCKER_IMAGE:$DOCKER_TAG"
+      echo "Cleaning up..."
+      ssh ubuntu "rm /tmp/$DOCKER_IMAGE.tar.gz"
       echo "Restarting Nginx..."
       ssh ubuntu "sudo systemctl restart nginx"
       echo "Verifying deployment..."
-      ssh ubuntu "ls -la /var/www/pplale.pgw.jp/"
+      ssh ubuntu "docker ps | grep pplale-web"
   environment:
     name: production
     url: https://pplale.pgw.jp
