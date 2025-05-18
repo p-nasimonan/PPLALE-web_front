@@ -42,10 +42,11 @@ build:
       echo "Building application..."
       npm run build
       echo "Build completed. Checking output directory..."
-      ls -la out/
+      ls -la .next/
   artifacts:
     paths:
-      - out/
+      - .next/
+      - public/
     expire_in: 1 week
   allow_failure: false
 
@@ -59,9 +60,9 @@ test:
     - |
       echo "Starting tests..."
       echo "Checking build output..."
-      ls -la out/
+      ls -la .next/
       echo "Verifying file permissions..."
-      find out/ -type f -exec ls -l {} \;
+      find .next/ -type f -exec ls -l {} \;
   dependencies:
     - build
   allow_failure: false
@@ -88,9 +89,12 @@ deploy:
     - |
       echo "Starting deployment..."
       echo "Checking source files..."
-      ls -la out/
+      ls -la .next/
       echo "Deploying to server..."
-      rsync -avz --delete --progress out/ ubuntu:/var/www/pplale.pgw.jp/
+      # standaloneモード用のデプロイ
+      rsync -avz --delete --progress .next/standalone/* ubuntu:/var/www/pplale.pgw.jp/
+      rsync -avz --delete --progress .next/static ubuntu:/var/www/pplale.pgw.jp/.next/
+      rsync -avz --delete --progress public/ ubuntu:/var/www/pplale.pgw.jp/public/
       echo "Setting permissions..."
       ssh ubuntu "chown -R yokan:yokan /var/www/pplale.pgw.jp && chmod -R 755 /var/www/pplale.pgw.jp"
       echo "Restarting Next.js server..."
