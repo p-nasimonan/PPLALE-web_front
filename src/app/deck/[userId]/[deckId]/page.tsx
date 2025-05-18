@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { CardInfo } from '@/types/card';
 import { allYojoCards, allSweetCards, allPlayableCards } from '@/data/cards';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
@@ -112,7 +112,7 @@ export default function DeckPage() {
     };
 
     fetchDeck();
-  }, [params.userId, params.deckId, user]);
+  }, [user]);
 
   
 
