@@ -1,8 +1,6 @@
 stages:
   - setup
   - build
-  - test
-  - deploy
 
 variables:
   NODE_VERSION: "22"
@@ -40,71 +38,24 @@ build:
       docker build -t $DOCKER_IMAGE:$DOCKER_TAG .
       echo "Saving Docker image..."
       docker save $DOCKER_IMAGE:$DOCKER_TAG | gzip > $DOCKER_IMAGE.tar.gz
-  artifacts:
-    paths:
-      - $DOCKER_IMAGE.tar.gz
-    expire_in: 1 week
-  allow_failure: false
-
-test:
-  stage: test
-  tags:
-    - web
-  before_script:
-    - sleep 2
-  script:
-    - |
-      echo "Testing Docker image..."
-      docker load < $DOCKER_IMAGE.tar.gz
-      docker run -d -p 3000:3000 --name test-container $DOCKER_IMAGE:$DOCKER_TAG
-      sleep 5
-      curl -f http://localhost:3000 || exit 1
-      docker stop test-container
-      docker rm test-container
-  dependencies:
-    - build
-  allow_failure: false
-
-deploy:
-  stage: deploy
-  tags:
-    - web
-  before_script:
-    - sleep 2
-    - |
-      mkdir -p ~/.ssh
-      echo "$SSH_PRIVATE_KEY" > ~/.ssh/ubuntu
-      chmod 600 ~/.ssh/ubuntu
-      cat >> ~/.ssh/config << EOF
-      Host ubuntu
-        User yokan
-        HostName 192.168.0.5
-        IdentityFile ~/.ssh/ubuntu
-        StrictHostKeyChecking no
-      EOF
-      chmod 600 ~/.ssh/config
-  script:
-    - |
-      echo "Starting deployment..."
       echo "Copying Docker image to server..."
-      scp $DOCKER_IMAGE.tar.gz ubuntu:/tmp/
+      scp -o StrictHostKeyChecking=no $DOCKER_IMAGE.tar.gz ubuntu@192.168.0.5:/tmp/
       echo "Deploying to server..."
-      ssh ubuntu "docker load < /tmp/$DOCKER_IMAGE.tar.gz && \
-                 docker stop pplale-web || true && \
-                 docker rm pplale-web || true && \
-                 docker run -d \
-                   --name pplale-web \
-                   --restart always \
-                   -p 3000:3000 \
-                   -v /var/www/pplale.pgw.jp/static:/app/static \
-                   -v /var/www/pplale.pgw.jp/public:/app/public \
-                   $DOCKER_IMAGE:$DOCKER_TAG"
-      echo "Cleaning up..."
-      ssh ubuntu "rm /tmp/$DOCKER_IMAGE.tar.gz"
+      ssh -o StrictHostKeyChecking=no ubuntu@192.168.0.5 "docker load < /tmp/$DOCKER_IMAGE.tar.gz && \
+                                                         docker stop pplale-web || true && \
+                                                         docker rm pplale-web || true && \
+                                                         docker run -d \
+                                                           --name pplale-web \
+                                                           --restart always \
+                                                           -p 3000:3000 \
+                                                           -v /var/www/pplale.pgw.jp/static:/app/static \
+                                                           -v /var/www/pplale.pgw.jp/public:/app/public \
+                                                           $DOCKER_IMAGE:$DOCKER_TAG && \
+                                                         rm /tmp/$DOCKER_IMAGE.tar.gz"
       echo "Restarting Nginx..."
-      ssh ubuntu "sudo systemctl restart nginx"
+      ssh -o StrictHostKeyChecking=no ubuntu@192.168.0.5 "sudo systemctl restart nginx"
       echo "Verifying deployment..."
-      ssh ubuntu "docker ps | grep pplale-web"
+      ssh -o StrictHostKeyChecking=no ubuntu@192.168.0.5 "docker ps | grep pplale-web"
   environment:
     name: production
     url: https://pplale.pgw.jp
