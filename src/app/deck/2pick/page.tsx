@@ -11,7 +11,7 @@ import ExportPopup from '@/components/ExportPopup';
 import Card from '@/components/Card';
 import Image from 'next/image';
 import { useAuth } from '@/lib/auth';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
 
@@ -219,6 +219,7 @@ export default function TwoPick() {
       const deckId = Date.now().toString();
       const deckRef = doc(db, 'users', user.uid, 'decks', deckId);
 
+      // デッキの保存
       await setDoc(deckRef, {
         name: '2pickデッキ',
         yojoDeckIds: yojoDeck.map(card => card.id),
@@ -227,6 +228,12 @@ export default function TwoPick() {
         updatedAt: new Date(),
         is2pick: true
       });
+
+      // 保存が完了したことを確認
+      const savedDeck = await getDoc(deckRef);
+      if (!savedDeck.exists()) {
+        throw new Error('デッキの保存に失敗しました');
+      }
 
       // 保存成功後、デッキページに遷移
       router.push(`/deck/${user.uid}/${deckId}`);

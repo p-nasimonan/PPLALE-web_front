@@ -71,7 +71,8 @@ export default function Home() {
             yojoDeckIds: [],
             sweetDeckIds: [],
             playableCardId: null,
-            updatedAt: new Date()
+            updatedAt: new Date(),
+            is2pick: false  // 通常デッキの場合はfalse
           });
           router.push(`/deck/${user.uid}/${deckId}`);
         } catch (error) {
@@ -208,13 +209,13 @@ export default function Home() {
         {/* 削除確認モーダル */}
         {deletingDeckId && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg max-w-sm w-full mx-4">
-              <h3 className="text-lg font-bold mb-4 light-color">デッキの削除</h3>
+            <div className="main-color p-6 rounded-lg max-w-sm w-full mx-4">
+              <h3 className="text-lg font-bold mb-4 main-color">デッキの削除</h3>
               <p className="mb-6 description">このデッキを削除してもよろしいですか？この操作は取り消せません。</p>
               <div className="flex justify-end gap-4">
                 <button
                   onClick={() => setDeletingDeckId(null)}
-                  className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+                  className="px-4 py-2 rounded main-color"
                 >
                   キャンセル
                 </button>
