@@ -10,9 +10,14 @@ RUN npm ci
 COPY . .
 RUN npm run build && \
     echo "Checking build output..." && \
+    echo "=== Standalone directory ===" && \
     ls -la /app/.next/standalone && \
+    echo "=== Static directory ===" && \
     ls -la /app/.next/static && \
-    ls -la /app/public
+    echo "=== Public directory ===" && \
+    ls -la /app/public && \
+    echo "=== Public/images directory ===" && \
+    ls -la /app/public/images
 
 # 本番環境用のイメージ
 FROM node:22-alpine AS runner
@@ -26,9 +31,14 @@ COPY --from=builder /app/public ./public
 
 # ファイルの存在確認
 RUN echo "Checking copied files..." && \
+    echo "=== App directory ===" && \
     ls -la /app && \
+    echo "=== Static directory ===" && \
     ls -la /app/.next/static && \
-    ls -la /app/public
+    echo "=== Public directory ===" && \
+    ls -la /app/public && \
+    echo "=== Public/images directory ===" && \
+    ls -la /app/public/images
 
 # 本番環境の設定
 ENV NODE_ENV=production
