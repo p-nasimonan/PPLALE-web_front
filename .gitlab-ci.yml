@@ -45,7 +45,8 @@ build:
       ls -la .next/
   artifacts:
     paths:
-      - .next/
+      - .next/standalone/
+      - .next/static/
       - public/
     expire_in: 1 week
   allow_failure: false
@@ -60,9 +61,9 @@ test:
     - |
       echo "Starting tests..."
       echo "Checking build output..."
-      ls -la .next/
+      ls -la .next/standalone/
       echo "Verifying file permissions..."
-      find .next/ -type f -exec ls -l {} \;
+      find .next/standalone/ -type f -exec ls -l {} \;
   dependencies:
     - build
   allow_failure: false
@@ -89,7 +90,7 @@ deploy:
     - |
       echo "Starting deployment..."
       echo "Checking source files..."
-      ls -la .next/
+      ls -la .next/standalone/
       echo "Deploying to server..."
       # standaloneモード用のデプロイ
       rsync -avz --delete --progress .next/standalone/* ubuntu:/var/www/pplale.pgw.jp/
