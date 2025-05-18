@@ -1,11 +1,8 @@
 import type { NextConfig } from 'next';
-const isGitHubPages = process.env.GITHUB_PAGES === 'true';
-const basePath = isGitHubPages ? '/PPLALE-web_front' : '';
 
 const config: NextConfig = {
-  output: isGitHubPages ? 'export' : 'standalone',
-  distDir: 'out',
-  assetPrefix: basePath,
+  output: 'standalone',
+  distDir: '.next',
   images: {
     remotePatterns: [
       {
@@ -24,20 +21,17 @@ const config: NextConfig = {
       }
     ],
     domains: ['pplale.pgw.jp', 'localhost', 'lh3.googleusercontent.com'],
-    path: basePath,
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
-    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
-    formats: ['image/webp'],
-    minimumCacheTTL: 60,
     unoptimized: true
   },
   experimental: {
     optimizeCss: true,
   },
-  basePath,
+  // 本番環境用の設定
+  assetPrefix: process.env.NODE_ENV === 'production' ? 'https://pplale.pgw.jp' : '',
+  basePath: '',
   trailingSlash: true,
   publicRuntimeConfig: {
-    basePath,
+    basePath: '',
   },
   webpack: (config) => {
     config.module.rules.push({
@@ -46,7 +40,7 @@ const config: NextConfig = {
         {
           loader: 'file-loader',
           options: {
-            publicPath: `${basePath}/images`,
+            publicPath: '/images',
             outputPath: 'images',
             name: '[name].[ext]',
           },
