@@ -15,7 +15,7 @@ setup:
   tags:
     - web
   before_script:
-    - sleep 5
+    - sleep 3
   script:
     - |
       echo "Node.js version: "
@@ -43,8 +43,6 @@ build:
         --name pplale-web \
         --restart always \
         -p 3000:3000 \
-        -v /var/www/pplale.pgw.jp/static:/app/static \
-        -v /var/www/pplale.pgw.jp/public:/app/public \
         $DOCKER_IMAGE:$DOCKER_TAG
       echo "Restarting Nginx..."
       sudo systemctl restart nginx
