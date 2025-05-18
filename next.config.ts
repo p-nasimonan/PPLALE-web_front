@@ -2,7 +2,7 @@ import type { NextConfig } from 'next';
 
 const config: NextConfig = {
   output: 'standalone',
-  distDir: '.next',
+  distDir: 'out',
   images: {
     remotePatterns: [
       {
