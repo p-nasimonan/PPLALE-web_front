@@ -16,8 +16,8 @@ FROM node:22-alpine AS runner
 WORKDIR /app
 
 # 必要なファイルのみをコピー
-COPY --from=builder /app/out/standalone ./
-COPY --from=builder /app/out/.next/static ./.next/static
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
 
 # 本番環境の設定
