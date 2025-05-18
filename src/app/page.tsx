@@ -24,13 +24,13 @@ export default function Home() {
   const [deletingDeckId, setDeletingDeckId] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!user) {
+      setRecentDecks([]);
+      setLoading(false);
+      return;
+    }
+    // ログインユーザーのみデッキ取得
     const fetchRecentDecks = async () => {
-      if (!user) {
-        setRecentDecks([]);
-        setLoading(false);
-        return;
-      }
-
       try {
         const decksRef = collection(db, 'users', user.uid, 'decks');
         const q = query(
@@ -52,35 +52,44 @@ export default function Home() {
         setLoading(false);
       }
     };
-
     fetchRecentDecks();
   }, [user]);
 
   const handleCreateDeck = async (type: string) => {
-    if (!user) {
-      alert('デッキを作成するにはログインが必要です');
-      return;
-    }
-
     setIsCreating(true);
     try {
       if (type === '2pick') {
         router.push('/deck/2pick');
         return;
       }
-
       const deckId = Date.now().toString();
-      const deckRef = doc(db, 'users', user.uid, 'decks', deckId);
-
-      await setDoc(deckRef, {
-        name: '無名のデッキ',
-        yojoDeckIds: [],
-        sweetDeckIds: [],
-        playableCardId: null,
-        updatedAt: new Date()
-      });
-
-      router.push(`/deck/${user.uid}/${deckId}`);
+      if (user) {
+        try {
+          const deckRef = doc(db, 'users', user.uid, 'decks', deckId);
+          await setDoc(deckRef, {
+            name: '無名のデッキ',
+            yojoDeckIds: [],
+            sweetDeckIds: [],
+            playableCardId: null,
+            updatedAt: new Date()
+          });
+          router.push(`/deck/${user.uid}/${deckId}`);
+        } catch (error) {
+          console.error('Firebaseへの保存に失敗しました:', error);
+          alert('デッキの作成に失敗しました');
+        }
+      } else {
+        const newDeck = {
+          id: deckId,
+          name: '無名のデッキ',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          userId: 'local'
+        };
+        const localDecks = JSON.parse(localStorage.getItem('localDecks') || '[]');
+        localStorage.setItem('localDecks', JSON.stringify([newDeck, ...localDecks]));
+        router.push(`/deck/local/${deckId}`);
+      }
     } catch (error) {
       console.error('デッキの作成に失敗しました:', error);
       alert('デッキの作成に失敗しました');
@@ -90,13 +99,16 @@ export default function Home() {
   };
 
   const handleDeleteDeck = async (deckId: string) => {
-    if (!user) return;
-
     try {
-      const deckRef = doc(db, 'users', user.uid, 'decks', deckId);
-      await deleteDoc(deckRef);
+      if (user) {
+        const deckRef = doc(db, 'users', user.uid, 'decks', deckId);
+        await deleteDoc(deckRef);
+      } else {
+        const localDecks = JSON.parse(localStorage.getItem('localDecks') || '[]');
+        const updatedDecks = localDecks.filter((deck: Deck) => deck.id !== deckId);
+        localStorage.setItem('localDecks', JSON.stringify(updatedDecks));
+      }
       
-      // 削除したデッキをリストから除外
       setRecentDecks(prevDecks => prevDecks.filter(deck => deck.id !== deckId));
       setDeletingDeckId(null);
     } catch (error) {
@@ -151,45 +163,47 @@ export default function Home() {
           </div>
         </section>
 
-        {/* 最近作成したデッキセクション */}
-        <section>
-          <h2 className="text-2xl font-semibold mb-4 main-color">最近作成したデッキ</h2>
-          {loading ? (
-            <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-color mx-auto"></div>
-            </div>
-          ) : recentDecks.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {recentDecks.map((deck) => (
-                <div key={deck.id} className="relative group">
-                  <Link
-                    href={`/deck/${user?.uid}/${deck.id}`}
-                    className="card hover:shadow-lg transition-shadow block"
-                  >
-                    <div className="aspect-video bg-gray-100 dark:bg-gray-700 rounded mb-3"></div>
-                    <h3 className="font-medium light-color">{deck.name}</h3>
-                    <p className="description">
-                      最終更新: {deck.updatedAt.toLocaleDateString('ja-JP')}
-                    </p>
-                  </Link>
-                  <button
-                    onClick={() => setDeletingDeckId(deck.id)}
-                    className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                    aria-label="デッキを削除"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8 description">
-              {user ? 'デッキがまだありません。新しいデッキを作成しましょう！' : 'ログインしてデッキを作成しましょう'}
-            </div>
-          )}
-        </section>
+        {/* 最近作成したデッキセクション（ログインユーザーのみ表示） */}
+        {user && (
+          <section>
+            <h2 className="text-2xl font-semibold mb-4 main-color">最近作成したデッキ</h2>
+            {loading ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-color mx-auto"></div>
+              </div>
+            ) : recentDecks.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {recentDecks.map((deck) => (
+                  <div key={deck.id} className="relative group">
+                    <Link
+                      href={`/deck/${user?.uid}/${deck.id}`}
+                      className="card hover:shadow-lg transition-shadow block"
+                    >
+                      <div className="aspect-video bg-gray-100 dark:bg-gray-700 rounded mb-3"></div>
+                      <h3 className="font-medium light-color">{deck.name}</h3>
+                      <p className="description">
+                        最終更新: {deck.updatedAt.toLocaleDateString('ja-JP')}
+                      </p>
+                    </Link>
+                    <button
+                      onClick={() => setDeletingDeckId(deck.id)}
+                      className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                      aria-label="デッキを削除"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 description">
+                デッキがまだありません。新しいデッキを作成しましょう！
+              </div>
+            )}
+          </section>
+        )}
 
         {/* 削除確認モーダル */}
         {deletingDeckId && (

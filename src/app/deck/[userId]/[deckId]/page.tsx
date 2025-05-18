@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { CardInfo } from '@/types/card';
 import { allYojoCards, allSweetCards, allPlayableCards } from '@/data/cards';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
@@ -23,6 +23,7 @@ interface DeckDocData {
 
 export default function DeckPage() {
   const params = useParams();
+  const router = useRouter();
   const { user } = useAuth();
   const [deckName, setDeckName] = useState('');
   const [isEditing, setIsEditing] = useState(false);
@@ -36,36 +37,6 @@ export default function DeckPage() {
   const [showExportPopup, setShowExportPopup] = useState(false);
   const [showImportPopup, setShowImportPopup] = useState(false);
 
-  // ローカルストレージからデッキを復元
-  useEffect(() => {
-    const savedYojoDeck = localStorage.getItem(`deck_${params.deckId}_yojo`);
-    const savedSweetDeck = localStorage.getItem(`deck_${params.deckId}_sweet`);
-    const savedPlayableCard = localStorage.getItem(`deck_${params.deckId}_playable`);
-
-    if (savedYojoDeck) {
-      setYojoDeck(JSON.parse(savedYojoDeck));
-    }
-    if (savedSweetDeck) {
-      setSweetDeck(JSON.parse(savedSweetDeck));
-    }
-    if (savedPlayableCard) {
-      setSelectedPlayableCard(JSON.parse(savedPlayableCard));
-    }
-  }, [params.deckId]);
-
-  // デッキの変更をローカルストレージに保存
-  useEffect(() => {
-    localStorage.setItem(`deck_${params.deckId}_yojo`, JSON.stringify(yojoDeck));
-  }, [yojoDeck, params.deckId]);
-
-  useEffect(() => {
-    localStorage.setItem(`deck_${params.deckId}_sweet`, JSON.stringify(sweetDeck));
-  }, [sweetDeck, params.deckId]);
-
-  useEffect(() => {
-    localStorage.setItem(`deck_${params.deckId}_playable`, JSON.stringify(selectedPlayableCard));
-  }, [selectedPlayableCard, params.deckId]);
-
   useEffect(() => {
     const fetchDeck = async () => {
       try {
@@ -74,6 +45,18 @@ export default function DeckPage() {
 
         const userId = params.userId as string;
         const deckId = params.deckId as string;
+
+        // localユーザーの場合
+        if (userId === 'local') {
+          setDeckName('無名のデッキ');
+          setYojoDeck([]);
+          setSweetDeck([]);
+          setSelectedPlayableCard(null);
+          setIsLoading(false);
+          return;
+        }
+
+        // Firebaseからデッキを取得
         const deckRef = doc(db, 'users', userId, 'decks', deckId);
         const deckDoc = await getDoc(deckRef);
 
@@ -120,6 +103,19 @@ export default function DeckPage() {
     fetchDeck();
   }, [params.userId, params.deckId]);
 
+  // デッキの変更をローカルストレージに保存
+  useEffect(() => {
+    localStorage.setItem(`deck_${params.deckId}_yojo`, JSON.stringify(yojoDeck));
+  }, [yojoDeck, params.deckId]);
+
+  useEffect(() => {
+    localStorage.setItem(`deck_${params.deckId}_sweet`, JSON.stringify(sweetDeck));
+  }, [sweetDeck, params.deckId]);
+
+  useEffect(() => {
+    localStorage.setItem(`deck_${params.deckId}_playable`, JSON.stringify(selectedPlayableCard));
+  }, [selectedPlayableCard, params.deckId]);
+
   useEffect(() => {
     const handleExport = () => setShowExportPopup(true);
     const handleImport = () => setShowImportPopup(true);
@@ -151,11 +147,10 @@ export default function DeckPage() {
   };
 
   const handleDeckUpdate = async () => {
-    if (!user || user.uid !== params.userId) return;
-
     try {
       const deckRef = doc(db, 'users', params.userId as string, 'decks', params.deckId as string);
       await setDoc(deckRef, {
+        name: deckName,
         yojoDeckIds: yojoDeck.map(card => card.id),
         sweetDeckIds: sweetDeck.map(card => card.id),
         playableCardId: selectedPlayableCard?.id || null,
@@ -252,6 +247,7 @@ export default function DeckPage() {
     return false;
   };
 
+
   if (isLoading) {
     return <div className="container mx-auto p-4">読み込み中...</div>;
   }
@@ -260,7 +256,8 @@ export default function DeckPage() {
     return <div className="container mx-auto p-4 text-red-500">{error}</div>;
   }
 
-  const isOwner = user && user.uid === params.userId;
+  // localユーザーの場合もオーナーとして扱う
+  const isOwner = user ? user.uid === params.userId : params.userId === 'local';
 
   return (
     <div className="container mx-auto p-2">
@@ -282,18 +279,27 @@ export default function DeckPage() {
             />
           </div>
         ) : (
-          <h1 
-            className="text-3xl font-bold"
-            onClick={() => isOwner && setIsEditing(true)}
-            style={{ cursor: isOwner ? 'pointer' : 'default' }}
-          >
-            {deckName}
-            {isOwner && (
-              <span className="ml-2 text-sm text-gray-500">
-                (クリックして編集)
-              </span>
+          <div className="flex items-center justify-between w-full">
+            <h1 
+              className="text-3xl font-bold"
+              onClick={() => isOwner && setIsEditing(true)}
+              style={{ cursor: isOwner ? 'pointer' : 'default' }}
+            >
+              {deckName}
+              {isOwner && (
+                <span className="ml-2 text-sm text-gray-500">
+                  (クリックして編集)
+                </span>
+              )}
+            </h1>
+            {params.userId === 'local' && (
+              <div className="flex items-center gap-4">
+                <div className="text-sm text-gray-500">
+                  ログインするとデッキを保存できます
+                </div>
+              </div>
             )}
-          </h1>
+          </div>
         )}
       </div>
 

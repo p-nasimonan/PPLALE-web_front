@@ -7,15 +7,16 @@ const config: NextConfig = {
   distDir: 'out',
   assetPrefix: basePath,
   images: {
-    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'https',
         hostname: 'pplale.pgw.jp',
+        port: '',
       },
       {
         protocol: 'http',
         hostname: 'localhost',
+        port: '',
       },
       {
         protocol: 'https',
@@ -28,6 +29,7 @@ const config: NextConfig = {
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     formats: ['image/webp'],
     minimumCacheTTL: 60,
+    unoptimized: true
   },
   experimental: {
     optimizeCss: true,
@@ -46,7 +48,7 @@ const config: NextConfig = {
           options: {
             publicPath: `${basePath}/images`,
             outputPath: 'images',
-            name: '[name].[hash].[ext]',
+            name: '[name].[ext]',
           },
         },
       ],
