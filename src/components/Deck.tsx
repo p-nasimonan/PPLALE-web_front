@@ -129,7 +129,6 @@ const Deck: React.FC<DeckProps> = ({
 
   // カードが削除されたときの処理
   const handleCardRemove = (card: CardInfo) => {
-    console.log(card)
     if (onCardRemove) {
       
       onCardRemove(card);

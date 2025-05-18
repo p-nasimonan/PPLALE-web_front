@@ -35,47 +35,39 @@ export default function DeckPage() {
   const [dragOverDeck, setDragOverDeck] = useState<string | null>(null);
   const [showExportPopup, setShowExportPopup] = useState(false);
   const [showImportPopup, setShowImportPopup] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
 
-  // ローカルストレージからデッキを復元
-  useEffect(() => {
-    const savedYojoDeck = localStorage.getItem(`deck_${params.deckId}_yojo`);
-    const savedSweetDeck = localStorage.getItem(`deck_${params.deckId}_sweet`);
-    const savedPlayableCard = localStorage.getItem(`deck_${params.deckId}_playable`);
-
-    if (savedYojoDeck) {
-      setYojoDeck(JSON.parse(savedYojoDeck));
-    }
-    if (savedSweetDeck) {
-      setSweetDeck(JSON.parse(savedSweetDeck));
-    }
-    if (savedPlayableCard) {
-      setSelectedPlayableCard(JSON.parse(savedPlayableCard));
-    }
-  }, [params.deckId]);
-
-  // デッキの変更をローカルストレージに保存
-  useEffect(() => {
-    localStorage.setItem(`deck_${params.deckId}_yojo`, JSON.stringify(yojoDeck));
-  }, [yojoDeck, params.deckId]);
-
-  useEffect(() => {
-    localStorage.setItem(`deck_${params.deckId}_sweet`, JSON.stringify(sweetDeck));
-  }, [sweetDeck, params.deckId]);
-
-  useEffect(() => {
-    localStorage.setItem(`deck_${params.deckId}_playable`, JSON.stringify(selectedPlayableCard));
-  }, [selectedPlayableCard, params.deckId]);
+  const userId = params.userId as string;
+  const deckId = params.deckId as string;
 
   useEffect(() => {
     const fetchDeck = async () => {
       try {
         setIsLoading(true);
         setError(null);
+        console.log(userId)
 
-        const userId = params.userId as string;
-        const deckId = params.deckId as string;
+        // localユーザーの場合
+        if (userId === 'local') {
+          // ローカルストレージからデッキを読み込む
+          const savedName = localStorage.getItem(`deck_${deckId}_name`);
+          const savedYojo = localStorage.getItem(`deck_${deckId}_yojo`);
+          const savedSweet = localStorage.getItem(`deck_${deckId}_sweet`);
+          const savedPlayable = localStorage.getItem(`deck_${deckId}_playable`);
+
+          setDeckName(savedName || '無名のデッキ');
+          setYojoDeck(savedYojo ? JSON.parse(savedYojo) : []);
+          setSweetDeck(savedSweet ? JSON.parse(savedSweet) : []);
+          setSelectedPlayableCard(savedPlayable ? JSON.parse(savedPlayable) : null);
+          setIsLoading(false);
+          setIsLoaded(true);
+          return;
+        }
+
+        // Firebaseからデッキを取得
         const deckRef = doc(db, 'users', userId, 'decks', deckId);
         const deckDoc = await getDoc(deckRef);
+        console.log(deckDoc)
 
         if (!deckDoc.exists()) {
           setError('デッキが見つかりませんでした');
@@ -113,12 +105,16 @@ export default function DeckPage() {
         console.error('デッキの取得に失敗しました:', error);
         setError('デッキの取得に失敗しました');
       } finally {
+        // これめっちゃ重要だった
         setIsLoading(false);
+        setIsLoaded(true);
       }
     };
 
     fetchDeck();
-  }, [params.userId, params.deckId]);
+  }, [user]);
+
+  
 
   useEffect(() => {
     const handleExport = () => setShowExportPopup(true);
@@ -132,6 +128,51 @@ export default function DeckPage() {
       window.removeEventListener('importDeck', handleImport);
     };
   }, []);
+
+
+  // デッキの変更をローカルストレージに保存
+  useEffect(() => {
+    if (userId === 'local') {
+      localStorage.setItem(`deck_${params.deckId}_yojo`, JSON.stringify(yojoDeck));
+    }
+  }, [yojoDeck, params.deckId, userId]);
+
+  useEffect(() => {
+    if (userId === 'local') {
+      localStorage.setItem(`deck_${params.deckId}_sweet`, JSON.stringify(sweetDeck));
+    }
+  }, [sweetDeck, params.deckId, userId]);
+
+  useEffect(() => {
+    if (userId === 'local') {
+      localStorage.setItem(`deck_${params.deckId}_playable`, JSON.stringify(selectedPlayableCard));
+    }
+  }, [selectedPlayableCard, params.deckId, userId]);
+
+  // Firebaseへの保存
+  useEffect(() => {
+    if (!isLoaded) return; // 初回ロードが終わるまで保存しない
+    if (!user || user.uid !== userId || userId === 'local') return;
+
+    const saveToFirebase = async () => {
+      try {
+        const deckRef = doc(db, 'users', userId, 'decks', deckId);
+        await setDoc(deckRef, {
+          name: deckName,
+          yojoDeckIds: yojoDeck.map(card => card.id),
+          sweetDeckIds: sweetDeck.map(card => card.id),
+          playableCardId: selectedPlayableCard?.id || null,
+          updatedAt: new Date()
+        }, { merge: true });
+      } catch (error) {
+        console.error('デッキの更新に失敗しました:', error);
+        alert('デッキの更新に失敗しました');
+      }
+    };
+
+    saveToFirebase();
+  }, [user, userId, deckId, deckName, yojoDeck, sweetDeck, selectedPlayableCard, isLoaded]);
+
 
   const handleNameChange = async (newName: string) => {
     if (!user || user.uid !== params.userId) return;
@@ -150,56 +191,26 @@ export default function DeckPage() {
     }
   };
 
-  const handleDeckUpdate = async () => {
-    if (!user || user.uid !== params.userId) return;
-
-    try {
-      const deckRef = doc(db, 'users', params.userId as string, 'decks', params.deckId as string);
-      await setDoc(deckRef, {
-        yojoDeckIds: yojoDeck.map(card => card.id),
-        sweetDeckIds: sweetDeck.map(card => card.id),
-        playableCardId: selectedPlayableCard?.id || null,
-        updatedAt: new Date()
-      }, { merge: true });
-
-      // ローカルストレージにも保存
-      localStorage.setItem(`deck_${params.deckId}_yojo`, JSON.stringify(yojoDeck));
-      localStorage.setItem(`deck_${params.deckId}_sweet`, JSON.stringify(sweetDeck));
-      localStorage.setItem(`deck_${params.deckId}_playable`, JSON.stringify(selectedPlayableCard));
-    } catch (error) {
-      console.error('デッキの更新に失敗しました:', error);
-      alert('デッキの更新に失敗しました');
-    }
-  };
-
   const handleAddCard = (card: CardInfo) => {
     if (card.type === '幼女' && yojoDeck.length < 20) {
       setYojoDeck(prev => [...prev, card]);
-      handleDeckUpdate();
     } else if (card.type === 'お菓子' && sweetDeck.length < 10) {
       setSweetDeck(prev => [...prev, card]);
-      handleDeckUpdate();
     } else if (card.type === 'プレイアブル' && !selectedPlayableCard) {
       setSelectedPlayableCard(card);
-      handleDeckUpdate();
     }
   };
 
   const handleRemoveFromYojoDeck = (card: CardInfo) => {
-    const updatedYojoDeck = yojoDeck.filter(c => c.id !== card.id);
-    setYojoDeck(updatedYojoDeck);
-    handleDeckUpdate();
+    setYojoDeck(prev => prev.filter(c => c.id !== card.id));
   };
 
   const handleRemoveFromSweetDeck = (card: CardInfo) => {
-    const updatedSweetDeck = sweetDeck.filter(c => c.id !== card.id);
-    setSweetDeck(updatedSweetDeck);
-    handleDeckUpdate();
+    setSweetDeck(prev => prev.filter(c => c.id !== card.id));
   };
 
   const handleRemovePlayableCard = () => {
     setSelectedPlayableCard(null);
-    handleDeckUpdate();
   };
 
   const handleDragStart = (e: React.DragEvent, card: CardInfo) => {
@@ -252,6 +263,7 @@ export default function DeckPage() {
     return false;
   };
 
+
   if (isLoading) {
     return <div className="container mx-auto p-4">読み込み中...</div>;
   }
@@ -260,7 +272,8 @@ export default function DeckPage() {
     return <div className="container mx-auto p-4 text-red-500">{error}</div>;
   }
 
-  const isOwner = user && user.uid === params.userId;
+  // localユーザーの場合もオーナーとして扱う
+  const isOwner = user ? user.uid === params.userId : params.userId === 'local';
 
   return (
     <div className="container mx-auto p-2">
@@ -282,18 +295,27 @@ export default function DeckPage() {
             />
           </div>
         ) : (
-          <h1 
-            className="text-3xl font-bold"
-            onClick={() => isOwner && setIsEditing(true)}
-            style={{ cursor: isOwner ? 'pointer' : 'default' }}
-          >
-            {deckName}
-            {isOwner && (
-              <span className="ml-2 text-sm text-gray-500">
-                (クリックして編集)
-              </span>
+          <div className="flex items-center justify-between w-full">
+            <h1 
+              className="text-3xl font-bold"
+              onClick={() => isOwner && setIsEditing(true)}
+              style={{ cursor: isOwner ? 'pointer' : 'default' }}
+            >
+              {deckName}
+              {isOwner && (
+                <span className="ml-2 text-sm text-gray-500">
+                  (クリックして編集)
+                </span>
+              )}
+            </h1>
+            {params.userId === 'local' && (
+              <div className="flex items-center gap-4">
+                <div className="text-sm text-gray-500">
+                  ログインするとデッキを保存できます
+                </div>
+              </div>
             )}
-          </h1>
+          </div>
         )}
       </div>
 
