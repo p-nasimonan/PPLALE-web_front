@@ -46,3 +46,49 @@ npm --version
 ```bash
 npm install
 ```
+
+## Firebaseのルール
+適当に書いたから被ってるところありそう。
+```js
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ユーザー認証のヘルパー関数
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // ユーザーが自分のドキュメントにアクセスしているか確認
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // デッキのドキュメントに対するルール
+    match /users/{userId}/decks/{deckId} {
+      // 読み取り:誰でもok
+      allow read: if true;
+      
+      // 書き込み: 自分のみ
+      allow write: if  isOwner(userId);
+      
+      // 作成: 自分のデッキのみ
+      allow create: if isOwner(userId) && 
+        request.resource.data.keys().hasAll(['name', 'yojoDeckIds', 'sweetDeckIds', 'playableCardId', 'updatedAt', 'is2pick']);
+      
+      // 更新: 自分のデッキのみ
+      allow update: if isOwner(userId) && 
+        request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['name', 'yojoDeckIds', 'sweetDeckIds', 'playableCardId', 'updatedAt', 'is2pick']);
+      
+      // 削除: 自分のデッキのみ
+      allow delete: if isOwner(userId);
+    }
+
+    // その他のドキュメントへのアクセスは拒否
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
+```

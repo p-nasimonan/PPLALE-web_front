@@ -106,7 +106,7 @@ export default function RootLayout({
             <SettingsProvider>
               <header className="fixed top-0 left-0 right-0 h-16 z-40">
                 <div className="max-w-screen-2xl mx-auto px-4 h-full flex items-center justify-between">
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-4 truncate">
                     <Link className="text-xl font-bold truncate" href="/">ぷぷりえーる デッキ構築</Link>
                   </div>
                   <div className="flex items-center gap-4">
