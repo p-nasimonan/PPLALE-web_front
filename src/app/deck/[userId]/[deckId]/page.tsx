@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { CardInfo } from '@/types/card';
 import { allYojoCards, allSweetCards, allPlayableCards } from '@/data/cards';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
@@ -11,6 +11,8 @@ import CardList from '@/components/CardList';
 import { useAuth } from '@/lib/auth';
 import ExportPopup from '@/components/ExportPopup';
 import ImportPopup from '@/components/ImportPopup';
+import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { auth } from '@/lib/firebase';
 
 interface DeckDocData {
   yojoDeckIds?: string[];
@@ -22,6 +24,7 @@ interface DeckDocData {
 }
 
 export default function DeckPage() {
+  const router = useRouter();
   const params = useParams();
   const { user } = useAuth();
   const [deckName, setDeckName] = useState('');
@@ -46,72 +49,76 @@ export default function DeckPage() {
         setError(null);
         console.log(userId)
 
-        // localユーザーの場合
-        if (userId === 'local') {
-          // ローカルストレージからデッキを読み込む
-          const savedName = localStorage.getItem(`deck_${deckId}_name`);
-          const savedYojo = localStorage.getItem(`deck_${deckId}_yojo`);
-          const savedSweet = localStorage.getItem(`deck_${deckId}_sweet`);
-          const savedPlayable = localStorage.getItem(`deck_${deckId}_playable`);
+        const savedName = localStorage.getItem(`deck_${deckId}_name`);
+        const savedYojo = localStorage.getItem(`deck_${deckId}_yojo`);
+        const savedSweet = localStorage.getItem(`deck_${deckId}_sweet`);
+        const savedPlayable = localStorage.getItem(`deck_${deckId}_playable`);
+        console.log(savedName, savedYojo, savedSweet, savedPlayable)
 
+        if(userId != 'local'){
+          // Firebaseからデッキを取得
+          const deckRef = doc(db, 'users', userId, 'decks', deckId);
+          const deckDoc = await getDoc(deckRef);
+
+          // デッキが存在しない場合
+          if (!deckDoc.exists()) {
+            if(savedName || savedYojo || savedSweet || savedPlayable){
+              setDeckName(savedName || '無名のデッキ');
+              setYojoDeck(savedYojo ? JSON.parse(savedYojo) : []);
+              setSweetDeck(savedSweet ? JSON.parse(savedSweet) : []);
+              setSelectedPlayableCard(savedPlayable ? JSON.parse(savedPlayable) : null);
+              setIsLoading(false);
+            } else {
+              setError('デッキが存在しません');
+              setIsLoading(false);
+            }
+            return;
+          }
+            const deckDocData: DeckDocData = deckDoc.data() as DeckDocData;
+
+
+            setDeckName(deckDocData.name || '無名のデッキ');
+
+            // カードIDからカードデータを復元
+            const yojoDeckIds: string[] = deckDocData.yojoDeckIds || [];
+            const sweetDeckIds: string[] = deckDocData.sweetDeckIds || [];
+            const playableCardId: string | null = deckDocData.playableCardId || null;
+
+            // 幼女デッキの復元
+            const newYojoDeck: CardInfo[] = yojoDeckIds
+              .map(id => allYojoCards.find(card => card.id === id))
+              .filter((card): card is CardInfo => card !== undefined);
+
+            // お菓子デッキの復元
+            const newSweetDeck: CardInfo[] = sweetDeckIds
+              .map(id => allSweetCards.find(card => card.id === id))
+              .filter((card): card is CardInfo => card !== undefined);
+
+            // プレイアブルカードの復元
+            const newPlayableCard = playableCardId
+              ? allPlayableCards.find(card => card.id === playableCardId) || null
+              : null;
+
+            setYojoDeck(newYojoDeck);
+            setSweetDeck(newSweetDeck);
+            setSelectedPlayableCard(newPlayableCard);
+        }else{
           setDeckName(savedName || '無名のデッキ');
           setYojoDeck(savedYojo ? JSON.parse(savedYojo) : []);
           setSweetDeck(savedSweet ? JSON.parse(savedSweet) : []);
           setSelectedPlayableCard(savedPlayable ? JSON.parse(savedPlayable) : null);
-          setIsLoading(false);
-          setIsLoaded(true);
-          return;
         }
-
-        // Firebaseからデッキを取得
-        const deckRef = doc(db, 'users', userId, 'decks', deckId);
-        const deckDoc = await getDoc(deckRef);
-        console.log(deckDoc)
-
-        if (!deckDoc.exists()) {
-          setError('デッキが見つかりませんでした');
-          return;
-        }
-
-        const deckDocData: DeckDocData = deckDoc.data() as DeckDocData;
-
-        setDeckName(deckDocData.name || '無名のデッキ');
-
-        // カードIDからカードデータを復元
-        const yojoDeckIds: string[] = deckDocData.yojoDeckIds || [];
-        const sweetDeckIds: string[] = deckDocData.sweetDeckIds || [];
-        const playableCardId: string | null = deckDocData.playableCardId || null;
-
-        // 幼女デッキの復元
-        const newYojoDeck: CardInfo[] = yojoDeckIds
-          .map(id => allYojoCards.find(card => card.id === id))
-          .filter((card): card is CardInfo => card !== undefined);
-
-        // お菓子デッキの復元
-        const newSweetDeck: CardInfo[] = sweetDeckIds
-          .map(id => allSweetCards.find(card => card.id === id))
-          .filter((card): card is CardInfo => card !== undefined);
-
-        // プレイアブルカードの復元
-        const newPlayableCard = playableCardId
-          ? allPlayableCards.find(card => card.id === playableCardId) || null
-          : null;
-
-        setYojoDeck(newYojoDeck);
-        setSweetDeck(newSweetDeck);
-        setSelectedPlayableCard(newPlayableCard);
       } catch (error) {
         console.error('デッキの取得に失敗しました:', error);
         setError('デッキの取得に失敗しました');
       } finally {
-        // これめっちゃ重要だった
         setIsLoading(false);
         setIsLoaded(true);
       }
     };
 
     fetchDeck();
-  }, [user]);
+  }, [user, userId, deckId]);
 
   
 
@@ -165,21 +172,42 @@ export default function DeckPage() {
         }, { merge: true });
       } catch (error) {
         console.error('デッキの更新に失敗しました:', error);
-        alert('デッキの更新に失敗しました');
+        if (error instanceof Error) {
+          console.error('エラーの詳細:', {
+            message: error.message,
+            name: error.name,
+            stack: error.stack
+          });
+        }
+        alert(`デッキの更新に失敗しました: ${error instanceof Error ? error.message : '不明なエラー'}`);
       }
     };
 
     saveToFirebase();
-  }, [user, userId, deckId, deckName, yojoDeck, sweetDeck, selectedPlayableCard, isLoaded]);
+  }, [user, userId, deckId, isLoaded, deckName, yojoDeck, sweetDeck, selectedPlayableCard]);
 
 
   const handleNameChange = async (newName: string) => {
-    if (!user || user.uid !== params.userId) return;
     if (userId === 'local') {
-      localStorage.setItem(`deck_${params.deckId}_name`, newName);
-      setDeckName(newName);
       setIsEditing(false);
-      alert('ローカルデッキの名前を変更しました');
+      setDeckName(newName);
+      localStorage.setItem(`deck_${params.deckId}_name`, newName);
+      const provider = new GoogleAuthProvider();
+      try {
+        const result = await signInWithPopup(auth, provider);
+        if (result.user) {
+          // ローカルデータを保存したままページ遷移
+          router.push(`/deck/${result.user.uid}/${deckId}`);
+        }
+      } catch (error) {
+        console.error('ログインエラー:', error);
+        alert('ログインに失敗しました');
+      }
+      return;
+    }
+    if (!user || user.uid !== params.userId) {
+      setIsEditing(false);
+      setDeckName(deckName);
       return;
     }
     try {
@@ -304,13 +332,6 @@ export default function DeckPage() {
                 </span>
               )}
             </h1>
-            {params.userId === 'local' && (
-              <div className="flex items-center gap-4">
-                <div className="text-sm text-gray-500">
-                  ログインするとデッキを保存できます
-                </div>
-              </div>
-            )}
           </div>
         )}
       </div>
