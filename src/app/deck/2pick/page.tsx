@@ -14,6 +14,8 @@ import { useAuth } from '@/lib/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
+import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { auth } from '@/lib/firebase';
 
 export default function TwoPick() {
   const { user } = useAuth();
@@ -211,15 +213,57 @@ export default function TwoPick() {
   // デッキを保存する関数
   const handleSaveDeck = async () => {
     if (!user) {
-      alert('デッキを保存するにはログインが必要です');
+      const provider = new GoogleAuthProvider();
+      try {
+        const result = await signInWithPopup(auth, provider);
+        if (result.user) {
+          // ログイン成功後、デッキを保存
+          const deckId = Date.now().toString();
+          
+          // まずローカルストレージに保存
+          localStorage.setItem(`deck_${deckId}_name`, '2pickデッキ');
+          localStorage.setItem(`deck_${deckId}_yojo`, JSON.stringify(yojoDeck));
+          localStorage.setItem(`deck_${deckId}_sweet`, JSON.stringify(sweetDeck));
+          localStorage.setItem(`deck_${deckId}_playable`, JSON.stringify(selectedPlayableCard));
+
+          // Firebaseに保存
+          const deckRef = doc(db, 'users', result.user.uid, 'decks', deckId);
+          await setDoc(deckRef, {
+            name: '無名の2pickデッキ',
+            yojoDeckIds: yojoDeck.map(card => card.id),
+            sweetDeckIds: sweetDeck.map(card => card.id),
+            playableCardId: selectedPlayableCard?.id || null,
+            updatedAt: new Date(),
+            is2pick: true
+          });
+
+          // 保存が完了したことを確認
+          const savedDeck = await getDoc(deckRef);
+          if (!savedDeck.exists()) {
+            throw new Error('デッキの保存に失敗しました');
+          }
+
+          // 保存成功後、デッキページに遷移
+          router.push(`/deck/${result.user.uid}/${deckId}`);
+        }
+      } catch (error) {
+        console.error('ログインエラー:', error);
+        alert('ログインに失敗しました');
+      }
       return;
     }
 
     try {
       const deckId = Date.now().toString();
-      const deckRef = doc(db, 'users', user.uid, 'decks', deckId);
+      
+      // まずローカルストレージに保存
+      localStorage.setItem(`deck_${deckId}_name`, '2pickデッキ');
+      localStorage.setItem(`deck_${deckId}_yojo`, JSON.stringify(yojoDeck));
+      localStorage.setItem(`deck_${deckId}_sweet`, JSON.stringify(sweetDeck));
+      localStorage.setItem(`deck_${deckId}_playable`, JSON.stringify(selectedPlayableCard));
 
-      // デッキの保存
+      // Firebaseに保存
+      const deckRef = doc(db, 'users', user.uid, 'decks', deckId);
       await setDoc(deckRef, {
         name: '2pickデッキ',
         yojoDeckIds: yojoDeck.map(card => card.id),
@@ -239,7 +283,14 @@ export default function TwoPick() {
       router.push(`/deck/${user.uid}/${deckId}`);
     } catch (error) {
       console.error('デッキの保存に失敗しました:', error);
-      alert('デッキの保存に失敗しました');
+      if (error instanceof Error) {
+        console.error('エラーの詳細:', {
+          message: error.message,
+          name: error.name,
+          stack: error.stack
+        });
+      }
+      alert(`デッキの保存に失敗しました: ${error instanceof Error ? error.message : '不明なエラー'}`);
     }
   };
 
@@ -510,14 +561,12 @@ export default function TwoPick() {
           >
             エクスポート
           </button>
-          {user && (
             <button
               className="btn-primary"
               onClick={handleSaveDeck}
             >
               デッキを保存
             </button>
-          )}
         </div>
         <div className="flex justify-center">
           <button

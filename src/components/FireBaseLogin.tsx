@@ -13,11 +13,17 @@ import { auth } from '@/lib/firebase';
 
 const provider = new GoogleAuthProvider();
 
+interface FireBaseLoginProps {
+  isPopup?: boolean;
+  onClose?: () => void;
+}
+
 /**
  * Firebaseログインコンポーネント
+ * @param {FireBaseLoginProps} props - コンポーネントのプロパティ
  * @returns {JSX.Element} Firebaseログインコンポーネント
  */
-const FireBaseLogin: React.FC = () => {
+const FireBaseLogin: React.FC<FireBaseLoginProps> = () => {
   const [user, set_user] = useState<User | null>(null);
   const [menu_open, set_menu_open] = useState<boolean>(false);
 
