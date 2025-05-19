@@ -32,7 +32,6 @@ export default function DeckPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'yojo' | 'sweet' | 'playable'>('yojo');
-  const [dragOverDeck, setDragOverDeck] = useState<string | null>(null);
   const [showExportPopup, setShowExportPopup] = useState(false);
   const [showImportPopup, setShowImportPopup] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -176,7 +175,13 @@ export default function DeckPage() {
 
   const handleNameChange = async (newName: string) => {
     if (!user || user.uid !== params.userId) return;
-
+    if (userId === 'local') {
+      localStorage.setItem(`deck_${params.deckId}_name`, newName);
+      setDeckName(newName);
+      setIsEditing(false);
+      alert('ローカルデッキの名前を変更しました');
+      return;
+    }
     try {
       const deckRef = doc(db, 'users', params.userId as string, 'decks', params.deckId as string);
       await setDoc(deckRef, {
@@ -218,18 +223,9 @@ export default function DeckPage() {
     e.dataTransfer.setData('cardType', card.type);
   };
 
-  const handleDragOver = (e: React.DragEvent, deckType: string) => {
-    e.preventDefault();
-    setDragOverDeck(deckType);
-  };
-
-  const handleDragLeave = () => {
-    setDragOverDeck(null);
-  };
 
   const handleDrop = (e: React.DragEvent, deckType: string) => {
     e.preventDefault();
-    setDragOverDeck(null);
 
     const cardId = e.dataTransfer.getData('cardId');
     const cardType = e.dataTransfer.getData('cardType');
@@ -324,56 +320,47 @@ export default function DeckPage() {
         <div className="space-y-5">
           {/* 幼女デッキ */}
           {activeTab === 'yojo' && (
-            <div 
-              className={`card ${dragOverDeck === 'yojo' ? 'ring-2 ring-blue-500' : ''}`}
-              onDragOver={(e) => handleDragOver(e, 'yojo')}
-              onDragLeave={handleDragLeave}
-              onDrop={(e) => handleDrop(e, 'yojo')}
-            >
-              <h2 className="text-xl font-bold mb-4">幼女デッキ ({yojoDeck.length}/20)</h2>
-              <Deck
-                cards={yojoDeck}
-                type="幼女"
-                readOnly={!isOwner}
-                onCardRemove={handleRemoveFromYojoDeck}
-              />
-            </div>
+            <Deck
+              cards={yojoDeck}
+              type="幼女"
+              readOnly={!isOwner}
+              onCardRemove={handleRemoveFromYojoDeck}
+              onDragOverDeck={(e) => {
+                e.preventDefault();
+              }}
+              onDragLeaveDeck={() => {}}
+              onDropDeck={(e) => handleDrop(e, 'yojo')}
+            />
           )}
 
           {/* お菓子デッキ */}
           {activeTab === 'sweet' && (
-            <div 
-              className={`card ${dragOverDeck === 'sweet' ? 'ring-2 ring-blue-500' : ''}`}
-              onDragOver={(e) => handleDragOver(e, 'sweet')}
-              onDragLeave={handleDragLeave}
-              onDrop={(e) => handleDrop(e, 'sweet')}
-            >
-              <h2 className="text-xl font-bold mb-4">お菓子デッキ ({sweetDeck.length}/10)</h2>
-              <Deck
-                cards={sweetDeck}
-                type="お菓子"
-                readOnly={!isOwner}
-                onCardRemove={handleRemoveFromSweetDeck}
-              />
-            </div>
+            <Deck
+              cards={sweetDeck}
+              type="お菓子"
+              readOnly={!isOwner}
+              onCardRemove={handleRemoveFromSweetDeck}
+              onDragOverDeck={(e) => {
+                e.preventDefault();
+              }}
+              onDragLeaveDeck={() => {}}
+              onDropDeck={(e) => handleDrop(e, 'sweet')}
+            />
           )}
 
           {/* プレイアブルカード */}
-          {activeTab === 'playable' && selectedPlayableCard && (
-            <div 
-              className={`card ${dragOverDeck === 'playable' ? 'ring-2 ring-blue-500' : ''}`}
-              onDragOver={(e) => handleDragOver(e, 'playable')}
-              onDragLeave={handleDragLeave}
-              onDrop={(e) => handleDrop(e, 'playable')}
-            >
-              <h2 className="text-xl font-bold mb-4">プレイアブルカード</h2>
-              <Deck
-                cards={[selectedPlayableCard]}
-                type="プレイアブル"
-                readOnly={!isOwner}
-                onCardRemove={handleRemovePlayableCard}
-              />
-            </div>
+          {activeTab === 'playable' &&(
+            <Deck
+              cards={[selectedPlayableCard || null].filter(Boolean) as CardInfo[]}
+              type="プレイアブル"
+              readOnly={!isOwner}
+              onCardRemove={handleRemovePlayableCard}
+              onDragOverDeck={(e) => {
+                e.preventDefault();
+              }}
+              onDragLeaveDeck={() => {}}
+              onDropDeck={(e) => handleDrop(e, 'playable')}
+            />
           )}
         </div>
 

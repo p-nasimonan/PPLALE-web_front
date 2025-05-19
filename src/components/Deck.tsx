@@ -22,6 +22,12 @@ interface DeckProps {
   readOnly?: boolean;
   /** ソート基準 */
   defaultSortCriteria?: 'none' | 'id' | 'name' | 'cost' | 'attack' | 'hp';
+  /** デッキにドラッグオーバーされたときのコールバック関数 */
+  onDragOverDeck?: (e: React.DragEvent, deckType: string) => void;
+  /** デッキからドラッグが離れたときのコールバック関数 */
+  onDragLeaveDeck?: (e: React.DragEvent, deckType: string) => void;
+  /** デッキにドロップされたときのコールバック関数 */
+  onDropDeck?: (e: React.DragEvent, deckType: string) => void;
 }
 
 /**
@@ -59,10 +65,15 @@ const Deck: React.FC<DeckProps> = ({
   onCardsReorder,
   type,
   readOnly = false,
-  defaultSortCriteria = 'none'
+  defaultSortCriteria = 'none',
+  onDragOverDeck,
+  onDragLeaveDeck,
+  onDropDeck
 }) => {
   // ドラッグ中のカードのインデックス
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  // デッキにドラッグオーバー中かどうか
+  const [isDraggingOver, setIsDraggingOver] = useState(false);
 
   // デッキの最大枚数
   const maxCards = 
@@ -151,7 +162,24 @@ const Deck: React.FC<DeckProps> = ({
   };
 
   return (
-    <div className={`p-4 rounded-lg border-2 ${getDeckColor()} ${getBorderColor()}`}>
+    <div 
+      className={`p-4 rounded-lg border-2 ${getDeckColor()} ${getBorderColor()} transition-all duration-200 ${
+        isDraggingOver ? 'scale-101 shadow-lg border-dashed border-4' : ''
+      }`}
+      onDragOver={(e) => {
+        e.preventDefault();
+        setIsDraggingOver(true);
+        onDragOverDeck?.(e, type);
+      }}
+      onDragLeave={(e) => {
+        setIsDraggingOver(false);
+        onDragLeaveDeck?.(e, type);
+      }}
+      onDrop={(e) => {
+        setIsDraggingOver(false);
+        onDropDeck?.(e, type);
+      }}
+    >
       <div className="flex justify-between items-center mb-4">
         <h2 className={`text-xl font-bold ${getTextColor()}`}>
           {type}デッキ ({cards.length}/{maxCards})
@@ -173,7 +201,7 @@ const Deck: React.FC<DeckProps> = ({
       </div>
 
       {/* デッキのカードリスト */}
-      <div className="grid grid-cols-4 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-5 xl:grid-cols-5 gap-4 overflow-auto max-h-[calc(70vh-50px)]">
+      <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-5 lg:grid-cols-4 xl:grid-cols-5 gap-4 overflow-auto max-h-[calc(70vh-50px)]">
         {uniqueSortedCards.map((card, index) => (
           <div
             key={card.id}

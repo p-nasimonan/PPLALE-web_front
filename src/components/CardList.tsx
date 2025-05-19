@@ -155,7 +155,7 @@ const CardList: React.FC<CardListProps> = ({
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-        <div className="grid grid-cols-4 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-6 gap-1 overflow-auto  max-h-[calc(70vh-50px)]">
+        <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-5 xl:grid-cols-6 gap-1 overflow-auto  max-h-[calc(70vh-50px)]">
           {filteredCards
             .filter(card => card.type === cardType)
             .sort((a, b) => (a.version || '').localeCompare(b.version || ''))

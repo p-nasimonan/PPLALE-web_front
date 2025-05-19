@@ -10,21 +10,19 @@ type DarkModeContextType = {
 const DarkModeContext = createContext<DarkModeContextType | undefined>(undefined);
 
 export default function DarkModeProvider({ children }: { children: React.ReactNode }) {
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  // 初期値をnullに設定し、初期化前の状態を表現
+  const [isDarkMode, setIsDarkMode] = useState<boolean | null>(null);
 
   useEffect(() => {
     // ローカルストレージからダークモードの設定を読み込む
     const savedMode = localStorage.getItem('darkMode');
-    if (savedMode !== null) {
-      setIsDarkMode(savedMode === 'true');
-    } else {
-      // システムの設定を確認
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      setIsDarkMode(prefersDark);
-    }
+    setIsDarkMode(savedMode === 'true');
   }, []);
 
   useEffect(() => {
+    // isDarkModeがnullの場合は何もしない（初期化前）
+    if (isDarkMode === null) return;
+
     // ダークモードの状態が変更されたときにクラスを更新
     if (isDarkMode) {
       document.documentElement.classList.add('dark');
@@ -36,8 +34,16 @@ export default function DarkModeProvider({ children }: { children: React.ReactNo
   }, [isDarkMode]);
 
   const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode);
+    // ダークモードの状態をトグルする
+    setIsDarkMode(prev => !prev);
+    // ローカルストレージに保存
+    localStorage.setItem('darkMode', (!isDarkMode).toString());
   };
+
+  // 初期化前は何も表示しない
+  if (isDarkMode === null) {
+    return null;
+  }
 
   return (
     <DarkModeContext.Provider value={{ isDarkMode, toggleDarkMode }}>
