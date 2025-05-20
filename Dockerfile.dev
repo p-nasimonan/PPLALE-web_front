@@ -5,6 +5,7 @@ WORKDIR /app
 # 依存関係のインストール
 COPY package*.json ./
 RUN npm install
+RUN npm install -g next
 
 # ソースコードのコピー
 COPY . .
@@ -12,6 +13,7 @@ COPY . .
 # 開発環境の設定
 ENV NODE_ENV=development
 ENV PORT=3000
+ENV PATH /app/node_modules/.bin:$PATH
 
 # アプリケーションの起動
 CMD ["npm", "run", "dev"] 
