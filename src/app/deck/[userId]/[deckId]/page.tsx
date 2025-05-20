@@ -488,4 +488,21 @@ export default function DeckPage() {
       )}
     </div>
   );
+}
+
+// 静的生成用のパラメータを生成
+export async function generateStaticParams() {
+  return [
+    { userId: 'local', deckId: '1' },
+    { userId: 'local', deckId: '2' },
+    // 必要に応じて他のパスを追加
+  ];
+}
+
+// 動的メタデータの生成
+export async function generateMetadata({ params }: { params: { userId: string; deckId: string } }) {
+  return {
+    title: `デッキ ${params.deckId}`,
+    description: `ユーザー ${params.userId} のデッキ ${params.deckId}`,
+  };
 } 
