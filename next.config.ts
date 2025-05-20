@@ -30,40 +30,13 @@ const config: NextConfig = {
   experimental: {
     optimizeCss: true,
   },
-  // GitHub Pages用の設定
-  basePath: process.env.NEXT_PUBLIC_GITHUB_PAGES ? '/PPLALE-web_front' : '',
+  // 本番環境用の設定
+  basePath: '',
   // 動的ルーティングの設定
   trailingSlash: true,
-  // リダイレクト設定
-  async redirects() {
-    return [
-      {
-        source: '/deck/:userId/:deckId',
-        destination: '/deck/:userId/:deckId/',
-        permanent: true,
-      },
-    ];
-  },
-  // リライト設定
-  async rewrites() {
-    return {
-      beforeFiles: [
-        {
-          source: '/deck/:userId/:deckId',
-          destination: '/deck/[userId]/[deckId]',
-        },
-      ],
-    };
-  },
-  // 静的生成の設定
-  async generateStaticParams() {
-    return {
-      '/deck/[userId]/[deckId]': [
-        { userId: 'local', deckId: '1' },
-        { userId: 'local', deckId: '2' },
-        // 必要に応じて他のパスを追加
-      ],
-    };
+
+  publicRuntimeConfig: {
+    basePath: '',
   },
   webpack: (config) => {
     config.module.rules.push({
