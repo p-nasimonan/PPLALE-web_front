@@ -107,7 +107,7 @@ textarea{
 
 /* ヘッダースタイル */
 header {
-  background-image: url('https://api.vrchat.cloud/api/1/file/file_7b9a1b4f-d83e-4f39-83ea-f91b51c93131/1/file');
+  background-image: url('/images/baner.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
