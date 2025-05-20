@@ -50,10 +50,9 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Setup Pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v4
         with:
-          # 自動設定を無効化
-          static_site_generator: none
+          enablement: true
 
       - name: Build with Docker
         run: |
