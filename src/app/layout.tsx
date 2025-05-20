@@ -123,11 +123,6 @@ export default function RootLayout({
             </SettingsProvider>
           </DarkModeProvider>
         </AuthProvider>
-        <footer className="fixed bottom-0 left-0 right-0 h-16 bg-white dark:bg-gray-900 shadow-md z-40">
-          <div className="max-w-screen-2xl mx-auto px-4 h-full flex items-center justify-center">
-            <p className="text-sm text-gray-500 dark:text-gray-400">© 2023 ようかん</p>
-          </div>
-        </footer>
       </body>
     </html>
   );
