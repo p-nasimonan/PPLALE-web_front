@@ -6,7 +6,7 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {signInWithPopup, GoogleAuthProvider, signOut, User } from 'firebase/auth';
 import Image from 'next/image';
 import { auth } from '@/lib/firebase';
@@ -26,6 +26,23 @@ interface FireBaseLoginProps {
 const FireBaseLogin: React.FC<FireBaseLoginProps> = () => {
   const [user, set_user] = useState<User | null>(null);
   const [menu_open, set_menu_open] = useState<boolean>(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        set_menu_open(false);
+      }
+    };
+
+    if (menu_open) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [menu_open]);
 
   // 認証状態の監視
   useEffect(() => {
@@ -95,7 +112,7 @@ const FireBaseLogin: React.FC<FireBaseLoginProps> = () => {
   }
 
   return (
-    <div className="relative">
+    <div className="relative" ref={menuRef}>
       <button 
         onClick={toggle_menu} 
         className="flex items-center justify-center rounded-full overflow-hidden focus:outline-none"
