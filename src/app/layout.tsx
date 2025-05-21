@@ -7,6 +7,7 @@ import { SettingsProvider } from './SideMenuProvider';
 import { AuthProvider } from '@/lib/auth';
 import SettingsButton from '@/components/SideMenu';
 import FireBaseLogin from '@/components/FireBaseLogin';
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -38,7 +39,7 @@ export const metadata: Metadata = {
     siteName: "ぷぷりえーる デッキ構築",
     images: [
       {
-        url: "/images/ogp.webp",
+        url: "/images/ogp.png",
         width: 1200,
         height: 630,
         alt: "ぷぷりえーる デッキ構築",
@@ -51,7 +52,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "ぷぷりえーる デッキ構築",
     description: "VRChatにあるカードゲーム「ぷぷりえーる」のデッキ構築などができるwebアプリ",
-    images: ["/images/ogp.webp"],
+    images: ["/images/ogp.png"],
   },
   robots: {
     index: true,
@@ -101,6 +102,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         suppressHydrationWarning
       >
+        <SpeedInsights />
         <AuthProvider>
           <DarkModeProvider>
             <SettingsProvider>

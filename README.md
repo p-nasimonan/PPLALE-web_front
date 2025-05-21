@@ -1,5 +1,5 @@
 # VRChatにあるカードゲーム「ぷぷりえーる」のデッキ構築などができるwebアプリのフロントエンド
-URL: https://p-nasimonan.github.io/PPLALE-web_front/  （画像が最適化されないため、初回ロードに時間がかかるかもしれません）  
+URL: https://pplale-web-front.vercel.app/  （GitHubPagesは諦めました）  
 自宅鯖： https://pplale.pgw.jp/  （今のところIPv6しか対応してません）  
 <img width="1619" alt="スクリーンショット 2025-05-01 15 34 43" src="https://github.com/user-attachments/assets/5a895727-011e-4c35-8c57-66b94f290253" />
 

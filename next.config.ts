@@ -33,7 +33,9 @@ const config: NextConfig = {
   // 本番環境用の設定
   assetPrefix: '',
   basePath: '',
+  // 動的ルーティングの設定
   trailingSlash: true,
+
   publicRuntimeConfig: {
     basePath: '',
   },
