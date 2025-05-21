@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { useSettings } from '@/app/SideMenuProvider';
 import { useDarkMode } from '@/app/DarkModeProvider';
 import { usePathname } from 'next/navigation';
@@ -16,9 +16,26 @@ export default function SettingsButton() {
   const pathname = usePathname();
   const isMainPage = pathname === '/';
   const is2PickPage = pathname === '/deck/2pick';
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setShowSettings(false);
+      }
+    };
+
+    if (showSettings) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showSettings, setShowSettings]);
 
   return (
-    <div className="relative">
+    <div className="relative" ref={menuRef}>
       <button
         className="btn-settings text-2xl hover:scale-110 transition-transform duration-200"
         onClick={() => setShowSettings(!showSettings)}
