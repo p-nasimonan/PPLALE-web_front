@@ -10,6 +10,7 @@
 import React, { useState } from 'react';
 import { CardInfo } from '@/types/card'; 
 import Card from './Card';
+import DeckImagePreview from './DeckImagePreview';
 
 /**
  * エクスポートポップアップのプロパティ
@@ -47,6 +48,7 @@ const ExportPopup: React.FC<ExportPopupProps> = ({ yojoDeck, sweetDeck, playable
   const [yojoCopied, setYojoCopied] = useState(false);
   // お菓子デッキのコピー状態
   const [sweetCopied, setSweetCopied] = useState(false);
+  const [showImagePreview, setShowImagePreview] = useState(false);
 
   /**
    * IDから数字のみを抽出する関数
@@ -120,7 +122,13 @@ const ExportPopup: React.FC<ExportPopupProps> = ({ yojoDeck, sweetDeck, playable
               )}
           
         </div>
-        <div className="flex justify-end">
+        <div className="flex flex-col items-end gap-2">
+          <button
+            className="btn btn-primary"
+            onClick={() => setShowImagePreview(true)}
+          >
+            デッキの画像を表示
+          </button>
           <button
             className="btn btn-secondary"
             onClick={onClose}
@@ -128,6 +136,14 @@ const ExportPopup: React.FC<ExportPopupProps> = ({ yojoDeck, sweetDeck, playable
             閉じる
           </button>
         </div>
+        {showImagePreview && (
+          <DeckImagePreview
+            yojoDeck={yojoDeck}
+            sweetDeck={sweetDeck}
+            playableCard={playableCard}
+            onClose={() => setShowImagePreview(false)}
+          />
+        )}
       </div>
     </div>
   );
