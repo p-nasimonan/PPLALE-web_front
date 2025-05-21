@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: { params: { userId: string; d
       siteName: 'ぷぷりえーる デッキ構築',
       images: [
         {
-          url: '/images/ogp.webp',
+          url: '/images/ogp.png',
           width: 1200,
           height: 630,
           alt: `${deckName}のデッキ`,
@@ -46,7 +46,7 @@ export async function generateMetadata({ params }: { params: { userId: string; d
       card: 'summary_large_image',
       title: `${deckName} - PPLALE`,
       description: `${deckName}のデッキ - 幼女カード${yojoCount}枚、お菓子カード${sweetCount}枚`,
-      images: ['/images/ogp.webp'],
+      images: ['/images/ogp.png'],
     },
   };
 }
