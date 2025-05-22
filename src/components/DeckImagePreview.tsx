@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { CardInfo } from '@/types/card';
+import Image from 'next/image';
 
 interface DeckImagePreviewProps {
   yojoDeck: CardInfo[];
@@ -47,18 +48,24 @@ const DeckImagePreview: React.FC<DeckImagePreviewProps> = ({ yojoDeck, sweetDeck
     ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
     // 画像を順に読み込んで描画
-    const yojoPositions = yojoDeck.slice(0, 20).map((_, i) => ({
-      x: YOJO_MARGIN_L + (i % 5) * (YOJO_CARD_W + YOJO_GAP),
-      y: YOJO_MARGIN_T + Math.floor(i / 5) * (YOJO_CARD_H + YOJO_GAP),
-      w: YOJO_CARD_W,
-      h: YOJO_CARD_H,
-    }));
-    const sweetPositions = sweetDeck.slice(0, 10).map((_, i) => ({
-      x: CANVAS_WIDTH - SWEET_MARGIN_R - SWEET_CARD_W * 5 - SWEET_GAP * 4 + (i % 5) * (SWEET_CARD_W + SWEET_GAP),
-      y: SWEET_MARGIN_T + Math.floor(i / 5) * (SWEET_CARD_H + SWEET_GAP),
-      w: SWEET_CARD_W,
-      h: SWEET_CARD_H,
-    }));
+    const yojoPositions = yojoDeck
+      .slice(0, 20)
+      .sort((a, b) => a.id.localeCompare(b.id))
+      .map((_, i) => ({
+        x: YOJO_MARGIN_L + (i % 5) * (YOJO_CARD_W + YOJO_GAP),
+        y: YOJO_MARGIN_T + Math.floor(i / 5) * (YOJO_CARD_H + YOJO_GAP),
+        w: YOJO_CARD_W,
+        h: YOJO_CARD_H,
+      }));
+    const sweetPositions = sweetDeck
+      .slice(0, 10)
+      .sort((a, b) => a.id.localeCompare(b.id))
+      .map((_, i) => ({
+        x: CANVAS_WIDTH - SWEET_MARGIN_R - SWEET_CARD_W * 5 - SWEET_GAP * 4 + (i % 5) * (SWEET_CARD_W + SWEET_GAP),
+        y: SWEET_MARGIN_T + Math.floor(i / 5) * (SWEET_CARD_H + SWEET_GAP),
+        w: SWEET_CARD_W,
+        h: SWEET_CARD_H,
+      }));
     const playablePosition = {
       x: YOJO_CARD_W * 5 + YOJO_GAP * 4  + PLAYABLE_MARGIN_L,
       y: CANVAS_HEIGHT - PLAYABLE_MARGIN_T - PLAYABLE_H - SWEET_GAP,
@@ -68,20 +75,26 @@ const DeckImagePreview: React.FC<DeckImagePreviewProps> = ({ yojoDeck, sweetDeck
 
     // 画像リスト作成
     const allImages: { img: HTMLImageElement; x: number; y: number; w: number; h: number; loaded: boolean }[] = [];
-    yojoDeck.slice(0, 20).forEach((card, i) => {
-      const img = new window.Image();
-      img.crossOrigin = 'anonymous';
-      img.src = getImageUrl(card);
-      const pos = yojoPositions[i];
-      allImages.push({ img, x: pos.x, y: pos.y, w: pos.w, h: pos.h, loaded: false });
-    });
-    sweetDeck.slice(0, 10).forEach((card, i) => {
-      const img = new window.Image();
-      img.crossOrigin = 'anonymous';
-      img.src = getImageUrl(card);
-      const pos = sweetPositions[i];
-      allImages.push({ img, x: pos.x, y: pos.y, w: pos.w, h: pos.h, loaded: false });
-    });
+    yojoDeck
+      .slice(0, 20)
+      .sort((a, b) => a.id.localeCompare(b.id))
+      .forEach((card, i) => {
+        const img = new window.Image();
+        img.crossOrigin = 'anonymous';
+        img.src = getImageUrl(card);
+        const pos = yojoPositions[i];
+        allImages.push({ img, x: pos.x, y: pos.y, w: pos.w, h: pos.h, loaded: false });
+      });
+    sweetDeck
+      .slice(0, 10)
+      .sort((a, b) => a.id.localeCompare(b.id))
+      .forEach((card, i) => {
+        const img = new window.Image();
+        img.crossOrigin = 'anonymous';
+        img.src = getImageUrl(card);
+        const pos = sweetPositions[i];
+        allImages.push({ img, x: pos.x, y: pos.y, w: pos.w, h: pos.h, loaded: false });
+      });
     // プレイアブルカード
     const playableImg = new window.Image();
     playableImg.crossOrigin = 'anonymous';
@@ -130,7 +143,7 @@ const DeckImagePreview: React.FC<DeckImagePreviewProps> = ({ yojoDeck, sweetDeck
           <div className="my-8">画像生成中...</div>
         ) : imgUrl ? (
           <>
-            <img src={imgUrl} alt="デッキ画像" className="mb-4 max-w-full" />
+            <Image src={imgUrl} alt="デッキ画像" className="mb-4 max-w-full" width={1920} height={1080} unoptimized />
             <a href={imgUrl} download="deck.png" className="btn btn-primary mb-2">画像をダウンロード</a>
           </>
         ) : (
