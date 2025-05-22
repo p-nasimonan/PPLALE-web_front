@@ -53,13 +53,11 @@ export default function DeckPage() {
       try {
         setIsLoading(true);
         setError(null);
-        console.log(userId)
 
         const savedName = localStorage.getItem(`deck_${deckId}_name`);
         const savedYojo = localStorage.getItem(`deck_${deckId}_yojo`);
         const savedSweet = localStorage.getItem(`deck_${deckId}_sweet`);
         const savedPlayable = localStorage.getItem(`deck_${deckId}_playable`);
-        console.log(savedName, savedYojo, savedSweet, savedPlayable)
 
         if(userId != 'local'){
           // Firebaseからデッキを取得
