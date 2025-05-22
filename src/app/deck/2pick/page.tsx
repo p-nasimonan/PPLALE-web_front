@@ -20,6 +20,7 @@ import { auth } from '@/lib/firebase';
 export default function TwoPick() {
   const { user } = useAuth();
   const router = useRouter();
+  const { isTwoCardLimit } = useSettings();
   // 幼女カード
   const [yojoCards] = useState<CardInfo[]>(allYojoCards);
   // お菓子カード
@@ -37,8 +38,6 @@ export default function TwoPick() {
   // お菓子デッキ
   const [sweetDeck, setSweetDeck] = useState<CardInfo[]>([]);
 
-  const { isTwoCardLimit } = useSettings();
-  
   const [isShowDeck, setIsShowDeck] = useState(false); // デッキ確認ポップアップの表示状態
   const [round, setRound] = useState(1); // 現在のラウンド
   const [showExportPopup, setShowExportPopup] = useState(false);
@@ -265,7 +264,7 @@ export default function TwoPick() {
       // Firebaseに保存
       const deckRef = doc(db, 'users', user.uid, 'decks', deckId);
       await setDoc(deckRef, {
-        name: '2pickデッキ',
+        name: '無名の2pickデッキ',
         yojoDeckIds: yojoDeck.map(card => card.id),
         sweetDeckIds: sweetDeck.map(card => card.id),
         playableCardId: selectedPlayableCard?.id || null,
