@@ -13,6 +13,8 @@ import ExportPopup from '@/components/ExportPopup';
 import ImportPopup from '@/components/ImportPopup';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
+import ShareButtons from '@/components/ShareButtons';
+import { useSettings } from '../../../SideMenuProvider';
 
 interface DeckDocData {
   yojoDeckIds?: string[];
@@ -23,10 +25,14 @@ interface DeckDocData {
   is2pick?: boolean;
 }
 
+const yojoLimit = 20;
+const sweetLimit = 10;
+
 export default function DeckPage() {
   const router = useRouter();
   const params = useParams();
   const { user } = useAuth();
+  const { isTwoCardLimit } = useSettings();
   const [deckName, setDeckName] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [yojoDeck, setYojoDeck] = useState<CardInfo[]>([]);
@@ -47,13 +53,11 @@ export default function DeckPage() {
       try {
         setIsLoading(true);
         setError(null);
-        console.log(userId)
 
         const savedName = localStorage.getItem(`deck_${deckId}_name`);
         const savedYojo = localStorage.getItem(`deck_${deckId}_yojo`);
         const savedSweet = localStorage.getItem(`deck_${deckId}_sweet`);
         const savedPlayable = localStorage.getItem(`deck_${deckId}_playable`);
-        console.log(savedName, savedYojo, savedSweet, savedPlayable)
 
         if(userId != 'local'){
           // Firebaseからデッキを取得
@@ -225,12 +229,16 @@ export default function DeckPage() {
   };
 
   const handleAddCard = (card: CardInfo) => {
-    if (card.type === '幼女' && yojoDeck.length < 20) {
-      setYojoDeck(prev => [...prev, card]);
-    } else if (card.type === 'お菓子' && sweetDeck.length < 10) {
-      setSweetDeck(prev => [...prev, card]);
-    } else if (card.type === 'プレイアブル' && !selectedPlayableCard) {
-      setSelectedPlayableCard(card);
+    if (canAddToDeck(card)){
+
+      if (card.type === '幼女' && yojoDeck.length < yojoLimit) {
+        setYojoDeck(prev => [...prev, card]);
+      } else if (card.type === 'お菓子' && sweetDeck.length < sweetLimit) {
+        setSweetDeck(prev => [...prev, card]);
+      } else if (card.type === 'プレイアブル' && !selectedPlayableCard) {
+        setSelectedPlayableCard(card);
+      } else {   
+      }
     }
   };
 
@@ -277,10 +285,38 @@ export default function DeckPage() {
   };
 
   const canAddToDeck = (card: CardInfo) => {
+    // 二枚制限がオンの場合、同じカードが既に2枚あるかチェック
+    if (isTwoCardLimit) {
+      if (card.type === '幼女') {
+        const count = yojoDeck.filter(c => c.id === card.id).length;
+        if (count >= 2) {
+          return false;
+        }
+      } else if (card.type === 'お菓子') {
+        const count = sweetDeck.filter(c => c.id === card.id).length;
+        if (count >= 2) {
+          return false;
+        }
+      }
+      // プレイアブルカードは1枚制限なので、ここでの2枚制限チェックは不要
+    }
+    // 動物さんソーダは1枚制限なので、ここでの2枚制限チェックは不要
+    if (card.sweetType == "動物さんソーダ"){
+      const count = sweetDeck.filter(c => c.id == card.id).length;
+      if (count >= 1){
+        return false;
+      }
+    }
+
+
+    // デッキ全体の枚数制限チェック（既存ロジック）
+    const yojoLimit = 20;
+    const sweetLimit = 10;
+
     if (card.type === '幼女') {
-      return yojoDeck.length < 20;
+      return yojoDeck.length < yojoLimit;
     } else if (card.type === 'お菓子') {
-      return sweetDeck.length < 10;
+      return sweetDeck.length < sweetLimit;
     } else if (card.type === 'プレイアブル') {
       return !selectedPlayableCard;
     }
@@ -332,56 +368,110 @@ export default function DeckPage() {
                 </span>
               )}
             </h1>
+            {userId !== 'local' && (
+              <ShareButtons 
+                share_url={typeof window !== 'undefined' ? window.location.href : ''}
+                share_text={`${deckName} #お菓子争奪戦争ぷぷりえーる`}
+              />
+            )}
           </div>
         )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      {/* ローカルユーザー向けメッセージ */}
+      {userId === 'local' && (
+        <div className="mb-4 p-1 bg-yellow-100 text-yellow-800 rounded">
+          このデッキを保存したり、他のユーザーと共有するには、ログインしてください。
+        </div>
+      )}
+
+      <div className={`grid grid-cols-1 ${isOwner ? 'lg:grid-cols-2' : ''} gap-8`}>
         {/* デッキ表示エリア */}
         <div className="space-y-5">
-          {/* 幼女デッキ */}
-          {activeTab === 'yojo' && (
-            <Deck
-              cards={yojoDeck}
-              type="幼女"
-              readOnly={!isOwner}
-              onCardRemove={handleRemoveFromYojoDeck}
-              onDragOverDeck={(e) => {
-                e.preventDefault();
-              }}
-              onDragLeaveDeck={() => {}}
-              onDropDeck={(e) => handleDrop(e, 'yojo')}
-            />
-          )}
+          {isOwner ? (
+            <>
+              {/* 選択されたタブに応じたデッキを表示（オーナーの場合） */}
+              {activeTab === 'yojo' && (
+                <Deck
+                  cards={yojoDeck}
+                  type="幼女"
+                  readOnly={false}
+                  onCardRemove={handleRemoveFromYojoDeck}
+                  onDragOverDeck={(e) => {
+                    e.preventDefault();
+                  }}
+                  onDragLeaveDeck={() => {}}
+                  onDropDeck={(e) => handleDrop(e, 'yojo')}
+                />
+              )}
 
-          {/* お菓子デッキ */}
-          {activeTab === 'sweet' && (
-            <Deck
-              cards={sweetDeck}
-              type="お菓子"
-              readOnly={!isOwner}
-              onCardRemove={handleRemoveFromSweetDeck}
-              onDragOverDeck={(e) => {
-                e.preventDefault();
-              }}
-              onDragLeaveDeck={() => {}}
-              onDropDeck={(e) => handleDrop(e, 'sweet')}
-            />
-          )}
+              {activeTab === 'sweet' && (
+                <Deck
+                  cards={sweetDeck}
+                  type="お菓子"
+                  readOnly={false}
+                  onCardRemove={handleRemoveFromSweetDeck}
+                  onDragOverDeck={(e) => {
+                    e.preventDefault();
+                  }}
+                  onDragLeaveDeck={() => {}}
+                  onDropDeck={(e) => handleDrop(e, 'sweet')}
+                />
+              )}
 
-          {/* プレイアブルカード */}
-          {activeTab === 'playable' &&(
-            <Deck
-              cards={[selectedPlayableCard || null].filter(Boolean) as CardInfo[]}
-              type="プレイアブル"
-              readOnly={!isOwner}
-              onCardRemove={handleRemovePlayableCard}
-              onDragOverDeck={(e) => {
-                e.preventDefault();
-              }}
-              onDragLeaveDeck={() => {}}
-              onDropDeck={(e) => handleDrop(e, 'playable')}
-            />
+              {activeTab === 'playable' && (
+                <Deck
+                  cards={[selectedPlayableCard || null].filter(Boolean) as CardInfo[]}
+                  type="プレイアブル"
+                  readOnly={false}
+                  onCardRemove={handleRemovePlayableCard}
+                  onDragOverDeck={(e) => {
+                    e.preventDefault();
+                  }}
+                  onDragLeaveDeck={() => {}}
+                  onDropDeck={(e) => handleDrop(e, 'playable')}
+                />
+              )}
+            </>
+          ) : (
+            <>
+              {/* 3つのデッキを同時に表示（閲覧モードの場合） */}
+              <Deck
+                cards={yojoDeck}
+                type="幼女"
+                readOnly={true}
+                onCardRemove={handleRemoveFromYojoDeck}
+                onDragOverDeck={(e) => {
+                  e.preventDefault();
+                }}
+                onDragLeaveDeck={() => {}}
+                onDropDeck={(e) => handleDrop(e, 'yojo')}
+              />
+
+              <Deck
+                cards={sweetDeck}
+                type="お菓子"
+                readOnly={true}
+                onCardRemove={handleRemoveFromSweetDeck}
+                onDragOverDeck={(e) => {
+                  e.preventDefault();
+                }}
+                onDragLeaveDeck={() => {}}
+                onDropDeck={(e) => handleDrop(e, 'sweet')}
+              />
+
+              <Deck
+                cards={[selectedPlayableCard || null].filter(Boolean) as CardInfo[]}
+                type="プレイアブル"
+                readOnly={true}
+                onCardRemove={handleRemovePlayableCard}
+                onDragOverDeck={(e) => {
+                  e.preventDefault();
+                }}
+                onDragLeaveDeck={() => {}}
+                onDropDeck={(e) => handleDrop(e, 'playable')}
+              />
+            </>
           )}
         </div>
 

@@ -53,7 +53,15 @@
 button.main-color:hover {
   background-color: var(--hover-back-color);
   color: var(--text-light);
+  transform: scale(1.01);
 }
+
+a.main-color:hover {
+  background-color: var(--hover-back-color);
+  color: var(--text-light);
+  transform: scale(1.05);
+}
+
 
 .reverse-color {
   background-color: var(--revers-background-color);
