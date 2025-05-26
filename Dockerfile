@@ -8,6 +8,18 @@ RUN npm ci
 
 # ソースコードのコピーとビルド
 COPY . .
+
+# ビルド時に環境変数を渡す
+ARG FIREBASE_PROJECT_ID
+ARG FIREBASE_CLIENT_EMAIL
+ARG FIREBASE_PRIVATE_KEY
+ARG NEXT_PUBLIC_BASE_URL
+
+ENV FIREBASE_PROJECT_ID=$FIREBASE_PROJECT_ID
+ENV FIREBASE_CLIENT_EMAIL=$FIREBASE_CLIENT_EMAIL
+ENV FIREBASE_PRIVATE_KEY=$FIREBASE_PRIVATE_KEY
+ENV NEXT_PUBLIC_BASE_URL=$NEXT_PUBLIC_BASE_URL
+
 RUN npm run build && \
     echo "Checking build output..." && \
     echo "=== Standalone directory ===" && \
@@ -43,6 +55,7 @@ RUN echo "Checking copied files..." && \
 # 本番環境の設定
 ENV NODE_ENV=production
 ENV PORT=3000
+ENV NEXT_PUBLIC_BASE_URL=$NEXT_PUBLIC_BASE_URL
 
 # アプリケーションの起動
 CMD ["node", "server.js"] 
