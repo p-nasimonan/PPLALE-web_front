@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { collection, getDocs, query, orderBy, limit, doc, setDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/lib/auth';
+import Image from 'next/image';
 
 interface Deck {
   id: string;
@@ -13,6 +14,9 @@ interface Deck {
   createdAt: Date;
   updatedAt: Date;
   userId: string;
+  yojoDeckIds?: string[];
+  sweetDeckIds?: string[];
+  playableCardId?: string | null;
 }
 
 export default function Home() {
@@ -180,7 +184,16 @@ export default function Home() {
                       href={`/deck/${user?.uid}/${deck.id}`}
                       className="card hover:shadow-lg transition-shadow block"
                     >
-                      <div className="aspect-video bg-gray-100 dark:bg-gray-700 rounded mb-3"></div>
+                      <div className="aspect-video relative bg-gray-100 dark:bg-gray-700 rounded mb-3 overflow-hidden">
+                        {deck.yojoDeckIds && deck.yojoDeckIds.length > 0 && (
+                          <Image
+                            src={`/api/og/${user?.uid}/${deck.id}`}
+                            alt={`${deck.name}のデッキ画像`}
+                            fill
+                            className="object-cover"
+                          />
+                        )}
+                      </div>
                       <h3 className="font-medium light-color">{deck.name}</h3>
                       <p className="description">
                         最終更新: {deck.updatedAt.toLocaleDateString('ja-JP')}
