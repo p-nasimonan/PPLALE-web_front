@@ -12,7 +12,7 @@ variables:
   FIREBASE_CLIENT_EMAIL: ${FIREBASE_CLIENT_EMAIL}
   FIREBASE_PRIVATE_KEY: ${FIREBASE_PRIVATE_KEY}
   # アプリケーション環境変数
-  NEXT_PUBLIC_BASE_URL: ${NEXT_PUBLIC_BASE_URL}
+  NEXT_PUBLIC_BASE_URL: "https://pplale.pgw.jp"
 
 setup:
   stage: setup
@@ -34,25 +34,26 @@ build:
     - sleep 2
   script:
     - |
-      echo "Building Docker image..."
-      docker build --no-cache \
-        --build-arg FIREBASE_PROJECT_ID=$FIREBASE_PROJECT_ID \
-        --build-arg FIREBASE_CLIENT_EMAIL=$FIREBASE_CLIENT_EMAIL \
-        --build-arg FIREBASE_PRIVATE_KEY="$FIREBASE_PRIVATE_KEY" \
-        --build-arg NEXT_PUBLIC_BASE_URL=$NEXT_PUBLIC_BASE_URL \
-        -t $DOCKER_IMAGE:$DOCKER_TAG .
-      echo "Deploying..."
-      docker stop pplale-web || true
-      docker rm pplale-web || true
+      # 環境変数の存在確認
+      if [ -z "$NEXT_PUBLIC_BASE_URL" ]; then
+        echo "Error: NEXT_PUBLIC_BASE_URL is not set"
+        exit 1
+      fi
+      
+      # 環境変数ファイルの作成
+      echo "NEXT_PUBLIC_BASE_URL=$NEXT_PUBLIC_BASE_URL" > .env.production
+      echo "FIREBASE_PROJECT_ID=$FIREBASE_PROJECT_ID" >> .env.production
+      echo "FIREBASE_CLIENT_EMAIL=$FIREBASE_CLIENT_EMAIL" >> .env.production
+      echo "FIREBASE_PRIVATE_KEY=$FIREBASE_PRIVATE_KEY" >> .env.production
+      
+      # ビルドとデプロイ
+      docker build --no-cache -t $DOCKER_IMAGE:$DOCKER_TAG .
+      
       docker run -d \
         --name pplale-web \
         --restart always \
         -p 3000:3000 \
         -v /var/log/pplale-web:/app/logs \
-        -e FIREBASE_PROJECT_ID=$FIREBASE_PROJECT_ID \
-        -e FIREBASE_CLIENT_EMAIL=$FIREBASE_CLIENT_EMAIL \
-        -e FIREBASE_PRIVATE_KEY="$FIREBASE_PRIVATE_KEY" \
-        -e NEXT_PUBLIC_BASE_URL=$NEXT_PUBLIC_BASE_URL \
         $DOCKER_IMAGE:$DOCKER_TAG
       echo "Restarting Nginx..."
       sudo systemctl restart nginx
