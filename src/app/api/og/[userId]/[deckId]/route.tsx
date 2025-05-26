@@ -30,8 +30,10 @@ const cardCache = new Map();
 
 // カードデータを取得する関数（キャッシュ付き）
 const getCardData = async (cardId: string, cardType: 'yojo' | 'sweet' | 'playable') => {
+  console.log(`Getting card data for ${cardType} card: ${cardId}`); // デバッグログ
   const cacheKey = `${cardType}-${cardId}`;
   if (cardCache.has(cacheKey)) {
+    console.log(`Cache hit for ${cacheKey}`); // デバッグログ
     return cardCache.get(cacheKey);
   }
 
@@ -49,32 +51,30 @@ const getCardData = async (cardId: string, cardType: 'yojo' | 'sweet' | 'playabl
   }
 
   if (card) {
-    // 画像URLの生成を修正（URLチェックを厳密に）
+    console.log(`Found card: ${card.name}`); // デバッグログ
+    console.log(`Original imageUrl: ${card.imageUrl}`); // デバッグログ
+    console.log(`Base URL: ${baseUrl}`); // デバッグログ
+
     const cardData = {
       ...card,
       imageUrl: card.imageUrl.startsWith('http://') || card.imageUrl.startsWith('https://')
         ? card.imageUrl 
         : `${baseUrl}/Resized${card.imageUrl}`
     };
+    console.log(`Generated imageUrl: ${cardData.imageUrl}`); // デバッグログ
 
     // 画像の存在確認を試みる
     try {
-      const response = await fetch(cardData.imageUrl, { 
-        method: 'HEAD',
-        headers: {
-          'Accept': 'image/*'
-        }
-      });
-      if (!response.ok) {
-        console.error(`Image not found: ${cardData.imageUrl}`);
-      }
-    } catch (fetchError) {
-      console.error(`Error checking image: ${fetchError}`);
+      const response = await fetch(cardData.imageUrl, { method: 'HEAD' });
+      console.log(`Image check response: ${response.status}`); // デバッグログ
+    } catch (error) {
+      console.error(`Error checking image: ${error}`); // デバッグログ
     }
 
     cardCache.set(cacheKey, cardData);
     return cardData;
   }
+  console.log(`Card not found: ${cardId}`); // デバッグログ
   return undefined;
 };
 
@@ -83,20 +83,26 @@ export async function GET(
   context: { params: Promise<{ userId: string; deckId: string }> }
 ): Promise<Response> {
   try {
+    console.log('OGP API called'); // デバッグログ
     const params = await context.params;
     const { userId, deckId } = params;
+    console.log(`Generating OGP for user: ${userId}, deck: ${deckId}`); // デバッグログ
 
     const db = getFirestore();
 
     // Firestoreからデッキ情報を取得
     const deckDoc = await db.collection('users').doc(userId).collection('decks').doc(deckId).get();
     if (!deckDoc.exists) {
+      console.log('Deck not found'); // デバッグログ
       return new Response('Not found', { status: 404 });
     }
     const deckData = deckDoc.data();
     if (!deckData) {
+      console.log('Deck data is null'); // デバッグログ
       return new Response('Not found', { status: 404 });
     }
+
+    console.log('Deck data retrieved:', deckData); // デバッグログ
 
     // カードデータ取得（キャッシュを活用）
     const yojoCards = await Promise.all((deckData.yojoDeckIds || [])
@@ -105,13 +111,19 @@ export async function GET(
       .map((id: string) => getCardData(id, 'yojo'))
       .filter(Boolean));
 
+    console.log('Yojo cards:', yojoCards.length); // デバッグログ
+
     const sweetCards = await Promise.all((deckData.sweetDeckIds || [])
       .slice()
       .sort((a: string, b: string) => a.localeCompare(b, 'ja', { numeric: true }))
       .map((id: string) => getCardData(id, 'sweet'))
       .filter(Boolean));
 
+    console.log('Sweet cards:', sweetCards.length); // デバッグログ
+
     const playableCard = deckData.playableCardId ? await getCardData(deckData.playableCardId, 'playable') : undefined;
+
+    console.log('Playable card:', playableCard ? 'exists' : 'none'); // デバッグログ
 
     const YOJO_COLS = 6; // 横5
     const YOJO_ROWS = 4; // 縦4
@@ -139,20 +151,20 @@ export async function GET(
           const isLastCol = i % YOJO_COLS === YOJO_COLS - 1;
           const isLastRow = i >= YOJO_COLS * (YOJO_ROWS - 1);
           return card ? (
-            <div
+            <img
               key={i}
+              src={card.imageUrl}
+              width={YOJO_CARD_WIDTH}
+              height={YOJO_CARD_HEIGHT}
+              alt={card.name || 'カード画像'}
               style={{
-                width: YOJO_CARD_WIDTH,
-                height: YOJO_CARD_HEIGHT,
-                background: `url(${card.imageUrl})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
                 boxShadow: '0 2px 8px #aaa',
                 marginRight: isLastCol ? 0 : CARD_GAP,
                 marginBottom: isLastRow ? 0 : CARD_GAP,
               }}
-              onError={() => {
-                console.error(`Failed to load image: ${card.imageUrl}`);
+              onError={(e) => {
+                console.error(`Failed to load image: ${card.imageUrl}`); // デバッグログ
+                e.currentTarget.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='; // 1x1透明画像
               }}
             />
           ) : (
@@ -192,19 +204,15 @@ export async function GET(
           const isLastCol = i % 5 === 4;
           const isLastRow = i >= 5;
           return card ? (
-            <div
+            <img
               key={i}
+              src={card.imageUrl}
+              width={120}
+              height={180}
+              alt={card.name || 'お菓子カード画像'}
               style={{
-                width: 120,
-                height: 180,
-                background: `url(${card.imageUrl})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
                 marginRight: isLastCol ? 0 : CARD_GAP+5,
                 marginBottom: isLastRow ? 0 : CARD_GAP,
-              }}
-              onError={() => {
-                console.error(`Failed to load image: ${card.imageUrl}`);
               }}
             />
           ) : (
@@ -236,18 +244,12 @@ export async function GET(
           zIndex: 4,
         }}
       >
-        <div
-          style={{
-            width: 176,
-            height: 264,
-            background: `url(${playableCard.imageUrl})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            boxShadow: '0 4px 16px #aaa'
-          }}
-          onError={() => {
-            console.error(`Failed to load image: ${playableCard.imageUrl}`);
-          }}
+        <img
+          src={playableCard.imageUrl}
+          width={176}
+          height={264}
+          alt={playableCard.name || 'プレイアブルカード画像'}
+          style={{boxShadow: '0 4px 16px #aaa' }}
         /> 
       </div>
     );
@@ -295,8 +297,8 @@ export async function GET(
     );
 
     return response;
-  } catch (err) {
-    console.error('Error in OGP generation:', err);
+  } catch (error) {
+    console.error('Error in OGP generation:', error); // エラーログ
     return new Response('Internal Server Error', { status: 500 });
   }
 }
