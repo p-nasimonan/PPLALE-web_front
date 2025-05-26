@@ -19,6 +19,9 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+// Vercel環境かどうかを判定
+const isVercel = process.env.VERCEL === '1';
+
 export const metadata: Metadata = {
   metadataBase: new URL('https://pplale.pgw.jp'),
   title: "ぷぷりえーる デッキ構築",
@@ -114,7 +117,6 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         suppressHydrationWarning
       >
-        <SpeedInsights />
         <AuthProvider>
           <DarkModeProvider>
             <SettingsProvider>
@@ -132,6 +134,7 @@ export default function RootLayout({
               <main className="pt-20 px-4">
                 {children}
               </main>
+              {isVercel && <SpeedInsights />}
             </SettingsProvider>
           </DarkModeProvider>
         </AuthProvider>
