@@ -49,10 +49,10 @@ const getCardData = async (cardId: string, cardType: 'yojo' | 'sweet' | 'playabl
   }
 
   if (card) {
-    // 画像URLの生成を修正（/Resizedディレクトリを使用）
+    // 画像URLの生成を修正（URLチェックを厳密に）
     const cardData = {
       ...card,
-      imageUrl: card.imageUrl.startsWith('http') 
+      imageUrl: card.imageUrl.startsWith('http://') || card.imageUrl.startsWith('https://')
         ? card.imageUrl 
         : `${baseUrl}/Resized${card.imageUrl}`
     };

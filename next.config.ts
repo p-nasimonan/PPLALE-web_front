@@ -31,6 +31,7 @@ const config: NextConfig = {
   },
   experimental: {
     optimizeCss: true,
+    serverComponentsExternalPackages: ['@vercel/og'],
   },
   // 本番環境用の設定
   assetPrefix: '',

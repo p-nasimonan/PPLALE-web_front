@@ -29,7 +29,9 @@ RUN npm run build && \
     echo "=== Public directory ===" && \
     ls -la /app/public && \
     echo "=== Public/images directory ===" && \
-    ls -la /app/public/images
+    ls -la /app/public/images && \
+    echo "=== Public/Resized directory ===" && \
+    ls -la /app/public/Resized
 
 # 本番環境用のイメージ
 FROM node:22-alpine AS runner
@@ -53,7 +55,9 @@ RUN echo "Checking copied files..." && \
     echo "=== Public directory ===" && \
     ls -la /app/public && \
     echo "=== Public/images directory ===" && \
-    ls -la /app/public/images
+    ls -la /app/public/images && \
+    echo "=== Public/Resized directory ===" && \
+    ls -la /app/public/Resized
 
 # 本番環境の設定
 ENV NODE_ENV=production
