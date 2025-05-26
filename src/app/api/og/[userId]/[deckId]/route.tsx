@@ -9,6 +9,9 @@ import { NextRequest } from 'next/server';
 import { initializeApp, cert, getApps } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { allYojoCards, allSweetCards, allPlayableCards } from '@/data/cards';
+import fs from 'fs';
+import path from 'path';
+
 export const runtime = 'nodejs';
 // キャッシュ制御を追加
 export const revalidate = 3600; // 1時間キャッシュ
@@ -65,10 +68,14 @@ const getCardData = async (cardId: string, cardType: 'yojo' | 'sweet' | 'playabl
 
     // 画像の存在確認を試みる
     try {
-      const response = await fetch(cardData.imageUrl, { method: 'HEAD' });
-      console.log(`Image check response: ${response.status}`); // デバッグログ
+      const imagePath = path.join(process.cwd(), 'public', 'Resized', card.imageUrl);
+      if (fs.existsSync(imagePath)) {
+        console.log(`Image exists: ${imagePath}`);
+      } else {
+        console.error(`Image not found: ${imagePath}`);
+      }
     } catch (error) {
-      console.error(`Error checking image: ${error}`); // デバッグログ
+      console.error(`Error checking image: ${error}`);
     }
 
     cardCache.set(cacheKey, cardData);
