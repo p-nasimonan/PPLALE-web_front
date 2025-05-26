@@ -11,6 +11,8 @@ import { getFirestore } from 'firebase-admin/firestore';
 import { allYojoCards, allSweetCards, allPlayableCards } from '@/data/cards';
 
 export const runtime = 'nodejs';
+// キャッシュ制御を追加
+export const revalidate = 3600; // 1時間キャッシュ
 
 if (!getApps().length) {
   initializeApp({
@@ -23,6 +25,42 @@ if (!getApps().length) {
 }
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+
+// カードデータのキャッシュ
+const cardCache = new Map();
+
+// カードデータを取得する関数（キャッシュ付き）
+const getCardData = (cardId: string, cardType: 'yojo' | 'sweet' | 'playable') => {
+  const cacheKey = `${cardType}-${cardId}`;
+  if (cardCache.has(cacheKey)) {
+    return cardCache.get(cacheKey);
+  }
+
+  let card;
+  switch (cardType) {
+    case 'yojo':
+      card = allYojoCards.find(c => c.id === cardId);
+      break;
+    case 'sweet':
+      card = allSweetCards.find(c => c.id === cardId);
+      break;
+    case 'playable':
+      card = allPlayableCards.find(c => c.id === cardId);
+      break;
+  }
+
+  if (card) {
+    const cardData = {
+      ...card,
+      imageUrl: card.imageUrl.startsWith('http') 
+        ? card.imageUrl 
+        : `${baseUrl}/Resized${card.imageUrl}`
+    };
+    cardCache.set(cacheKey, cardData);
+    return cardData;
+  }
+  return undefined;
+};
 
 export async function GET(
   request: NextRequest,
@@ -42,33 +80,20 @@ export async function GET(
     return new Response('Not found', { status: 404 });
   }
 
-  // カードデータ取得（id順ソートを追加）
+  // カードデータ取得（キャッシュを活用）
   const yojoCards = (deckData.yojoDeckIds || [])
     .slice()
     .sort((a: string, b: string) => a.localeCompare(b, 'ja', { numeric: true }))
-    .map((id: string) => {
-      const card = allYojoCards.find(c => c.id === id);
-      return card
-        ? { ...card, imageUrl: card.imageUrl.startsWith('http') ? card.imageUrl : `${baseUrl}${card.imageUrl}` }
-        : undefined;
-    });
+    .map((id: string) => getCardData(id, 'yojo'))
+    .filter(Boolean);
 
   const sweetCards = (deckData.sweetDeckIds || [])
     .slice()
     .sort((a: string, b: string) => a.localeCompare(b, 'ja', { numeric: true }))
-    .map((id: string) => {
-      const card = allSweetCards.find(c => c.id === id);
-      return card
-        ? { ...card, imageUrl: card.imageUrl.startsWith('http') ? card.imageUrl : `${baseUrl}${card.imageUrl}` }
-        : undefined;
-    });
+    .map((id: string) => getCardData(id, 'sweet'))
+    .filter(Boolean);
 
-  const playableCard = (() => {
-    const card = allPlayableCards.find(c => c.id === deckData.playableCardId);
-    return card
-      ? { ...card, imageUrl: card.imageUrl.startsWith('http') ? card.imageUrl : `${baseUrl}${card.imageUrl}` }
-      : undefined;
-  })();
+  const playableCard = deckData.playableCardId ? getCardData(deckData.playableCardId, 'playable') : undefined;
 
   const YOJO_COLS = 6; // 横5
   const YOJO_ROWS = 4; // 縦4
@@ -187,8 +212,8 @@ export async function GET(
     >
       <img
         src={playableCard.imageUrl}
-        width={170}
-        height={265}
+        width={176}
+        height={264}
         alt={playableCard.name || 'プレイアブルカード画像'}
         style={{boxShadow: '0 4px 16px #aaa' }}
       /> 
@@ -196,7 +221,7 @@ export async function GET(
   );
 
   // OGP画像生成
-  return new ImageResponse(
+  const response = new ImageResponse(
     (
       <div
         style={{
@@ -208,7 +233,6 @@ export async function GET(
           display: 'flex', 
         }}
       >
-
         {yojoGrid}
         {sweetGrid}
         {playableCardView}
@@ -227,6 +251,16 @@ export async function GET(
         </div>
       </div>
     ),
-    { width: 1200, height: 630 }
+    { 
+      width: 1200, 
+      height: 630,
+      // 画像の最適化オプション
+      headers: {
+        'Cache-Control': 'public, max-age=3600, s-maxage=3600',
+        'Content-Type': 'image/png',
+      }
+    }
   );
+
+  return response;
 }
