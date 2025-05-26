@@ -9,8 +9,6 @@ import { NextRequest } from 'next/server';
 import { initializeApp, cert, getApps } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { allYojoCards, allSweetCards, allPlayableCards } from '@/data/cards';
-import fs from 'fs';
-import path from 'path';
 
 export const runtime = 'nodejs';
 // キャッシュ制御を追加
