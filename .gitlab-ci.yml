@@ -11,6 +11,8 @@ variables:
   FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID}
   FIREBASE_CLIENT_EMAIL: ${FIREBASE_CLIENT_EMAIL}
   FIREBASE_PRIVATE_KEY: ${FIREBASE_PRIVATE_KEY}
+  # アプリケーション環境変数
+  NEXT_PUBLIC_BASE_URL: ${NEXT_PUBLIC_BASE_URL}
 
 setup:
   stage: setup
@@ -33,7 +35,12 @@ build:
   script:
     - |
       echo "Building Docker image..."
-      docker build --no-cache -t $DOCKER_IMAGE:$DOCKER_TAG .
+      docker build --no-cache \
+        --build-arg FIREBASE_PROJECT_ID=$FIREBASE_PROJECT_ID \
+        --build-arg FIREBASE_CLIENT_EMAIL=$FIREBASE_CLIENT_EMAIL \
+        --build-arg FIREBASE_PRIVATE_KEY="$FIREBASE_PRIVATE_KEY" \
+        --build-arg NEXT_PUBLIC_BASE_URL=$NEXT_PUBLIC_BASE_URL \
+        -t $DOCKER_IMAGE:$DOCKER_TAG .
       echo "Deploying..."
       docker stop pplale-web || true
       docker rm pplale-web || true
@@ -44,6 +51,7 @@ build:
         -e FIREBASE_PROJECT_ID=$FIREBASE_PROJECT_ID \
         -e FIREBASE_CLIENT_EMAIL=$FIREBASE_CLIENT_EMAIL \
         -e FIREBASE_PRIVATE_KEY="$FIREBASE_PRIVATE_KEY" \
+        -e NEXT_PUBLIC_BASE_URL=$NEXT_PUBLIC_BASE_URL \
         $DOCKER_IMAGE:$DOCKER_TAG
       echo "Restarting Nginx..."
       sudo systemctl restart nginx
