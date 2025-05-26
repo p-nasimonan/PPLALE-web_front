@@ -24,8 +24,12 @@ if (!getApps().length) {
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
-export async function GET(req: NextRequest, context: { params: { userId: string, deckId: string } }) {
-  const { userId, deckId } = await context.params;
+export async function GET(
+  request: NextRequest,
+  context: { params: Promise<{ userId: string; deckId: string }> }
+): Promise<Response> {
+  const params = await context.params;
+  const { userId, deckId } = params;
   const db = getFirestore();
 
   // Firestoreからデッキ情報を取得
@@ -97,6 +101,7 @@ export async function GET(req: NextRequest, context: { params: { userId: string,
             src={card.imageUrl}
             width={YOJO_CARD_WIDTH}
             height={YOJO_CARD_HEIGHT}
+            alt={card.name || 'カード画像'}
             style={{
               boxShadow: '0 2px 8px #aaa',
               marginRight: isLastCol ? 0 : CARD_GAP,
@@ -145,6 +150,7 @@ export async function GET(req: NextRequest, context: { params: { userId: string,
             src={card.imageUrl}
             width={120}
             height={180}
+            alt={card.name || 'お菓子カード画像'}
             style={{
               marginRight: isLastCol ? 0 : CARD_GAP+5,
               marginBottom: isLastRow ? 0 : CARD_GAP,
@@ -183,6 +189,7 @@ export async function GET(req: NextRequest, context: { params: { userId: string,
         src={playableCard.imageUrl}
         width={170}
         height={265}
+        alt={playableCard.name || 'プレイアブルカード画像'}
         style={{boxShadow: '0 4px 16px #aaa' }}
       /> 
     </div>

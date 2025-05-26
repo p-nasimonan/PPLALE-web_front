@@ -131,7 +131,6 @@ const DeckImagePreview: React.FC<DeckImagePreviewProps> = ({ yojoDeck, sweetDeck
         tryDraw();
       };
     });
-    // eslint-disable-next-line
   }, [yojoDeck, sweetDeck, playableCard]);
 
   return (
