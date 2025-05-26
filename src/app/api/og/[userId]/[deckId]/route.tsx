@@ -9,9 +9,6 @@ import { NextRequest } from 'next/server';
 import { initializeApp, cert, getApps } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { allYojoCards, allSweetCards, allPlayableCards } from '@/data/cards';
-import fs from 'fs';
-import path from 'path';
-
 export const runtime = 'nodejs';
 // キャッシュ制御を追加
 export const revalidate = 3600; // 1時間キャッシュ
@@ -31,30 +28,12 @@ const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://pplale.pgw.jp';
 // カードデータのキャッシュ
 const cardCache = new Map();
 
-// ログ出力用の関数
-const logToFile = (message: string) => {
-  try {
-    const logDir = '/app/logs';
-    const logFile = path.join(logDir, 'og-image.log');
-    
-    // ログディレクトリが存在しない場合は作成
-    if (!fs.existsSync(logDir)) {
-      fs.mkdirSync(logDir, { recursive: true });
-    }
-    
-    // タイムスタンプ付きでログを出力
-    const timestamp = new Date().toISOString();
-    fs.appendFileSync(logFile, `[${timestamp}] ${message}\n`);
-  } catch (error) {
-    // ログ出力に失敗した場合は標準エラー出力に出力
-    console.error('Failed to write log:', error);
-  }
-};
-
 // カードデータを取得する関数（キャッシュ付き）
-const getCardData = (cardId: string, cardType: 'yojo' | 'sweet' | 'playable') => {
+const getCardData = async (cardId: string, cardType: 'yojo' | 'sweet' | 'playable') => {
+  console.log(`Getting card data for ${cardType} card: ${cardId}`); // デバッグログ
   const cacheKey = `${cardType}-${cardId}`;
   if (cardCache.has(cacheKey)) {
+    console.log(`Cache hit for ${cacheKey}`); // デバッグログ
     return cardCache.get(cacheKey);
   }
 
@@ -72,16 +51,30 @@ const getCardData = (cardId: string, cardType: 'yojo' | 'sweet' | 'playable') =>
   }
 
   if (card) {
+    console.log(`Found card: ${card.name}`); // デバッグログ
+    console.log(`Original imageUrl: ${card.imageUrl}`); // デバッグログ
+    console.log(`Base URL: ${baseUrl}`); // デバッグログ
+
     const cardData = {
       ...card,
       imageUrl: card.imageUrl.startsWith('http') 
         ? card.imageUrl 
         : `${baseUrl}/Resized${card.imageUrl}`
     };
-    logToFile(`Generated card URL: ${cardData.imageUrl}`); // ファイルにログを出力
+    console.log(`Generated imageUrl: ${cardData.imageUrl}`); // デバッグログ
+
+    // 画像の存在確認を試みる
+    try {
+      const response = await fetch(cardData.imageUrl, { method: 'HEAD' });
+      console.log(`Image check response: ${response.status}`); // デバッグログ
+    } catch (error) {
+      console.error(`Error checking image: ${error}`); // デバッグログ
+    }
+
     cardCache.set(cacheKey, cardData);
     return cardData;
   }
+  console.log(`Card not found: ${cardId}`); // デバッグログ
   return undefined;
 };
 
@@ -112,23 +105,23 @@ export async function GET(
     console.log('Deck data retrieved:', deckData); // デバッグログ
 
     // カードデータ取得（キャッシュを活用）
-    const yojoCards = (deckData.yojoDeckIds || [])
+    const yojoCards = await Promise.all((deckData.yojoDeckIds || [])
       .slice()
       .sort((a: string, b: string) => a.localeCompare(b, 'ja', { numeric: true }))
       .map((id: string) => getCardData(id, 'yojo'))
-      .filter(Boolean);
+      .filter(Boolean));
 
     console.log('Yojo cards:', yojoCards.length); // デバッグログ
 
-    const sweetCards = (deckData.sweetDeckIds || [])
+    const sweetCards = await Promise.all((deckData.sweetDeckIds || [])
       .slice()
       .sort((a: string, b: string) => a.localeCompare(b, 'ja', { numeric: true }))
       .map((id: string) => getCardData(id, 'sweet'))
-      .filter(Boolean);
+      .filter(Boolean));
 
     console.log('Sweet cards:', sweetCards.length); // デバッグログ
 
-    const playableCard = deckData.playableCardId ? getCardData(deckData.playableCardId, 'playable') : undefined;
+    const playableCard = deckData.playableCardId ? await getCardData(deckData.playableCardId, 'playable') : undefined;
 
     console.log('Playable card:', playableCard ? 'exists' : 'none'); // デバッグログ
 
@@ -168,6 +161,10 @@ export async function GET(
                 boxShadow: '0 2px 8px #aaa',
                 marginRight: isLastCol ? 0 : CARD_GAP,
                 marginBottom: isLastRow ? 0 : CARD_GAP,
+              }}
+              onError={(e) => {
+                console.error(`Failed to load image: ${card.imageUrl}`); // デバッグログ
+                e.currentTarget.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='; // 1x1透明画像
               }}
             />
           ) : (
