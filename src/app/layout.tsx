@@ -27,6 +27,11 @@ export const metadata: Metadata = {
   authors: [{ name: "ようかん" }],
   creator: "ぷぷりえ",
   publisher: "ぷぷりえ",
+  icons: {
+    icon: '/favicon.ico',
+    shortcut: '/favicon.ico',
+    apple: '/apple-touch-icon.png',
+  },
   formatDetection: {
     email: false,
     address: false,
@@ -39,7 +44,7 @@ export const metadata: Metadata = {
     siteName: "ぷぷりえーる デッキ構築",
     images: [
       {
-        url: "/images/ogp.png",
+        url: "/ogp.png",
         width: 1200,
         height: 630,
         alt: "ぷぷりえーる デッキ構築",
@@ -52,7 +57,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "ぷぷりえーる デッキ構築",
     description: "VRChatにあるカードゲーム「ぷぷりえーる」のデッキ構築などができるwebアプリ",
-    images: ["/images/ogp.png"],
+    images: ["/ogp.png"],
   },
   robots: {
     index: true,
@@ -78,6 +83,13 @@ export default function RootLayout({
         <link rel="canonical" href="https://pplale.pgw.jp" />
         <meta name="theme-color" content="#3b82f6" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        
+        {/* Favicon設定 */}
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" type="image/png" sizes="180x180" href="/apple-touch-icon.png" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="manifest" href="/site.webmanifest" />
+        
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
