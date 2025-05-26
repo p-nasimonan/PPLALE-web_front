@@ -24,7 +24,7 @@ if (!getApps().length) {
   });
 }
 
-const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://pplale.pgw.jp';
 
 // カードデータのキャッシュ
 const cardCache = new Map();
@@ -56,6 +56,7 @@ const getCardData = (cardId: string, cardType: 'yojo' | 'sweet' | 'playable') =>
         ? card.imageUrl 
         : `${baseUrl}/Resized${card.imageUrl}`
     };
+    console.log('Generated card URL:', cardData.imageUrl); // デバッグ用ログ
     cardCache.set(cacheKey, cardData);
     return cardData;
   }

@@ -8,15 +8,18 @@ const config: NextConfig = {
         protocol: 'https',
         hostname: 'pplale.pgw.jp',
         port: '',
+        pathname: '/**',
       },
       {
         protocol: 'http',
         hostname: 'localhost',
         port: '',
+        pathname: '/**',
       },
       {
         protocol: 'https',
         hostname: 'lh3.googleusercontent.com',
+        pathname: '/**',
       }
     ],
     domains: ['pplale.pgw.jp', 'localhost', 'lh3.googleusercontent.com'],
