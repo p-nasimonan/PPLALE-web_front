@@ -9,6 +9,8 @@ import { NextRequest } from 'next/server';
 import { initializeApp, cert, getApps } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { allYojoCards, allSweetCards, allPlayableCards } from '@/data/cards';
+import fs from 'fs';
+import path from 'path';
 
 export const runtime = 'nodejs';
 // キャッシュ制御を追加
@@ -28,6 +30,21 @@ const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://pplale.pgw.jp';
 
 // カードデータのキャッシュ
 const cardCache = new Map();
+
+// ログ出力用の関数
+const logToFile = (message: string) => {
+  const logDir = path.join(process.cwd(), 'logs');
+  const logFile = path.join(logDir, 'og-image.log');
+  
+  // ログディレクトリが存在しない場合は作成
+  if (!fs.existsSync(logDir)) {
+    fs.mkdirSync(logDir, { recursive: true });
+  }
+  
+  // タイムスタンプ付きでログを出力
+  const timestamp = new Date().toISOString();
+  fs.appendFileSync(logFile, `[${timestamp}] ${message}\n`);
+};
 
 // カードデータを取得する関数（キャッシュ付き）
 const getCardData = (cardId: string, cardType: 'yojo' | 'sweet' | 'playable') => {
@@ -56,7 +73,7 @@ const getCardData = (cardId: string, cardType: 'yojo' | 'sweet' | 'playable') =>
         ? card.imageUrl 
         : `${baseUrl}/Resized${card.imageUrl}`
     };
-    console.log('Generated card URL:', cardData.imageUrl); // デバッグ用ログ
+    logToFile(`Generated card URL: ${cardData.imageUrl}`); // ファイルにログを出力
     cardCache.set(cacheKey, cardData);
     return cardData;
   }
