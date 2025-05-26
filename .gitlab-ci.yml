@@ -49,12 +49,18 @@ build:
       # ビルドとデプロイ
       docker build --no-cache -t $DOCKER_IMAGE:$DOCKER_TAG .
       
+      # 既存のコンテナを確実に停止して削除
+      docker stop pplale-web || true
+      docker rm -f pplale-web || true
+      
+      # 新しいコンテナを起動
       docker run -d \
         --name pplale-web \
         --restart always \
         -p 3000:3000 \
         -v /var/log/pplale-web:/app/logs \
         $DOCKER_IMAGE:$DOCKER_TAG
+      
       echo "Restarting Nginx..."
       sudo systemctl restart nginx
       echo "Verifying deployment..."
