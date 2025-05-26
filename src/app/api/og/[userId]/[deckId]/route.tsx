@@ -68,14 +68,13 @@ const getCardData = async (cardId: string, cardType: 'yojo' | 'sweet' | 'playabl
 
     // 画像の存在確認を試みる
     try {
-      const imagePath = path.join(process.cwd(), 'public', 'Resized', card.imageUrl);
-      if (fs.existsSync(imagePath)) {
-        console.log(`Image exists: ${imagePath}`);
-      } else {
-        console.error(`Image not found: ${imagePath}`);
+      const response = await fetch(cardData.imageUrl, { method: 'HEAD' });
+      console.log(`Image check response status: ${response.status}`); // デバッグログ
+      if (!response.ok) {
+        console.error(`Image not found: ${cardData.imageUrl}`); // デバッグログ
       }
     } catch (error) {
-      console.error(`Error checking image: ${error}`);
+      console.error(`Error checking image: ${error}`); // デバッグログ
     }
 
     cardCache.set(cacheKey, cardData);
