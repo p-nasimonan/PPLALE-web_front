@@ -7,6 +7,10 @@ variables:
   DOCKER_TAG: "latest"
   # GitHub Pages用の環境変数
   GITHUB_PAGES: "false"
+  # Firebase環境変数
+  FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID}
+  FIREBASE_CLIENT_EMAIL: ${FIREBASE_CLIENT_EMAIL}
+  FIREBASE_PRIVATE_KEY: ${FIREBASE_PRIVATE_KEY}
 
 setup:
   stage: setup
@@ -37,6 +41,9 @@ build:
         --name pplale-web \
         --restart always \
         -p 3000:3000 \
+        -e FIREBASE_PROJECT_ID=$FIREBASE_PROJECT_ID \
+        -e FIREBASE_CLIENT_EMAIL=$FIREBASE_CLIENT_EMAIL \
+        -e FIREBASE_PRIVATE_KEY="$FIREBASE_PRIVATE_KEY" \
         $DOCKER_IMAGE:$DOCKER_TAG
       echo "Restarting Nginx..."
       sudo systemctl restart nginx
