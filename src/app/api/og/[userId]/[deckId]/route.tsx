@@ -33,17 +33,22 @@ const cardCache = new Map();
 
 // ログ出力用の関数
 const logToFile = (message: string) => {
-  const logDir = path.join(process.cwd(), 'logs');
-  const logFile = path.join(logDir, 'og-image.log');
-  
-  // ログディレクトリが存在しない場合は作成
-  if (!fs.existsSync(logDir)) {
-    fs.mkdirSync(logDir, { recursive: true });
+  try {
+    const logDir = '/app/logs';
+    const logFile = path.join(logDir, 'og-image.log');
+    
+    // ログディレクトリが存在しない場合は作成
+    if (!fs.existsSync(logDir)) {
+      fs.mkdirSync(logDir, { recursive: true });
+    }
+    
+    // タイムスタンプ付きでログを出力
+    const timestamp = new Date().toISOString();
+    fs.appendFileSync(logFile, `[${timestamp}] ${message}\n`);
+  } catch (error) {
+    // ログ出力に失敗した場合は標準エラー出力に出力
+    console.error('Failed to write log:', error);
   }
-  
-  // タイムスタンプ付きでログを出力
-  const timestamp = new Date().toISOString();
-  fs.appendFileSync(logFile, `[${timestamp}] ${message}\n`);
 };
 
 // カードデータを取得する関数（キャッシュ付き）

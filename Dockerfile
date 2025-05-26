@@ -41,6 +41,9 @@ COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
 
+# ログディレクトリの作成
+RUN mkdir -p /app/logs && chmod 777 /app/logs
+
 # ファイルの存在確認
 RUN echo "Checking copied files..." && \
     echo "=== App directory ===" && \
@@ -56,6 +59,9 @@ RUN echo "Checking copied files..." && \
 ENV NODE_ENV=production
 ENV PORT=3000
 ENV NEXT_PUBLIC_BASE_URL=$NEXT_PUBLIC_BASE_URL
+
+# ボリュームの設定
+VOLUME ["/app/logs"]
 
 # アプリケーションの起動
 CMD ["node", "server.js"] 

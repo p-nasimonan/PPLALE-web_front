@@ -48,6 +48,7 @@ build:
         --name pplale-web \
         --restart always \
         -p 3000:3000 \
+        -v /var/log/pplale-web:/app/logs \
         -e FIREBASE_PROJECT_ID=$FIREBASE_PROJECT_ID \
         -e FIREBASE_CLIENT_EMAIL=$FIREBASE_CLIENT_EMAIL \
         -e FIREBASE_PRIVATE_KEY="$FIREBASE_PRIVATE_KEY" \
