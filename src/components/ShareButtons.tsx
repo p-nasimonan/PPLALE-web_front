@@ -6,6 +6,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { CardInfo } from '@/types/card';
+import DeckImagePreview from './DeckImagePreview';
 
 interface ShareButtonsProps {
   share_url: string;
@@ -32,6 +33,7 @@ const ShareButtons: React.FC<ShareButtonsProps> = ({
 }) => {
   const [show_options, set_show_options] = useState(false);
   const [copy_success, set_copy_success] = useState(false);
+  const [showImagePreview, setShowImagePreview] = useState(false);
   const share_button_ref = useRef<HTMLDivElement>(null);
 
   // ローカルデッキの場合の共有URLを生成
@@ -57,7 +59,7 @@ const ShareButtons: React.FC<ShareButtonsProps> = ({
     }
 
     return `${baseUrl}/deck/local/local?${params.toString()}`;
-  };
+  };　
 
   const shareUrl = isLocal ? getLocalShareUrl() : share_url;
   const encoded_url = encodeURIComponent(shareUrl);
@@ -68,6 +70,7 @@ const ShareButtons: React.FC<ShareButtonsProps> = ({
   const ShareIcon = '/images/share.png';
   const LinkIcon = '/images/link.png';
   const TwitterIcon = '/images/twitter.png';
+  const ImageIcon = '/images/image.svg';
 
   // 外部クリックで選択肢を閉じる
   useEffect(() => {
@@ -136,12 +139,12 @@ const ShareButtons: React.FC<ShareButtonsProps> = ({
             />
           </button>
           {/* Twitterシェアボタン */}
-          <a
-            href={twitter_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => set_show_options(false)}
-            className="flex items-center justify-center w-10 h-10 rounded-full text-white main-color"
+          <button
+            onClick={() => {
+              window.open(twitter_url, '_blank', 'noopener,noreferrer');
+              set_show_options(false);
+            }}
+            className="flex items-center justify-center w-10 h-10 rounded-full twitter-button"
             aria-label="Twitterでシェア"
             title="Twitterでシェア"
           >
@@ -151,8 +154,35 @@ const ShareButtons: React.FC<ShareButtonsProps> = ({
               width={50}
               height={50}
             />
-          </a>
+          </button>
+          {/* 画像共有ボタン */}
+          <button
+            onClick={() => {
+              setShowImagePreview(true);
+              set_show_options(false);
+            }}
+            className="flex items-center justify-center w-10 h-10 rounded-full text-white main-color"
+            aria-label="デッキの画像を表示"
+            title="デッキの画像を表示"
+          >
+            <Image 
+              src={ImageIcon} 
+              alt="画像アイコン" 
+              width={50}
+              height={50}
+            />
+          </button>
         </div>
+      )}
+
+      {/* デッキ画像プレビュー */}
+      {showImagePreview && (
+        <DeckImagePreview
+          yojoDeck={yojoDeck}
+          sweetDeck={sweetDeck}
+          playableCard={playableCard}
+          onClose={() => setShowImagePreview(false)}
+        />
       )}
     </div>
   );
