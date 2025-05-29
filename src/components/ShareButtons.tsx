@@ -5,24 +5,62 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
+import { CardInfo } from '@/types/card';
 
 interface ShareButtonsProps {
   share_url: string;
   share_text: string;
+  isLocal?: boolean;
+  yojoDeck?: CardInfo[];
+  sweetDeck?: CardInfo[];
+  playableCard?: CardInfo | null;
 }
 
 /**
  * SNS共有ボタンコンポーネント
  * クリック時にリンクコピーとTwitterシェアの選択肢を横並びアイコンで表示します。
- * @param {ShareButtonsProps} props - コンポーネントのプロパティ (share_url, share_text)
+ * @param {ShareButtonsProps} props - コンポーネントのプロパティ
  * @returns {JSX.Element} SNS共有ボタンコンポーネント
  */
-const ShareButtons: React.FC<ShareButtonsProps> = ({ share_url, share_text }) => {
+const ShareButtons: React.FC<ShareButtonsProps> = ({ 
+  share_url, 
+  share_text, 
+  isLocal = false, 
+  yojoDeck = [], 
+  sweetDeck = [], 
+  playableCard = null 
+}) => {
   const [show_options, set_show_options] = useState(false);
   const [copy_success, set_copy_success] = useState(false);
   const share_button_ref = useRef<HTMLDivElement>(null);
 
-  const encoded_url = encodeURIComponent(share_url);
+  // ローカルデッキの場合の共有URLを生成
+  const getLocalShareUrl = () => {
+    if (!isLocal) return share_url;
+
+    const baseUrl = window.location.origin;
+    const params = new URLSearchParams();
+
+    // 幼女デッキのIDをカンマ区切りで追加
+    if (yojoDeck.length > 0) {
+      params.append('yojo', yojoDeck.map(card => card.id).join(','));
+    }
+
+    // お菓子デッキのIDをカンマ区切りで追加
+    if (sweetDeck.length > 0) {
+      params.append('sweet', sweetDeck.map(card => card.id).join(','));
+    }
+
+    // プレイアブルカードのIDを追加
+    if (playableCard) {
+      params.append('playable', playableCard.id);
+    }
+
+    return `${baseUrl}/deck/local/local?${params.toString()}`;
+  };
+
+  const shareUrl = isLocal ? getLocalShareUrl() : share_url;
+  const encoded_url = encodeURIComponent(shareUrl);
   const encoded_text = encodeURIComponent(share_text);
   const twitter_url = `https://twitter.com/intent/tweet?url=${encoded_url}&text=${encoded_text}`;
 
@@ -47,7 +85,7 @@ const ShareButtons: React.FC<ShareButtonsProps> = ({ share_url, share_text }) =>
   // リンクをクリップボードにコピー
   const handle_copy_link = async () => {
     try {
-      await navigator.clipboard.writeText(share_url);
+      await navigator.clipboard.writeText(shareUrl);
       set_copy_success(true);
       set_show_options(false);
       setTimeout(() => set_copy_success(false), 2000);
@@ -70,8 +108,8 @@ const ShareButtons: React.FC<ShareButtonsProps> = ({ share_url, share_text }) =>
         <Image 
           src={ShareIcon} 
           alt="シェアアイコン" 
-          width={40} // 幅を指定
-          height={40} // 高さを指定
+          width={40}
+          height={40}
         />
       </button>
 
@@ -93,8 +131,8 @@ const ShareButtons: React.FC<ShareButtonsProps> = ({ share_url, share_text }) =>
             <Image 
               src={LinkIcon} 
               alt="リンクアイコン" 
-              width={50} // 幅を指定
-              height={50} // 高さを指定
+              width={50}
+              height={50}
             />
           </button>
           {/* Twitterシェアボタン */}
@@ -110,8 +148,8 @@ const ShareButtons: React.FC<ShareButtonsProps> = ({ share_url, share_text }) =>
             <Image 
               src={TwitterIcon} 
               alt="Twitterアイコン" 
-              width={50} // 幅を指定
-              height={50} // 高さを指定
+              width={50}
+              height={50}
             />
           </a>
         </div>
