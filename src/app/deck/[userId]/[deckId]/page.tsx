@@ -368,22 +368,13 @@ export default function DeckPage() {
                 </span>
               )}
             </h1>
-            {userId !== 'local' && (
               <ShareButtons 
                 share_url={typeof window !== 'undefined' ? window.location.href : ''}
                 share_text={`${deckName} #お菓子争奪戦争ぷぷりえーる`}
               />
-            )}
           </div>
         )}
       </div>
-
-      {/* ローカルユーザー向けメッセージ */}
-      {userId === 'local' && (
-        <div className="mb-4 p-1 bg-yellow-100 text-yellow-800 rounded">
-          このデッキを保存したり、他のユーザーと共有するには、ログインしてください。
-        </div>
-      )}
 
       <div className={`grid grid-cols-1 ${isOwner ? 'lg:grid-cols-2' : ''} gap-8`}>
         {/* デッキ表示エリア */}
@@ -436,41 +427,52 @@ export default function DeckPage() {
           ) : (
             <>
               {/* 3つのデッキを同時に表示（閲覧モードの場合） */}
-              <Deck
-                cards={yojoDeck}
-                type="幼女"
-                readOnly={true}
-                onCardRemove={handleRemoveFromYojoDeck}
-                onDragOverDeck={(e) => {
-                  e.preventDefault();
-                }}
-                onDragLeaveDeck={() => {}}
-                onDropDeck={(e) => handleDrop(e, 'yojo')}
-              />
+              <div className="flex gap-4">
+                {/* 左側：幼女デッキ */}
+                <div className="w-1/2">
+                  <Deck
+                    cards={yojoDeck}
+                    type="幼女"
+                    readOnly={true}
+                    onCardRemove={handleRemoveFromYojoDeck}
+                    onDragOverDeck={(e) => {
+                      e.preventDefault();
+                    }}
+                    onDragLeaveDeck={() => {}}
+                    onDropDeck={(e) => handleDrop(e, 'yojo')}
+                    showDuplicates={false}
+                  />
+                </div>
 
-              <Deck
-                cards={sweetDeck}
-                type="お菓子"
-                readOnly={true}
-                onCardRemove={handleRemoveFromSweetDeck}
-                onDragOverDeck={(e) => {
-                  e.preventDefault();
-                }}
-                onDragLeaveDeck={() => {}}
-                onDropDeck={(e) => handleDrop(e, 'sweet')}
-              />
+                {/* 右側：お菓子デッキとプレイアブルカード */}
+                <div className="flex flex-col gap-4 w-1/2">
+                  <Deck
+                    cards={sweetDeck}
+                    type="お菓子"
+                    readOnly={true}
+                    onCardRemove={handleRemoveFromSweetDeck}
+                    onDragOverDeck={(e) => {
+                      e.preventDefault();
+                    }}
+                    onDragLeaveDeck={() => {}}
+                    onDropDeck={(e) => handleDrop(e, 'sweet')}
+                    showDuplicates={false}
+                  />
 
-              <Deck
-                cards={[selectedPlayableCard || null].filter(Boolean) as CardInfo[]}
-                type="プレイアブル"
-                readOnly={true}
-                onCardRemove={handleRemovePlayableCard}
-                onDragOverDeck={(e) => {
-                  e.preventDefault();
-                }}
-                onDragLeaveDeck={() => {}}
-                onDropDeck={(e) => handleDrop(e, 'playable')}
-              />
+                  <Deck
+                    cards={[selectedPlayableCard || null].filter(Boolean) as CardInfo[]}
+                    type="プレイアブル"
+                    readOnly={true}
+                    onCardRemove={handleRemovePlayableCard}
+                    onDragOverDeck={(e) => {
+                      e.preventDefault();
+                    }}
+                    onDragLeaveDeck={() => {}}
+                    onDropDeck={(e) => handleDrop(e, 'playable')}
+                    showDuplicates={false}
+                  />
+                </div>
+              </div>
             </>
           )}
         </div>

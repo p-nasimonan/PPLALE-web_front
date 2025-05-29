@@ -28,6 +28,8 @@ interface DeckProps {
   onDragLeaveDeck?: (e: React.DragEvent, deckType: string) => void;
   /** デッキにドロップされたときのコールバック関数 */
   onDropDeck?: (e: React.DragEvent, deckType: string) => void;
+  /** 重複カードを表示するかどうか */
+  showDuplicates?: boolean;
 }
 
 /**
@@ -68,7 +70,8 @@ const Deck: React.FC<DeckProps> = ({
   defaultSortCriteria = 'none',
   onDragOverDeck,
   onDragLeaveDeck,
-  onDropDeck
+  onDropDeck,
+  showDuplicates = true
 }) => {
   // ドラッグ中のカードのインデックス
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
@@ -84,7 +87,9 @@ const Deck: React.FC<DeckProps> = ({
         : 0;
 
   // ソート基準の状態
-  const [sortCriteria, setSortCriteria] = useState<'none' | 'id' | 'name' | 'cost' | 'attack' | 'hp'>(defaultSortCriteria);
+  const [sortCriteria, setSortCriteria] = useState<'none' | 'id' | 'name' | 'cost' | 'attack' | 'hp'>(
+    readOnly ? 'id' : defaultSortCriteria
+  );
 
   // ソートされたカードリスト（重複を除く）
   const [uniqueSortedCards, setUniqueSortedCards] = useState<CardInfo[]>([]);
@@ -92,11 +97,13 @@ const Deck: React.FC<DeckProps> = ({
   // ソート基準が変更されたときにデッキを更新
   useEffect(() => {
     const sortedCards = sortCards(
-      cards.filter((card, index, self) => index === self.findIndex(c => c.id === card.id)),
+      showDuplicates 
+        ? cards.filter((card, index, self) => index === self.findIndex(c => c.id === card.id))
+        : cards,
       sortCriteria
     );
     setUniqueSortedCards(sortedCards);
-  }, [cards, sortCriteria]);
+  }, [cards, sortCriteria, showDuplicates]);
 
   // カードの重複数を計算する関数
   const getCardCount = (card: CardInfo) => {
@@ -184,24 +191,32 @@ const Deck: React.FC<DeckProps> = ({
         <h2 className={`text-xl font-bold ${getTextColor()}`}>
           {type}デッキ ({cards.length}/{maxCards})
         </h2>
-        <div className="relative">
-          <select
-            className="px-2 py-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={sortCriteria}
-            onChange={(e) => setSortCriteria(e.target.value as 'none' | 'id' | 'name' | 'cost' | 'attack' | 'hp')}
-          >
-            <option value="none">ソートしない</option>
-            <option value="id">ID順</option>
-            <option value="name">名前順</option>
-            <option value="cost">コスト順</option>
-            <option value="attack">攻撃力順</option>
-            <option value="hp">HP順</option>
-          </select>
-        </div>
+        {!readOnly && (
+          <div className="relative">
+            <select
+              className="px-2 py-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={sortCriteria}
+              onChange={(e) => setSortCriteria(e.target.value as 'none' | 'id' | 'name' | 'cost' | 'attack' | 'hp')}
+            >
+              <option value="none">ソートしない</option>
+              <option value="id">ID順</option>
+              <option value="name">名前順</option>
+              <option value="cost">コスト順</option>
+              <option value="attack">攻撃力順</option>
+              <option value="hp">HP順</option>
+            </select>
+          </div>
+        )}
       </div>
 
       {/* デッキのカードリスト */}
-      <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-5 lg:grid-cols-4 xl:grid-cols-5 gap-4 overflow-auto max-h-[calc(70vh-50px)]">
+      <div className={`grid ${
+        readOnly 
+          ? type === '幼女'
+            ? 'grid-cols-4 sm:grid-cols-5 md:grid-cols-5 lg:grid-cols-4 xl:grid-cols-5'
+            : 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6'
+          : 'grid-cols-4 sm:grid-cols-5 md:grid-cols-5 lg:grid-cols-4 xl:grid-cols-5'
+      } gap-4 overflow-auto max-h-[calc(70vh-50px)]`}>
         {uniqueSortedCards.map((card, index) => (
           <div
             key={card.id}
@@ -215,7 +230,7 @@ const Deck: React.FC<DeckProps> = ({
             <Card
               card={card}
               draggable={!readOnly}
-              count={getCardCount(card)}
+              count={showDuplicates ? getCardCount(card) : 1}
               onRemove={!readOnly ? handleCardRemove : undefined}
               showRemoveButton={!readOnly}
             />
