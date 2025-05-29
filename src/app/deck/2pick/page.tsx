@@ -16,6 +16,7 @@ import { db } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
+import ShareButtons from '@/components/ShareButtons';
 
 export default function TwoPick() {
   const { user } = useAuth();
@@ -550,32 +551,44 @@ export default function TwoPick() {
           )}
         </div>
       ) : (
-        <div className="text-center">
-        <h2 className="text-2xl font-bold mb-4">デッキ構築完了！</h2>
-        <p className="mb-4">選択したカードでデッキが完成しました。</p>
-        <div className="flex justify-center gap-4 mb-4">
-          <button
-            className="btn-export"
-            onClick={() => setShowExportPopup(true)}
-          >
-            エクスポート
-          </button>
+        <div className="text-center relative">
+          <div className="absolute top-0 right-20">
+            <ShareButtons
+              share_url={window.location.href}
+              share_text="2pickでデッキを作成しました！"
+              isLocal={true}
+              yojoDeck={yojoDeck}
+              sweetDeck={sweetDeck}
+              playableCard={selectedPlayableCard}
+            />
+          </div>
+          <h2 className="text-2xl font-bold mb-4">デッキ構築完了！</h2>
+          <p className="mb-4">選択したカードでデッキが完成しました。</p>
+          <div className="flex justify-center gap-4 mb-4">
             <button
-              className="btn-primary"
-              onClick={handleSaveDeck}
+              className="btn-export"
+              onClick={() => setShowExportPopup(true)}
             >
-              デッキを保存
+              エクスポート
             </button>
+            {user?.uid === 'local' && (
+              <button
+                className="btn-primary"
+                onClick={handleSaveDeck}
+              >
+                デッキを保存
+              </button>
+            )}
+          </div>
+          <div className="flex justify-center">
+            <button
+              className="btn-secondary"
+              onClick={() => showDeck()}
+            >
+              デッキ確認
+            </button>
+          </div>
         </div>
-        <div className="flex justify-center">
-          <button
-            className="btn-secondary"
-            onClick={() => showDeck()}
-          >
-            デッキ確認
-          </button>
-        </div>
-       </div>
       )}
       {/* デッキ確認 */}
       {isShowDeck && (

@@ -59,59 +59,86 @@ export default function DeckPage() {
         const savedSweet = localStorage.getItem(`deck_${deckId}_sweet`);
         const savedPlayable = localStorage.getItem(`deck_${deckId}_playable`);
 
-        if(userId != 'local'){
-          // Firebaseからデッキを取得
-          const deckRef = doc(db, 'users', userId, 'decks', deckId);
-          const deckDoc = await getDoc(deckRef);
+        if(userId === 'local'){
+          // URLパラメータからデッキ情報を取得
+          const params = new URLSearchParams(window.location.search);
+          const yojoIds = params.get('yojo')?.split(',') || [];
+          const sweetIds = params.get('sweet')?.split(',') || [];
+          const playableId = params.get('playable');
 
-          // デッキが存在しない場合
-          if (!deckDoc.exists()) {
-            if(savedName || savedYojo || savedSweet || savedPlayable){
-              setDeckName(savedName || '無名のデッキ');
-              setYojoDeck(savedYojo ? JSON.parse(savedYojo) : []);
-              setSweetDeck(savedSweet ? JSON.parse(savedSweet) : []);
-              setSelectedPlayableCard(savedPlayable ? JSON.parse(savedPlayable) : null);
-              setIsLoading(false);
-            } else {
-              setError('デッキが存在しません');
-              setIsLoading(false);
-            }
-            return;
-          }
-            const deckDocData: DeckDocData = deckDoc.data() as DeckDocData;
-
-
-            setDeckName(deckDocData.name || '無名のデッキ');
-
-            // カードIDからカードデータを復元
-            const yojoDeckIds: string[] = deckDocData.yojoDeckIds || [];
-            const sweetDeckIds: string[] = deckDocData.sweetDeckIds || [];
-            const playableCardId: string | null = deckDocData.playableCardId || null;
-
-            // 幼女デッキの復元
-            const newYojoDeck: CardInfo[] = yojoDeckIds
+          if (yojoIds.length > 0 || sweetIds.length > 0 || playableId) {
+            // URLパラメータからデッキを復元
+            const newYojoDeck: CardInfo[] = yojoIds
               .map(id => allYojoCards.find(card => card.id === id))
               .filter((card): card is CardInfo => card !== undefined);
 
-            // お菓子デッキの復元
-            const newSweetDeck: CardInfo[] = sweetDeckIds
+            const newSweetDeck: CardInfo[] = sweetIds
               .map(id => allSweetCards.find(card => card.id === id))
               .filter((card): card is CardInfo => card !== undefined);
 
-            // プレイアブルカードの復元
-            const newPlayableCard = playableCardId
-              ? allPlayableCards.find(card => card.id === playableCardId) || null
+            const newPlayableCard = playableId
+              ? allPlayableCards.find(card => card.id === playableId) || null
               : null;
 
             setYojoDeck(newYojoDeck);
             setSweetDeck(newSweetDeck);
             setSelectedPlayableCard(newPlayableCard);
-        }else{
-          setDeckName(savedName || '無名のデッキ');
-          setYojoDeck(savedYojo ? JSON.parse(savedYojo) : []);
-          setSweetDeck(savedSweet ? JSON.parse(savedSweet) : []);
-          setSelectedPlayableCard(savedPlayable ? JSON.parse(savedPlayable) : null);
+            setDeckName('共有されたデッキ');
+          } else if(savedName || savedYojo || savedSweet || savedPlayable){
+            setDeckName(savedName || '無名のデッキ');
+            setYojoDeck(savedYojo ? JSON.parse(savedYojo) : []);
+            setSweetDeck(savedSweet ? JSON.parse(savedSweet) : []);
+            setSelectedPlayableCard(savedPlayable ? JSON.parse(savedPlayable) : null);
+          }
+          setIsLoading(false);
+          return;
         }
+
+        // Firebaseからデッキを取得
+        const deckRef = doc(db, 'users', userId, 'decks', deckId);
+        const deckDoc = await getDoc(deckRef);
+
+        // デッキが存在しない場合
+        if (!deckDoc.exists()) {
+          if(savedName || savedYojo || savedSweet || savedPlayable){
+            setDeckName(savedName || '無名のデッキ');
+            setYojoDeck(savedYojo ? JSON.parse(savedYojo) : []);
+            setSweetDeck(savedSweet ? JSON.parse(savedSweet) : []);
+            setSelectedPlayableCard(savedPlayable ? JSON.parse(savedPlayable) : null);
+            setIsLoading(false);
+          } else {
+            setError('デッキが存在しません');
+            setIsLoading(false);
+          }
+          return;
+        }
+        const deckDocData: DeckDocData = deckDoc.data() as DeckDocData;
+
+        setDeckName(deckDocData.name || '無名のデッキ');
+
+        // カードIDからカードデータを復元
+        const yojoDeckIds: string[] = deckDocData.yojoDeckIds || [];
+        const sweetDeckIds: string[] = deckDocData.sweetDeckIds || [];
+        const playableCardId: string | null = deckDocData.playableCardId || null;
+
+        // 幼女デッキの復元
+        const newYojoDeck: CardInfo[] = yojoDeckIds
+          .map(id => allYojoCards.find(card => card.id === id))
+          .filter((card): card is CardInfo => card !== undefined);
+
+        // お菓子デッキの復元
+        const newSweetDeck: CardInfo[] = sweetDeckIds
+          .map(id => allSweetCards.find(card => card.id === id))
+          .filter((card): card is CardInfo => card !== undefined);
+
+        // プレイアブルカードの復元
+        const newPlayableCard = playableCardId
+          ? allPlayableCards.find(card => card.id === playableCardId) || null
+          : null;
+
+        setYojoDeck(newYojoDeck);
+        setSweetDeck(newSweetDeck);
+        setSelectedPlayableCard(newPlayableCard);
       } catch (error) {
         console.error('デッキの取得に失敗しました:', error);
         setError('デッキの取得に失敗しました');
@@ -368,22 +395,17 @@ export default function DeckPage() {
                 </span>
               )}
             </h1>
-            {userId !== 'local' && (
-              <ShareButtons 
-                share_url={typeof window !== 'undefined' ? window.location.href : ''}
-                share_text={`${deckName} #お菓子争奪戦争ぷぷりえーる`}
-              />
-            )}
+            <ShareButtons 
+              share_url={typeof window !== 'undefined' ? window.location.href : ''}
+              share_text={`${deckName} #お菓子争奪戦争ぷぷりえーる`}
+              isLocal={userId === 'local'}
+              yojoDeck={yojoDeck}
+              sweetDeck={sweetDeck}
+              playableCard={selectedPlayableCard}
+            />
           </div>
         )}
       </div>
-
-      {/* ローカルユーザー向けメッセージ */}
-      {userId === 'local' && (
-        <div className="mb-4 p-1 bg-yellow-100 text-yellow-800 rounded">
-          このデッキを保存したり、他のユーザーと共有するには、ログインしてください。
-        </div>
-      )}
 
       <div className={`grid grid-cols-1 ${isOwner ? 'lg:grid-cols-2' : ''} gap-8`}>
         {/* デッキ表示エリア */}
@@ -436,41 +458,52 @@ export default function DeckPage() {
           ) : (
             <>
               {/* 3つのデッキを同時に表示（閲覧モードの場合） */}
-              <Deck
-                cards={yojoDeck}
-                type="幼女"
-                readOnly={true}
-                onCardRemove={handleRemoveFromYojoDeck}
-                onDragOverDeck={(e) => {
-                  e.preventDefault();
-                }}
-                onDragLeaveDeck={() => {}}
-                onDropDeck={(e) => handleDrop(e, 'yojo')}
-              />
+              <div className="flex gap-4">
+                {/* 左側：幼女デッキ */}
+                <div className="w-1/2">
+                  <Deck
+                    cards={yojoDeck}
+                    type="幼女"
+                    readOnly={true}
+                    onCardRemove={handleRemoveFromYojoDeck}
+                    onDragOverDeck={(e) => {
+                      e.preventDefault();
+                    }}
+                    onDragLeaveDeck={() => {}}
+                    onDropDeck={(e) => handleDrop(e, 'yojo')}
+                    showDuplicates={false}
+                  />
+                </div>
 
-              <Deck
-                cards={sweetDeck}
-                type="お菓子"
-                readOnly={true}
-                onCardRemove={handleRemoveFromSweetDeck}
-                onDragOverDeck={(e) => {
-                  e.preventDefault();
-                }}
-                onDragLeaveDeck={() => {}}
-                onDropDeck={(e) => handleDrop(e, 'sweet')}
-              />
+                {/* 右側：お菓子デッキとプレイアブルカード */}
+                <div className="flex flex-col gap-4 w-1/2">
+                  <Deck
+                    cards={sweetDeck}
+                    type="お菓子"
+                    readOnly={true}
+                    onCardRemove={handleRemoveFromSweetDeck}
+                    onDragOverDeck={(e) => {
+                      e.preventDefault();
+                    }}
+                    onDragLeaveDeck={() => {}}
+                    onDropDeck={(e) => handleDrop(e, 'sweet')}
+                    showDuplicates={false}
+                  />
 
-              <Deck
-                cards={[selectedPlayableCard || null].filter(Boolean) as CardInfo[]}
-                type="プレイアブル"
-                readOnly={true}
-                onCardRemove={handleRemovePlayableCard}
-                onDragOverDeck={(e) => {
-                  e.preventDefault();
-                }}
-                onDragLeaveDeck={() => {}}
-                onDropDeck={(e) => handleDrop(e, 'playable')}
-              />
+                  <Deck
+                    cards={[selectedPlayableCard || null].filter(Boolean) as CardInfo[]}
+                    type="プレイアブル"
+                    readOnly={true}
+                    onCardRemove={handleRemovePlayableCard}
+                    onDragOverDeck={(e) => {
+                      e.preventDefault();
+                    }}
+                    onDragLeaveDeck={() => {}}
+                    onDropDeck={(e) => handleDrop(e, 'playable')}
+                    showDuplicates={false}
+                  />
+                </div>
+              </div>
             </>
           )}
         </div>
