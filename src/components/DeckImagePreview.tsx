@@ -47,19 +47,27 @@ const DeckImagePreview: React.FC<DeckImagePreviewProps> = ({ yojoDeck, sweetDeck
     if (!ctx) return;
     ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
+    // ソート済みのデッキを作成
+    const sortedYojoDeck = yojoDeck.slice(0, 20).sort((a, b) => {
+      const idNumA = Number(a.id.replace(/^[a-z]+_/, '')); // 数字部分を抽出して数値に変換
+      const idNumB = Number(b.id.replace(/^[a-z]+_/, '')); // 数字部分を抽出して数値に変換
+      return idNumA - idNumB;
+    });
+    const sortedSweetDeck = sweetDeck.slice(0, 10).sort((a, b) => {
+      const idNumA = Number(a.id.replace(/^[a-z]+_/, '')); // 数字部分を抽出して数値に変換
+      const idNumB = Number(b.id.replace(/^[a-z]+_/, '')); // 数字部分を抽出して数値に変換
+      return idNumA - idNumB;
+    });
+
     // 画像を順に読み込んで描画
-    const yojoPositions = yojoDeck
-      .slice(0, 20)
-      .sort((a, b) => a.id.localeCompare(b.id))
+    const yojoPositions = sortedYojoDeck
       .map((_, i) => ({
       x: YOJO_MARGIN_L + (i % 5) * (YOJO_CARD_W + YOJO_GAP),
       y: YOJO_MARGIN_T + Math.floor(i / 5) * (YOJO_CARD_H + YOJO_GAP),
       w: YOJO_CARD_W,
       h: YOJO_CARD_H,
     }));
-    const sweetPositions = sweetDeck
-      .slice(0, 10)
-      .sort((a, b) => a.id.localeCompare(b.id))
+    const sweetPositions = sortedSweetDeck
       .map((_, i) => ({
       x: CANVAS_WIDTH - SWEET_MARGIN_R - SWEET_CARD_W * 5 - SWEET_GAP * 4 + (i % 5) * (SWEET_CARD_W + SWEET_GAP),
       y: SWEET_MARGIN_T + Math.floor(i / 5) * (SWEET_CARD_H + SWEET_GAP),
@@ -75,9 +83,7 @@ const DeckImagePreview: React.FC<DeckImagePreviewProps> = ({ yojoDeck, sweetDeck
 
     // 画像リスト作成
     const allImages: { img: HTMLImageElement; x: number; y: number; w: number; h: number; loaded: boolean }[] = [];
-    yojoDeck
-      .slice(0, 20)
-      .sort((a, b) => a.id.localeCompare(b.id))
+    sortedYojoDeck
       .forEach((card, i) => {
       const img = new window.Image();
       img.crossOrigin = 'anonymous';
@@ -85,9 +91,7 @@ const DeckImagePreview: React.FC<DeckImagePreviewProps> = ({ yojoDeck, sweetDeck
       const pos = yojoPositions[i];
       allImages.push({ img, x: pos.x, y: pos.y, w: pos.w, h: pos.h, loaded: false });
     });
-    sweetDeck
-      .slice(0, 10)
-      .sort((a, b) => a.id.localeCompare(b.id))
+    sortedSweetDeck
       .forEach((card, i) => {
       const img = new window.Image();
       img.crossOrigin = 'anonymous';
