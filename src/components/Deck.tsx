@@ -71,7 +71,7 @@ const Deck: React.FC<DeckProps> = ({
   onDragOverDeck,
   onDragLeaveDeck,
   onDropDeck,
-  showDuplicates = true
+  showDuplicates = false
 }) => {
   // ドラッグ中のカードのインデックス
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
@@ -219,7 +219,7 @@ const Deck: React.FC<DeckProps> = ({
       } gap-4 overflow-auto max-h-[calc(70vh-50px)]`}>
         {uniqueSortedCards.map((card, index) => (
           <div
-            key={card.id}
+            key={`${card.id}-${index}`}
             draggable={!readOnly}
             onDragStart={(e) => handleDragStart(e, index)}
             onDragOver={(e) => handleDragOver(e, index)}
