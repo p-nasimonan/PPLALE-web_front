@@ -458,9 +458,9 @@ export default function DeckPage() {
           ) : (
             <>
               {/* 3つのデッキを同時に表示（閲覧モードの場合） */}
-              <div className="flex gap-4">
+              <div className="flex flex-col lg:flex-row gap-4">
                 {/* 左側：幼女デッキ */}
-                <div className="w-1/2">
+                <div className="w-full lg:w-1/2">
                   <Deck
                     cards={yojoDeck}
                     type="幼女"
@@ -476,7 +476,7 @@ export default function DeckPage() {
                 </div>
 
                 {/* 右側：お菓子デッキとプレイアブルカード */}
-                <div className="flex flex-col gap-4 w-1/2">
+                <div className="flex flex-col gap-4 w-full lg:w-1/2">
                   <Deck
                     cards={sweetDeck}
                     type="お菓子"

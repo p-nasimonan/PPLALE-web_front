@@ -60,11 +60,21 @@ const ImportPopup: React.FC<ImportPopupProps> = ({ onImport, onClose }) => {
         .split(',')
         .map(id => id.trim())
         .filter(id => id !== '')
-        .map(id => `y_${id.padStart(2, '0')}`);
+        .map(id => {
+          // 数値部分を取得して先頭の0を削除
+          const num = parseInt(id, 10).toString();
+          return `y_${num}`;
+        });
 
       // 幼女デッキのカードを取得
       const newYojoDeck = yojoIds
-        .map(id => allYojoCards.find(card => card.id === id))
+        .map(id => {
+          const card = allYojoCards.find(card => card.id === id);
+          if (!card) {
+            console.log(`カードが見つかりません: ${id}`);
+          }
+          return card;
+        })
         .filter((card): card is CardInfo => card !== undefined);
 
       // お菓子デッキのカードIDを取得
@@ -127,6 +137,9 @@ const ImportPopup: React.FC<ImportPopupProps> = ({ onImport, onClose }) => {
               onChange={(e) => setYojoCardIds(e.target.value)}
               placeholder="1,2,3,4,5"
             />
+            <p className="text-sm text-gray-600 mt-1">
+              カンマ区切りで数字を入力してください（例：1,2,3,4,5）。IDは1から64の範囲で入力してください。先頭の0は不要です。
+            </p>
           </div>
           
           <div>
