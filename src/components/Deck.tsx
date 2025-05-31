@@ -67,7 +67,7 @@ const Deck: React.FC<DeckProps> = ({
   onCardsReorder,
   type,
   readOnly = false,
-  defaultSortCriteria = 'none',
+  defaultSortCriteria = 'id',
   onDragOverDeck,
   onDragLeaveDeck,
   onDropDeck,
@@ -88,7 +88,7 @@ const Deck: React.FC<DeckProps> = ({
 
   // ソート基準の状態
   const [sortCriteria, setSortCriteria] = useState<'none' | 'id' | 'name' | 'cost' | 'attack' | 'hp'>(
-    readOnly ? 'id' : defaultSortCriteria
+    defaultSortCriteria
   );
 
   // ソートされたカードリスト（重複を除く）
