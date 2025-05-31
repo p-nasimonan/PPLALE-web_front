@@ -67,11 +67,11 @@ const Deck: React.FC<DeckProps> = ({
   onCardsReorder,
   type,
   readOnly = false,
-  defaultSortCriteria = 'none',
+  defaultSortCriteria = 'id',
   onDragOverDeck,
   onDragLeaveDeck,
   onDropDeck,
-  showDuplicates = true
+  showDuplicates = false
 }) => {
   // ドラッグ中のカードのインデックス
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
@@ -88,7 +88,7 @@ const Deck: React.FC<DeckProps> = ({
 
   // ソート基準の状態
   const [sortCriteria, setSortCriteria] = useState<'none' | 'id' | 'name' | 'cost' | 'attack' | 'hp'>(
-    readOnly ? 'id' : defaultSortCriteria
+    defaultSortCriteria
   );
 
   // ソートされたカードリスト（重複を除く）
@@ -219,7 +219,7 @@ const Deck: React.FC<DeckProps> = ({
       } gap-4 overflow-auto max-h-[calc(70vh-50px)]`}>
         {uniqueSortedCards.map((card, index) => (
           <div
-            key={card.id}
+            key={`${card.id}-${index}`}
             draggable={!readOnly}
             onDragStart={(e) => handleDragStart(e, index)}
             onDragOver={(e) => handleDragOver(e, index)}

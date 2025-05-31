@@ -590,40 +590,51 @@ export default function TwoPick() {
           </div>
         </div>
       )}
-      {/* デッキ確認 */}
+      {/* デッキ確認ポップアップ */}
       {isShowDeck && (
-          <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 gap-2 mt-2">
-            {/* プレイアブルカード */}
-            {selectedPlayableCard && (
-              <div className="flex justify-center">
-                
-                <Card
-                  card={selectedPlayableCard}
-                  sizes={{
-                    base: { width: 140, height: 210 },
-                    sm: { width: 200, height: 300 },
-                    md: { width: 280, height: 420 },
-                    lg: { width: 300, height: 450 }
-                  }}
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg w-full max-w-7xl max-h-[90vh] overflow-auto">
+            <h2 className="text-xl font-bold mb-4">デッキ確認</h2>
+            {/* 3つのデッキを同時に表示 */}
+            <div className="flex flex-col lg:flex-row gap-4">
+              {/* 左側：幼女デッキ */}
+              <div className="w-full lg:w-1/2">
+                <Deck
+                  cards={yojoDeck}
+                  type="幼女"
+                  readOnly={true}
+                  showDuplicates={false}
                 />
               </div>
-            )}
-            {/* 幼女デッキ */}
-            <Deck
-              cards={yojoDeck}
-              type="幼女"
-              readOnly={true}
-              defaultSortCriteria="id"
-            />
-            {/* お菓子デッキ */}
-            <Deck
-              cards={sweetDeck}
-              type="お菓子"
-              readOnly={true}
-              defaultSortCriteria="id"
-            />
+
+              {/* 右側：お菓子デッキとプレイアブルカード */}
+              <div className="flex flex-col gap-4 w-full lg:w-1/2">
+                <Deck
+                  cards={sweetDeck}
+                  type="お菓子"
+                  readOnly={true}
+                  showDuplicates={false}
+                />
+
+                <Deck
+                  cards={[selectedPlayableCard || null].filter(Boolean) as CardInfo[]}
+                  type="プレイアブル"
+                  readOnly={true}
+                  showDuplicates={false}
+                />
+              </div>
+            </div>
+            <div className="flex justify-end mt-4">
+              <button
+                className="btn-primary"
+                onClick={showDeck}
+              >
+                閉じる
+              </button>
+            </div>
           </div>
-        )}
+        </div>
+      )}
 
     </div>
 
