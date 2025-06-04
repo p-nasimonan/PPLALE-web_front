@@ -322,7 +322,7 @@ export default function DeckPageClient({
 
   return (
     <div className="container mx-auto p-2">
-      <div className="flex items-center gap-4 mb-6">
+      <div className="flex items-center mb-5">
         {isEditing ? (
           <div className="flex items-center gap-2">
             <input
@@ -379,13 +379,14 @@ export default function DeckPageClient({
         />
 
         {isOwner && (
-          <div className={` ${getCardListColor()}  card`}>
+          <div className="card">
             <TabButtons
               tabs={deckViewTabs}
               activeTabKey={deckViewActiveTab}
               onTabClick={(key: string) => setDeckViewActiveTab(key as 'yojo' | 'sweet' | 'playable')}
               variant="cardList"
             />
+          <div className={` ${getCardListColor()} rounded-b-md p-2`}>
             <CardList
               allYojoCards={allYojoCards}
               allSweetCards={allSweetCards}
@@ -396,6 +397,7 @@ export default function DeckPageClient({
               draggable={true}
               onDragStart={handleDragStart}
             />
+          </div>
           </div>
         )}
       </div>

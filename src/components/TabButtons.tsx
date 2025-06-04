@@ -58,7 +58,8 @@ const TabButtons: React.FC<TabButtonsProps> = ({
       return `px-4 py-2 rounded-t-md text-sm font-medium 
               ${isActive 
                 ? `yojo-deck-border-color border-b-transparent border-2 ${getButtonColor(tabKey)}` 
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`;
+                : `border-transparent text-gray-500 hover:text-gray-700`}
+              `;
     }
     // default variant (DeckList用)
     return `px-4 py-2 rounded ${isActive ? 'bg-blue-500 text-white' : 'lgiht-color'}`;
@@ -66,7 +67,7 @@ const TabButtons: React.FC<TabButtonsProps> = ({
 
 
   return (
-    <div className={`flex gap-2 mb-3 border-b`}>
+    <div className={`flex `}>
       {tabs.map((tab) => (
         <button
           key={tab.key}

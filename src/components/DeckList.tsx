@@ -48,7 +48,7 @@ const DeckList: React.FC<DeckListProps> = ({
   onDropDeck,
 }) => {
   return (
-    <div className="space-y-2">
+    <div>
       {isOwner ? (
         <>
 

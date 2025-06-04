@@ -55,10 +55,20 @@ const sortCards = (cards: CardInfo[], criteria: 'none' | 'id' | 'name' | 'cost' 
   });
 };
 
+
+
 /**
  * デッキコンポーネント
- * 
- * @param props - コンポーネントのプロパティ
+ * @param cards - デッキに含まれるカードのリスト
+ * @param onCardRemove - カードが削除されたときのコールバック関数
+ * @param onCardsReorder - カードが並べ替えられたときのコールバック関数
+ * @param type - デッキの種類（幼女, お菓子, プレイアブル）
+ * @param readOnly - デッキを読み取り専用にするかどうか
+ * @param defaultSortCriteria - ソート基準
+ * @param onDragOverDeck - デッキにドラッグオーバーされたときのコールバック関数
+ * @param onDragLeaveDeck - デッキからドラッグが離れたときのコールバック関数
+ * @param onDropDeck - デッキにドロップされたときのコールバック関数
+ * @param showDuplicates - 重複カードを表示するかどうか
  * @returns デッキコンポーネント
  */
 const Deck: React.FC<DeckProps> = ({
@@ -227,7 +237,7 @@ const Deck: React.FC<DeckProps> = ({
             ? 'grid-cols-4 sm:grid-cols-5 md:grid-cols-5 lg:grid-cols-4 xl:grid-cols-5'
             : 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6'
           : 'grid-cols-4 sm:grid-cols-5 md:grid-cols-5 lg:grid-cols-4 xl:grid-cols-5'
-      } gap-4 overflow-auto max-h-[calc(70vh-50px)]`}>
+      } gap-2 overflow-auto max-h-[calc(80vh-52px)]`}>
         {uniqueSortedCards.map((card, index) => (
           <div
             key={`${card.id}-${index}`}

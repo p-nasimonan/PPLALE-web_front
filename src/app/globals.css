@@ -12,7 +12,7 @@
   --danger-color: #ef4444;
   --danger-hover: #dc2626;
   --background-color: #f3f4f6;
-  --background-light: #ffffff;
+  --background-light: #f3f4f6;
   --hover-back-color: #9e9e9e;
   --card-background: #ffffff;
   --text-color: #1f2937;
@@ -101,6 +101,8 @@
 }
 
 
+
+
 button.main-color:hover {
   background-color: var(--hover-back-color);
   color: var(--text-light);
@@ -157,9 +159,8 @@ textarea{
 }
 
 .container {
-  max-width: 1600px;
+  max-width: 1700px;
   margin: 0 auto;
-  padding: 0rem;
   background: var(--base-background);
   color: var(--base-color);
 }
@@ -375,7 +376,6 @@ a.lnk-mode:hover {
 .card {
   border-radius: var(--border-radius);
   padding: 0.5rem;
-  margin-bottom: 0.5rem;
   box-shadow: var(--shadow);
 }
 

@@ -593,8 +593,7 @@ export default function TwoPick() {
       {/* デッキ確認ポップアップ */}
       {isShowDeck && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg w-full max-w-7xl max-h-[90vh] overflow-auto">
-            <h2 className="text-xl font-bold mb-4">デッキ確認</h2>
+          <div className="bg-white p-4 rounded-lg w-full max-w-8xl max-h-[100vh] overflow-auto">
             {/* 3つのデッキを同時に表示 */}
             <div className="flex flex-col lg:flex-row gap-4">
               {/* 左側：幼女デッキ */}
@@ -624,7 +623,7 @@ export default function TwoPick() {
                 />
               </div>
             </div>
-            <div className="flex justify-end mt-4">
+            <div className="flex justify-end">
               <button
                 className="btn-primary"
                 onClick={showDeck}
