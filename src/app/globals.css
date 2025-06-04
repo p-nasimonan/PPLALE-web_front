@@ -24,6 +24,19 @@
 
   --revers-background-color: #1f2937;
   --revers-text-color: #f3f4f6;
+
+  --deck-background-color: #c3c3c3;
+  --deck-border-color: #9e9e9e;
+  --deck-text-color: #1f2937;
+  --yojo-deck-background-color: #f8d9d9;
+  --yojo-deck-border-color: #e0b0b0;
+  --yojo-deck-text-color: #800000;
+  --sweet-deck-background-color: #d9f6f8;
+  --sweet-deck-border-color:  #90e0e0;
+  --sweet-deck-text-color: #008080;
+  --playable-deck-background-color: #d9d9f8;
+  --playable-deck-border-color: #9090e0;
+  --playable-deck-text-color: #000080;
 }
 
 :root.dark {
@@ -38,6 +51,19 @@
   --revers-text-color: #1f2937;
   --revers-background-color: #f3f4f6;
   --revers-card-background: #ffffff;
+
+  --deck-background-color: #515151;
+  --deck-border-color: #9e9e9e;
+  --deck-text-color: #dddddd;
+  --yojo-deck-background-color: #e09898;
+  --yojo-deck-border-color: #c09090;
+  --yojo-deck-text-color: #800000;
+  --sweet-deck-background-color: #98b7e0;
+  --sweet-deck-border-color: #9090c0;
+  --sweet-deck-text-color: #008080;
+  --playable-deck-background-color: #9898e0;
+  --playable-deck-border-color: #9090c0;
+  --playable-deck-text-color: #000080;
 }
 
 .main-color {
@@ -49,6 +75,31 @@
   background-color: var(--background-light);
   color: var(--text-color);
 }
+
+.deck-color {
+  background-color: var(--deck-background-color);
+  color: var(--deck-text-color);
+}
+
+
+.yojo-deck-color {
+  background-color: var(--yojo-deck-background-color);
+  color: var(--yojo-deck-text-color);
+  border-color: var(--yojo-deck-border-color);
+}
+
+.sweet-deck-color {
+  background-color: var(--sweet-deck-background-color);
+  color: var(--sweet-deck-text-color);
+  border-color: var(--sweet-deck-border-color);
+}
+
+.playable-deck-color {
+  background-color: var(--playable-deck-background-color);
+  color: var(--playable-deck-text-color);
+  border-color: var(--playable-deck-border-color);
+}
+
 
 button.main-color:hover {
   background-color: var(--hover-back-color);
@@ -322,11 +373,10 @@ a.lnk-mode:hover {
 
 /* カードスタイル */
 .card {
-  background-color: var(--card-background);
   border-radius: var(--border-radius);
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
   box-shadow: var(--shadow);
-  padding: 1rem;
-  margin-bottom: 1rem;
 }
 
 /* ドラッグアンドドロップ */

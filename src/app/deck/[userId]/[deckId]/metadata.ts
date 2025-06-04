@@ -3,16 +3,17 @@ import { db } from '@/lib/firebase';
 
 /**
  * デッキページのメタデータを生成する関数
- * 
+ *
  * @param params - ユーザーIDとデッキIDを含むパラメータ
  * @returns デッキページのメタデータ
  */
 export async function generateMetadata({ params }: { params: { userId: string; deckId: string } }) {
+  console.log('generateMetadata (in metadata.ts) called for:', params);
   // 基本URL（本番環境またはローカル環境）
-  const baseUrl = process.env.NODE_ENV === 'production' 
-    ? 'https://pplale.pgw.jp' 
+  const baseUrl = process.env.NODE_ENV === 'production'
+    ? 'https://pplale.pgw.jp'
     : 'http://localhost:3000';
-  
+
   // Firebaseからデッキ情報を取得
   try {
     const deckRef = doc(db, 'users', params.userId, 'decks', params.deckId);
@@ -21,9 +22,8 @@ export async function generateMetadata({ params }: { params: { userId: string; d
     const deckName = deckData?.name || '無名のデッキ';
     const yojoCount = deckData?.yojoDeckIds?.length || 0;
     const sweetCount = deckData?.sweetDeckIds?.length || 0;
-    
-    // 動的に生成されるOGP画像のURL
-    const ogImageUrl = `${baseUrl}/api/og/${params.userId}/${params.deckId}`;
+
+    const ogImageUrl = `${baseUrl}/api/og/${params.userId}/${params.deckId}`; // APIルートのURL
 
     return {
       title: `${deckName} - PPLALE`,
@@ -52,8 +52,8 @@ export async function generateMetadata({ params }: { params: { userId: string; d
       },
     };
   } catch (error) {
-    console.error('メタデータの生成に失敗しました:', error);
-    
+    console.error('メタデータの生成に失敗しました (in metadata.ts):', error);
+
     // エラー時にはデフォルトのメタデータを返す
     return {
       title: 'デッキ - PPLALE',
@@ -63,7 +63,7 @@ export async function generateMetadata({ params }: { params: { userId: string; d
         description: 'ぷぷりえーるのデッキ構築ツール',
         url: `${baseUrl}/deck/${params.userId}/${params.deckId}`,
         siteName: 'ぷぷりえーる デッキ構築',
-        images: ['/images/ogp.png'],
+        images: [`${baseUrl}/images/ogp.png`], // デフォルト画像
         locale: 'ja_JP',
         type: 'website',
       },
@@ -71,7 +71,7 @@ export async function generateMetadata({ params }: { params: { userId: string; d
         card: 'summary_large_image',
         title: 'デッキ - PPLALE',
         description: 'ぷぷりえーるのデッキ構築ツール',
-        images: ['/images/ogp.png'],
+        images: [`${baseUrl}/images/ogp.png`], // デフォルト画像
       },
     };
   }

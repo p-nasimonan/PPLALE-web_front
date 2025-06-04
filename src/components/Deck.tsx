@@ -84,6 +84,8 @@ const Deck: React.FC<DeckProps> = ({
         ? 20 
         : type === 'お菓子'
         ? 10
+        : type === 'プレイアブル'
+        ? 1
         : 0;
 
   // ソート基準の状態
@@ -155,22 +157,31 @@ const Deck: React.FC<DeckProps> = ({
 
   // デッキの種類に応じた背景色を設定
   const getDeckColor = () => {
-    return type === '幼女' ? 'bg-pink-50' : 'bg-yellow-50';
+    return type === '幼女' ? 'yojo-deck-color' 
+    : type === 'お菓子' ? 'sweet-deck-color'
+    : type === 'プレイアブル' ? 'playable-deck-color'
+    : 'deck-color';
   };
 
   // デッキの種類に応じたボーダー色を設定
   const getBorderColor = () => {
-    return type === '幼女' ? 'border-pink-200' : 'border-yellow-200';
+    return type === '幼女' ? 'yojo-deck-border-color' 
+    : type === 'お菓子' ? 'sweet-deck-border-color'
+    : type === 'プレイアブル' ? 'playable-deck-border-color'
+    : 'deck-border-color';
   };
 
   // デッキの種類に応じたテキスト色を設定
   const getTextColor = () => {
-    return type === '幼女' ? 'text-pink-800' : 'text-yellow-800';
+    return type === '幼女' ? 'yojo-deck-text-color' 
+    : type === 'お菓子' ? 'sweet-deck-text-color'
+    : type === 'プレイアブル' ? 'playable-deck-text-color'
+    : 'deck-text-color';
   };
 
   return (
     <div 
-      className={`p-4 rounded-lg border-2 ${getDeckColor()} ${getBorderColor()} transition-all duration-200 ${
+      className={`p-4 rounded-lg border-2 ${getDeckColor()} ${getBorderColor()} transition-all duration-200  ${
         isDraggingOver ? 'scale-101 shadow-lg border-dashed border-4' : ''
       }`}
       onDragOver={(e) => {
@@ -194,7 +205,7 @@ const Deck: React.FC<DeckProps> = ({
         {!readOnly && (
           <div className="relative">
             <select
-              className="px-2 py-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-1 py-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               value={sortCriteria}
               onChange={(e) => setSortCriteria(e.target.value as 'none' | 'id' | 'name' | 'cost' | 'attack' | 'hp')}
             >
