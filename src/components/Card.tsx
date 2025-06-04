@@ -147,7 +147,7 @@ const Card: React.FC<CardProps> = ({
       <div
         className={`
           relative rounded-lg overflow-hidden card-container w-full h-full
-          ${(canShowDetail || onClick) ? 'cursor-pointer' : ''} flex-shrink-0
+          ${(canShowDetail && isFaceUp) || onClick ? 'cursor-pointer' : ''} flex-shrink-0
           ${showDetail ? 'pointer-events-none' : ''}
         `}
         style={{
@@ -186,7 +186,7 @@ const Card: React.FC<CardProps> = ({
             position: relative;
             width: 100%;
             height: 100%;
-            transition: transform 3s cubic-bezier(0.4, 0.0, 0.2, 1);
+            transition: transform 1s cubic-bezier(0.3, 0.0, 0.5, 1);
             transform-style: preserve-3d;
           }
           .card-face {

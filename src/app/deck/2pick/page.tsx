@@ -1,34 +1,49 @@
+/**
+ * 2Pickモードのメインページコンポーネント
+ * 
+ * カードの選択からデッキ構築までの全プロセスを管理し、各フェーズに応じた
+ * コンポーネントを表示します。
+ * 
+ * @packageDocumentation
+ */
+
 'use client';
 
 import React, { useState, useEffect, useCallback} from 'react'; 
-import { useForm, Controller, ControllerRenderProps } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { CardInfo, CardType, FruitType } from '@/types/card';
-import { allYojoCards, allSweetCards, allPlayableCards } from '@/data/cards'; // 通常構築のデータをインポート
+import { allYojoCards, allSweetCards, allPlayableCards } from '@/data/cards';
 import { useSettings } from "../../SideMenuProvider";
-import Deck from '@/components/Deck';
-import CardSelection from './components/CardSelection';
 import ExportPopup from '@/components/ExportPopup';
-import Card from '@/components/Card';
-import Image from 'next/image';
 import { useAuth } from '@/lib/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
-import ShareButtons from '@/components/ShareButtons';
 
+// 分割したコンポーネントをインポート
+import FruitVersionSelection from './components/FruitVersionSelection';
+import PlayableCardPreview from './components/PlayableCardPreview';
+import DeckCardSelection from './components/DeckCardSelection';
+import PlayableCardFinalSelection from './components/PlayableCardFinalSelection';
+import TwoPickResult from './components/TwoPickResult';
+import DeckViewPopup from './components/DeckViewPopup';
+
+/**
+ * 2Pickモードのメインページコンポーネント
+ * 
+ * @returns {JSX.Element} 2Pickページ
+ */
 export default function TwoPick() {
   const { user } = useAuth();
   const router = useRouter();
   const { isTwoCardLimit } = useSettings();
-  // 幼女カード
+  
+  // 幼女カード、お菓子カード、プレイアブルカード
   const [yojoCards] = useState<CardInfo[]>(allYojoCards);
-  // お菓子カード
   const [sweetCards] = useState<CardInfo[]>(allSweetCards);
-
-  // プレイアブルカード
-  const [playableCards] = useState<CardInfo[]>(allPlayableCards); // 'setPlayableCards' を削除
+  const [playableCards] = useState<CardInfo[]>(allPlayableCards);
   
   // 現在の選択フェーズ（幼女かお菓子か）
   const [currentPhase, setCurrentPhase] = useState<CardType>('幼女');
@@ -38,7 +53,7 @@ export default function TwoPick() {
   const [yojoDeck, setYojoDeck] = useState<CardInfo[]>([]);
   // お菓子デッキ
   const [sweetDeck, setSweetDeck] = useState<CardInfo[]>([]);
-
+  
   const [isShowDeck, setIsShowDeck] = useState(false); // デッキ確認ポップアップの表示状態
   const [round, setRound] = useState(1); // 現在のラウンド
   const [showExportPopup, setShowExportPopup] = useState(false);
@@ -52,12 +67,12 @@ export default function TwoPick() {
 
   const selectedFruits = watch('fruits');
   const selectedPlayableVersions = watch('playableVersions');
-  const [selectedPlayableCard, setSelectedPlayableCard] = useState<CardInfo | null>(null); // 選択されたプレイアブルカード
-  const [isCardDisappearing, setIsCardDisappearing] = useState(false); // カードが消えるアニメーションの状態
+  const [selectedPlayableCard, setSelectedPlayableCard] = useState<CardInfo | null>(null);
+  const [isCardDisappearing, setIsCardDisappearing] = useState(false);
 
-  const [selectionPhase, setSelectionPhase] = useState<'fruitSelection' | 'playablePreview' | 'CardSelection' | 'playableSelection' | 'end'>('fruitSelection'); // 選択フェーズ
+  const [selectionPhase, setSelectionPhase] = useState<'fruitSelection' | 'playablePreview' | 'CardSelection' | 'playableSelection' | 'end'>('fruitSelection');
 
-  const [playableChoices, setPlayableChoices] = useState<CardInfo[]>([]); // プレイアブルカードの選択肢を保持
+  const [playableChoices, setPlayableChoices] = useState<CardInfo[]>([]);
 
   // 選択肢を更新する関数
   const updateChoices = useCallback(() => {
@@ -106,7 +121,7 @@ export default function TwoPick() {
 
   // ラウンドが変わったときに選択肢を更新
   useEffect(() => {
-    if (selectionPhase === 'CardSelection' ) {
+    if (selectionPhase === 'CardSelection') {
       updateChoices();
     }
   }, [currentPhase, updateChoices, selectionPhase]);
@@ -122,8 +137,6 @@ export default function TwoPick() {
   useEffect(() => {
     restart();
   }, []);
-
-
 
   // デッキが更新されたときに localStorage に保存
   useEffect(() => {
@@ -297,344 +310,73 @@ export default function TwoPick() {
   return (
   <div>
     <div className={showExportPopup ? 'blur-sm ' : '"container relative"'}>
-      {selectionPhase === 'fruitSelection' ? (
-        <div className="flex flex-col items-center mt-8">
-          <h2 className="text-xl font-bold mb-8">カードのフルーツを選択してください</h2>
-          <form
-            onSubmit={handleSubmit(handleFruitSelectionSubmit)}
-            className="space-y-8 w-full max-w-4xl"
-          >
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              {(['いちご', 'ぶどう', 'めろん', 'おれんじ'] as FruitType[]).map(fruit => (
-                <Controller
-                  key={fruit}
-                  name="fruits"
+        {/* フルーツとバージョン選択画面 */}
+        {selectionPhase === 'fruitSelection' && (
+          <FruitVersionSelection
                   control={control}
-                  render={({ field }: { field: ControllerRenderProps<{ fruits: FruitType[]; playableVersions: string[] }, 'fruits'> }) => (
-                    <label className="relative cursor-pointer group">
-                      <input
-                        type="checkbox"
-                        value={fruit}
-                        checked={field.value.includes(fruit)}
-                        onChange={e => {
-                          const newValue = e.target.checked
-                            ? [...field.value, fruit]
-                            : field.value.length > 1 // 最低1つは残す
-                              ? field.value.filter(f => f !== fruit)
-                              : field.value;
-                          field.onChange(newValue);
-                        }}
-                        className="hidden"
-                      />
-                      <div className={`relative rounded-xl overflow-hidden transition-all duration-300 ${
-                        field.value.includes(fruit) ? 'ring-4 ring-special' : 'ring-2 ring-gray-200'
-                      }`}>
-                        <Image
-                          src={`/images/fruits/${fruit}.png`}
-                          alt={fruit}
-                          width={200}
-                          height={200}
-                          className="w-full h-32 object-cover"
-                        />
-                        {field.value.includes(fruit) && (
-                          <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
-                            <div className="w-12 h-12 bg-special rounded-full flex items-center justify-center">
-                              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
-                              </svg>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                      <p className="text-center mt-2 font-medium">{fruit}</p>
-                    </label>
-                  )}
-                />
-              ))}
-            </div>
+            handleSubmit={handleSubmit}
+            selectedFruits={selectedFruits}
+            selectedPlayableVersions={selectedPlayableVersions}
+            onSubmit={handleFruitSelectionSubmit}
+          />
+        )}
 
-            <h2 className="text-xl font-bold mb-8 mt-12">プレイアブルカードのバージョンを選択してください</h2>
-            <div className="grid grid-cols-2 gap-6">
-              {(['通常', 'β'] as string[]).map(version => (
-                <Controller
-                  key={version}
-                  name="playableVersions"
-                  control={control}
-                  render={({ field }: { field: ControllerRenderProps<{ fruits: FruitType[]; playableVersions: string[] }, 'playableVersions'> }) => (
-                    <label className="relative cursor-pointer group">
-                      <input
-                        type="checkbox"
-                        value={version}
-                        checked={field.value.includes(version)}
-                        onChange={e => {
-                          const newValue = e.target.checked
-                            ? [...field.value, version]
-                            : field.value.length > 1 // 最低1つは残す
-                              ? field.value.filter(v => v !== version)
-                              : field.value;
-                          field.onChange(newValue);
-                        }}
-                        className="hidden"
-                      />
-                      <div className={`relative rounded-xl overflow-hidden transition-all duration-300 ${
-                        field.value.includes(version) ? 'ring-4 ring-special' : 'ring-2 ring-gray-200'
-                      }`}>
-                        <Image
-                          src={`/images/versions/${version}.png`}
-                          alt={version}
-                          className="w-full h-48 object-cover"
-                          width={200}
-                          height={200}
-                        />
-                        {field.value.includes(version) && (
-                          <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
-                            <div className="w-12 h-12 bg-special rounded-full flex items-center justify-center">
-                              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
-                              </svg>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                      <p className="text-center mt-2 font-medium">{version}</p>
-                    </label>
-                  )}
-                />
-              ))}
-            </div>
-            <div className="flex justify-center mt-8">
-              <button 
-                type="submit" 
-                className={`btn-primary text-lg px-8 py-3 ${
-                  selectedFruits.length === 0 || selectedPlayableVersions.length === 0
-                    ? 'opacity-50 cursor-not-allowed'
-                    : ''
-                }`}
-                disabled={selectedFruits.length === 0 || selectedPlayableVersions.length === 0}
-              >
-                次へ
-              </button>
-            </div>
-          </form>
-        </div>
-      ) : selectionPhase === 'playablePreview' ? (
-        <div className="flex flex-col items-center mt-8">
-          <h2 className="text-xl font-bold mb-4">プレイアブルカードを確認してください</h2>
-          <div className="grid grid-cols-3 gap-4 w-full max-w-6xl mx-auto place-items-center">
-            {playableChoices.map(card => (
-              <Card
-                key={card.id}
-                card={card}
-                onClick={() => setSelectedPlayableCard(card)}
-                sizes={{
-                  base: { width: 140, height: 210 },
-                  sm: { width: 200, height: 300 },
-                  md: { width: 280, height: 420 },
-                  lg: { width: 300, height: 450 }
-                }}
-              />
-            ))}
-          </div>
-          <button onClick={handlePlayablePreviewSubmit} className="btn-primary mt-4">
-            次へ
-          </button>
-        </div>
-      ) : selectionPhase === 'CardSelection' ? (  
-        <div className="mt-4 flex flex-col items-center">
-          <>
-            <h2 className="text-xl font-bold mb-4 text-center">
-              {round} / {currentPhase === "幼女" ? 10 : 5}: {currentPhase}カードを選択してください
-            </h2>
-            <div className="flex justify-between items-center">
+        {/* プレイアブルカードプレビュー画面 */}
+        {selectionPhase === 'playablePreview' && (
+          <PlayableCardPreview
+            playableChoices={playableChoices}
+            onCardClick={setSelectedPlayableCard}
+            onSubmit={handlePlayablePreviewSubmit}
+          />
+        )}
 
-              {/* 左側のカード選択 */}
-              {currentChoices.length >= 2 && (
-                <>
-                  {(() => {
-                    return null;
-                  })()}
-                  <CardSelection
-                    cards={[currentChoices[0],currentChoices[1]]}
-                    onSelect={() => handleCardSelect(currentChoices[0], currentChoices[1])}
-                  />
-                </>
-              )}
+        {/* カード選択画面 */}
+        {selectionPhase === 'CardSelection' && (
+          <DeckCardSelection
+            currentChoices={currentChoices}
+            onSelect={handleCardSelect}
+            round={round}
+            currentPhase={currentPhase}
+            onShowDeckClick={showDeck}
+            maxYojoRound={10}
+            maxSweetRound={5}
+          />
+        )}
 
-              {/* デッキ確認ボタン */}
-              <div className="flex justify-center">
-                <button
-                  className="btn-import"
-                  onClick={() => showDeck()}
-                >
-                  デッキ確認
-                </button>
-              </div>
+        {/* プレイアブルカード最終選択画面 */}
+        {selectionPhase === 'playableSelection' && (
+          <PlayableCardFinalSelection
+            playableChoices={playableChoices}
+            selectedPlayableCard={selectedPlayableCard}
+            onCardClick={setSelectedPlayableCard}
+            isCardDisappearing={isCardDisappearing}
+            onConfirm={handlePlayableCardConfirm}
+            onBack={() => setSelectedPlayableCard(null)}
+          />
+        )}
 
-              {/* 右側のカード選択 */}
-              {currentChoices.length >= 4 && (
-                <>
-                  {(() => {
-                    return null;
-                  })()}
-                  <CardSelection
-                    cards={[currentChoices[2],currentChoices[3]]}
-                    onSelect={() => handleCardSelect(currentChoices[2], currentChoices[3])}
-                  />
-                </>
-              )}
-            </div>
-          </>
-        </div>
-      ) : selectionPhase === 'playableSelection' ? (
-        <div className="mt-4 flex flex-col items-center ">
-          <h2 className="text-xl font-bold mb-4 text-center">プレイアブルカードを選択してください</h2>
-          {!selectedPlayableCard && (
-            <div>
-              <div className="flex gap-4">
-                {playableChoices.map(card => (
-                  <Card
-                    key={card.id}
-                    card={card}
-                    onClick={() => setSelectedPlayableCard(card)}
-                    sizes={{
-                      base: { width: 140, height: 210 },
-                      sm: { width: 200, height: 300 },
-                      md: { width: 280, height: 420 },
-                      lg: { width: 300, height: 450 }
-                    }}
-                    canShowDetail={false}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
+        {/* 結果表示画面 */}
+        {selectionPhase === 'end' && (
+          <TwoPickResult
+            yojoDeck={yojoDeck}
+            sweetDeck={sweetDeck}
+            playableCard={selectedPlayableCard}
+            user={user}
+            onExport={() => setShowExportPopup(true)}
+            onSave={handleSaveDeck}
+            onShowDeck={showDeck}
+          />
+        )}
 
-          {/* スライド表示されたカード */}
-          {selectedPlayableCard && (
-              <div className="relative w-full max-w-4xl mx-auto p-4">
-                <div className={`flex flex-col  items-center justify-center gap-6 w-full transform-slide ${
-                  isCardDisappearing ? 'animate-disappear' : ''
-                }`}>
-                  <div className="w-full lg:w-1/2 flex justify-center">
-                    <Card
-                      card={selectedPlayableCard}
-                      sizes={{
-                        base: { width: 200, height: 300 },
-                        sm: { width: 250, height: 375 },
-                        md: { width: 300, height: 450 },
-                        lg: { width: 500, height: 750 }
-                      }}
-                      canShowDetail={false}
-                    />
-                  </div>
-                  <div className="w-full h-auto overflow-auto p-4 rounded-lg">
-                    {selectedPlayableCard.description && (
-                      <div className="mt-4">
-                        <p className="text-lg font-semibold mt-1 whitespace-pre-line">{selectedPlayableCard.description}</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <button
-                      className="btn-select absolute bottom-40 right-0"
-                      onClick={handlePlayableCardConfirm}
-                    >
-                      選択
-                </button>
-                <button
-                  className="btn-secondary absolute top-0 left-0"
-                  onClick={() => setSelectedPlayableCard(null)}
-                >
-                  ◀︎戻る
-                </button>
-              </div>
-          )}
-        </div>
-      ) : (
-        <div className="text-center relative">
-          <div className="absolute top-0 right-20">
-            <ShareButtons
-              share_url={window.location.href}
-              share_text="2pickでデッキを作成しました！"
-              isLocal={true}
-              yojoDeck={yojoDeck}
-              sweetDeck={sweetDeck}
-              playableCard={selectedPlayableCard}
-            />
-          </div>
-          <h2 className="text-2xl font-bold mb-4">デッキ構築完了！</h2>
-          <p className="mb-4">選択したカードでデッキが完成しました。</p>
-          <div className="flex justify-center gap-4 mb-4">
-            <button
-              className="btn-export"
-              onClick={() => setShowExportPopup(true)}
-            >
-              エクスポート
-            </button>
-            {user?.uid === 'local' && (
-              <button
-                className="btn-primary"
-                onClick={handleSaveDeck}
-              >
-                デッキを保存
-              </button>
-            )}
-          </div>
-          <div className="flex justify-center">
-            <button
-              className="btn-secondary"
-              onClick={() => showDeck()}
-            >
-              デッキ確認
-            </button>
-          </div>
-        </div>
-      )}
-      {/* デッキ確認ポップアップ */}
+        {/* デッキ確認ポップアップ */}
       {isShowDeck && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-4 rounded-lg w-full max-w-8xl max-h-[100vh] overflow-auto">
-            {/* 3つのデッキを同時に表示 */}
-            <div className="flex flex-col lg:flex-row gap-4">
-              {/* 左側：幼女デッキ */}
-              <div className="w-full lg:w-1/2">
-                <Deck
-                  cards={yojoDeck}
-                  type="幼女"
-                  readOnly={true}
-                  showDuplicates={false}
-                />
-              </div>
-
-              {/* 右側：お菓子デッキとプレイアブルカード */}
-              <div className="flex flex-col gap-4 w-full lg:w-1/2">
-                <Deck
-                  cards={sweetDeck}
-                  type="お菓子"
-                  readOnly={true}
-                  showDuplicates={false}
-                />
-
-                <Deck
-                  cards={[selectedPlayableCard || null].filter(Boolean) as CardInfo[]}
-                  type="プレイアブル"
-                  readOnly={true}
-                  showDuplicates={false}
-                />
-              </div>
-            </div>
-            <div className="flex justify-end">
-              <button
-                className="btn-primary"
-                onClick={showDeck}
-              >
-                閉じる
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
+          <DeckViewPopup
+            yojoDeck={yojoDeck}
+            sweetDeck={sweetDeck}
+            selectedPlayableCard={selectedPlayableCard}
+            onClose={showDeck}
+          />
+        )}
     </div>
 
           {/* エクスポートポップアップ */}
@@ -646,7 +388,6 @@ export default function TwoPick() {
           onClose={() => setShowExportPopup(false)}
         />
       )}
-
   </div>
   );
 }
