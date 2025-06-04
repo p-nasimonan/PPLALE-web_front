@@ -7,7 +7,7 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import { CardInfo } from '@/types/card';
 import CardDetail from './CardDetail';
@@ -59,7 +59,8 @@ interface CardProps {
   isInDeck?: boolean;
   /** カードの詳細を表示できるか */
   canShowDetail?: boolean;
-  
+  /** カードが表向きかどうか (true: 表, false: 裏) */
+  isFaceUp?: boolean;
 }
 
 const defaultSizes: CardSizes = {
@@ -85,6 +86,7 @@ const defaultSizes: CardSizes = {
  * @param canAddToDeck デッキに追加できるかどうか
  * @param isInDeck デッキに追加されているかどうか
  * @param canShowDetail カードの詳細を表示できるか
+ * @param isFaceUp カードが表向きかどうか (デフォルトは true)
  * @returns カードコンポーネント
  */
 const Card: React.FC<CardProps> = ({
@@ -101,8 +103,8 @@ const Card: React.FC<CardProps> = ({
   canAddToDeck,
   isInDeck = false,
   canShowDetail = true,
+  isFaceUp = true,
 }) => {
-  const [isDownloading, setIsDownloading] = useState(true);
   const [showDetail, setShowDetail] = useState(false);
 
     // サイズ設定をマージ
@@ -114,24 +116,11 @@ const Card: React.FC<CardProps> = ({
     };
 
   const imagePath = `${basePath}${card.imageUrl}`;
-  const loadingImagePath = `${basePath}/images/yokan.png`;
-
-  // カードの種類に応じた背景色を設定
-  const getCardColor = () => {
-    return card.fruit === 'いちご'
-      ? 'bg-red-200'
-      : card.fruit === 'ぶどう'
-      ? 'bg-purple-200'
-      : card.fruit === 'めろん'
-      ? 'bg-green-200'
-      : card.fruit === 'おれんじ'
-      ? 'bg-orange-200'
-      : 'bg-gray-200';
-  };
+  const loadingImagePath = `${basePath}/images/back-card.png`;
 
   // カードがクリックされたときの処理
   const handleClick = () => {
-    if (canShowDetail) {
+    if (canShowDetail && isFaceUp) {
       setShowDetail(true);
     } else if (onClick) {
       onClick(card);
@@ -153,30 +142,21 @@ const Card: React.FC<CardProps> = ({
     }
   };
 
-  useEffect(() => {
-    setIsDownloading(true);
-    setTimeout(() => {
-      setIsDownloading(false);
-    }, 0);
-  }, [card]);
-
   return (
     <>
       <div
         className={`
-          relative rounded-lg shadow-md overflow-hidden card-container
-          ${getCardColor()} 
-          transition-all duration-200 hover:shadow-lg
-          ${(canShowDetail || onClick) ? 'cursor-pointer' : ''} flex-shrink-0
+          relative rounded-lg overflow-hidden card-container w-full h-full
+          ${(canShowDetail && isFaceUp) || onClick ? 'cursor-pointer' : ''} flex-shrink-0
           ${showDetail ? 'pointer-events-none' : ''}
         `}
         style={{
           width: `${cardSizes.base.width}px`,
           height: `${cardSizes.base.height}px`,
+          perspective: '1000px', 
         }}
-
         onClick={handleClick}
-        draggable={draggable && !showDetail}
+        draggable={draggable && !showDetail && isFaceUp}
         onDragStart={handleDragStart}
       >
         <style jsx>{`
@@ -202,26 +182,35 @@ const Card: React.FC<CardProps> = ({
               height: ${cardSizes.lg.height}px !important;
             }
           }
+          .card-flip-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 1s cubic-bezier(0.3, 0.0, 0.5, 1);
+            transform-style: preserve-3d;
+          }
+          .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden; /* Safari and Chrome */
+            border-radius: inherit; 
+            overflow: hidden; 
+          }
+          .card-back {
+            transform: rotateY(180deg);
+          }
         `}</style>
-        {/* カードの画像 */}
-        <div className="w-full h-full flex items-center justify-center relative">
-          {isDownloading ? (
-            <>
-              <Image
-                src={loadingImagePath}
-                alt="ロード中..."
-                width={64}
-                height={64}
-                className="pixelated"
-                priority={false}
-                quality={60}
-                unoptimized={false}
-              />
-              <h2 className='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2'>
-                ロード中
-              </h2>
-            </>
-          ) : (
+        
+        <div
+          className="card-flip-inner"
+          style={{
+            transform: isFaceUp ? 'rotateY(0deg)' : 'rotateY(180deg)',
+          }}
+        >
+          {/* 表側のコンテンツ */}
+          <div className="card-face card-front">
             <Image
               src={imagePath}
               alt={card.name}
@@ -238,25 +227,42 @@ const Card: React.FC<CardProps> = ({
               loading="lazy"
               blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGwAZQAgAEkAbgBjAC4AIAAyADAAMQA2/9sAQwAUDg8SDw0UEhASFxUUTHx+Hh4eGhodJC0lICQoICQoICQoICQoICQoICQoICQoICQoICQoICQoICQoICQoICQoICQoICQoICQoIP/YAERCAAoACgMBIgACEQEDEQH/xAAVAQEBAAAAAAAAAAAAAAAAAAAAAv/EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAhADEAAAAJ0AGZf/2Q=="
             />
-          )}
+          </div>
+
+          {/* 裏側のコンテンツ */}
+          <div className="card-face card-back">
+            <Image
+              src={loadingImagePath}
+              alt="カード裏面"
+              fill
+              className="rounded-lg object-contain"
+              sizes={`(max-width: 640px) ${cardSizes.base.width}px, 
+                     (max-width: 768px) ${cardSizes.sm.width}px, 
+                     (max-width: 1024px) ${cardSizes.md.width}px, 
+                     ${cardSizes.lg.width}px`}
+              priority={false}
+              quality={60}
+              unoptimized={false}
+            />
+          </div>
         </div>
 
         {/* 選択中のオーバーレイ */}
-        {isSelected && card.type === 'プレイアブル' && (
-          <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+        {isSelected && card.type === 'プレイアブル' && !showDetail && isFaceUp && (
+          <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-lg">
             <p className="text-white text-lg font-bold">選択中</p>
           </div>
         )}
 
         {/* 重複数の表示 */}
-        {count > 1 && !isDownloading && (
+        {count > 1 && !showDetail && isFaceUp && (
           <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 text-white rounded-full w-6 h-6 flex items-center justify-center text-s">
             ×{count}
           </div>
         )}
 
         {/* 削除ボタン */}
-        {showRemoveButton && !isDownloading && (
+        {showRemoveButton && !showDetail && isFaceUp && (
           <button
             className="absolute top-1 right-1 bg-gray-300 text-gray-700 rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-500 hover:text-white transition-colors duration-200"
             onClick={handleRemove}
@@ -268,7 +274,7 @@ const Card: React.FC<CardProps> = ({
       </div>
 
       {/* カードの詳細 */}
-      {showDetail && canShowDetail && (
+      {showDetail && canShowDetail && isFaceUp && (
         <CardDetail
           card={card}
           onClose={() => setShowDetail(false)}
