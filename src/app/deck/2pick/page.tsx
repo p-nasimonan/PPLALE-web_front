@@ -313,7 +313,7 @@ export default function TwoPick() {
         {/* フルーツとバージョン選択画面 */}
         {selectionPhase === 'fruitSelection' && (
           <FruitVersionSelection
-                  control={control}
+            control={control}
             handleSubmit={handleSubmit}
             selectedFruits={selectedFruits}
             selectedPlayableVersions={selectedPlayableVersions}
