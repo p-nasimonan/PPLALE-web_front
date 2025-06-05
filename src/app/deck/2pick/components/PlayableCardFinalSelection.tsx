@@ -114,13 +114,6 @@ const PlayableCardFinalSelection: React.FC<PlayableCardFinalSelectionProps> = ({
                 isFaceUp={true}
               />
             </div>
-            <div className="w-full h-auto overflow-auto p-4 rounded-lg">
-              {selectedPlayableCard.description && (
-                <div className="mt-4">
-                  <p className="text-lg font-semibold mt-1 whitespace-pre-line">{selectedPlayableCard.description}</p>
-                </div>
-              )}
-            </div>
           </div>
           <button
             className="btn-select absolute bottom-40 right-0"
