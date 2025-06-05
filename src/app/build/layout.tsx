@@ -16,7 +16,7 @@ export default function BuildLayout({ children }: { children: React.ReactNode })
           </div>
         </div>
       </header>
-      <main className="pt-20 px-4">
+      <main >
         {children}
       </main>
     </>
