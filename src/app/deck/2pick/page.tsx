@@ -18,7 +18,7 @@ import ExportPopup from '@/components/ExportPopup';
 import { useAuth } from '@/lib/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 
@@ -38,7 +38,14 @@ import DeckViewPopup from './components/DeckViewPopup';
 export default function TwoPick() {
   const { user } = useAuth();
   const router = useRouter();
-  const { isTwoCardLimit } = useSettings();
+  const searchParams = useSearchParams();
+  const { isTwoCardLimit: defaultIsTwoCardLimit } = useSettings();
+  const isTwoCardLimitParam = searchParams.get('twoCardLimit');
+  const isTwoCardLimit = isTwoCardLimitParam !== null
+    ? isTwoCardLimitParam === 'true'
+    : defaultIsTwoCardLimit;
+  const initialFruits = searchParams.get('fruits')?.split(',') || ['いちご'];
+  const initialPlayableVersions = searchParams.get('playableVersions')?.split(',') || ['通常'];
   
   // 幼女カード、お菓子カード、プレイアブルカード
   const [yojoCards] = useState<CardInfo[]>(allYojoCards);
@@ -60,8 +67,8 @@ export default function TwoPick() {
 
   const { control, handleSubmit, watch } = useForm<{ fruits: FruitType[]; playableVersions: string[] }>({
     defaultValues: {
-      fruits: ['いちご'], // 初期選択を1つに変更
-      playableVersions: ['通常'], // 初期選択を1つに変更
+      fruits: initialFruits as FruitType[],
+      playableVersions: initialPlayableVersions,
     },
   });
 
@@ -313,7 +320,7 @@ export default function TwoPick() {
         {/* フルーツとバージョン選択画面 */}
         {selectionPhase === 'fruitSelection' && (
           <FruitVersionSelection
-                  control={control}
+            control={control}
             handleSubmit={handleSubmit}
             selectedFruits={selectedFruits}
             selectedPlayableVersions={selectedPlayableVersions}

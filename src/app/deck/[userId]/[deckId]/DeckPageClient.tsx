@@ -354,8 +354,8 @@ export default function DeckPageClient({
               )}
             </h1>
             <ShareButtons 
-              share_url={typeof window !== 'undefined' ? window.location.href : ''}
-              share_text={`${deckName} #お菓子争奪戦争ぷぷりえーる`}
+              share_url={window.location.pathname != '' ? window.location.href : ''}
+              share_text={`#お菓子争奪戦争ぷぷりえーる`}
               isLocal={userId === 'local'}
               yojoDeck={yojoDeck}
               sweetDeck={sweetDeck}

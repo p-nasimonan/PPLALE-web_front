@@ -62,7 +62,8 @@ const TwoPickResult: React.FC<TwoPickResultProps> = ({
       <div className="absolute top-0 right-20">
         <ShareButtons
           share_url={window.location.href}
-          share_text="2pickでデッキを作成しました！"
+          share_text="2pickでデッキを作成しました！
+          #お菓子争奪戦争ぷぷりえーる"
           isLocal={true}
           yojoDeck={yojoDeck}
           sweetDeck={sweetDeck}
