@@ -117,7 +117,7 @@ export default function RootLayout({
         <AuthProvider>
           <DarkModeProvider>
             <SettingsProvider>
-              <main className="pt-20 px-4">
+              <main>
                 {children}
               </main>
               {isVercel && <SpeedInsights />}

@@ -1,84 +1,270 @@
 'use client';
 
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useEffect, useState } from 'react';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
-import styles from './page.module.css';
+import { Darumadrop_One } from 'next/font/google';
+
+const darumadrop = Darumadrop_One({
+  weight: '400',
+  subsets: ['latin'],
+  display: 'swap',
+});
 
 const cardButtons = [
   { title: 'デッキをつくる', href: '/build', img: '/images/back-card.png' },
-  { title: 'つぼみ杯', href: '/event/tsubomi', img: '/images/back-card.png' },
-  { title: 'ぶどう杯', href: '/event/budou', img: '/images/back-card.png' },
-  { title: '2pick', href: '/deck/2pick?twoCardLimit=false&fruits=いちご', img: '/images/back-card.png' },
+  { title: 'ようかん杯', href: '/deck/2pick?twoCardLimit=false&fruits=いちご', img: '/images/back-card.png' },
 ];
 
-export default function Home() {
-  return (
-    <main className={styles.mainBg}>
-      {/* 背景オーバーレイ */}
-      <div className={styles.overlay}></div>
+// 解説カード情報
+const explanationCards = [
+  { 
+    title: 'ぷぷりえーるとは', 
+    description: 'ぷぷりえの幼女とお菓子のカードゲーム。20枚の幼女カードと10枚のお菓子カードでデッキを構築し対戦します。ぷぷりえポイント(PP)を使用してカードを使って、先に相手のお菓子(HP)を食べた方が勝ちです。',
+    img: '/images/fruits/いちご.png' 
+  },
+  { 
+    title: 'ぷぷりえとは', 
+    description: 'VRChatのイベントです',
+    img: '/images/fruits/いちご.png' 
+  }
+];
 
-      <div style={{position: 'relative', zIndex: 10}}>
-        {/* タイトル画像 */}
-        <div
-          style={{
-            position: 'absolute', top: 100, left: 0, right: 0, zIndex: 10, textAlign: 'center'
-          }}
+// アニメーション設定
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.3,
+      delayChildren: 0.6,
+    }
+  }
+};
+
+const cardVariants = {
+  hidden: { 
+    y: -400, 
+    opacity: 0.1,
+    rotateY: 100,
+    rotateX: 90,
+    scale: 0.8
+  },
+  visible: { 
+    y: 0, 
+    opacity: 1,
+    rotateY: 0,
+    rotateX: 0,
+    scale: 1,
+    transition: {
+      type: 'spring',
+      stiffness: 70,
+      damping: 20,
+      duration: 0.7
+    }
+  }
+};
+
+// 解説カードアニメーション
+const explanationVariants = {
+  hidden: { 
+    opacity: 0,
+    y: 100
+  },
+  visible: { 
+    opacity: 1,
+    y: 0,
+    transition: {
+      type: 'spring',
+      stiffness: 50,
+      damping: 20
+    }
+  }
+};
+
+export default function Home() {
+  const { scrollY } = useScroll();
+  const [isMounted, setIsMounted] = useState(false);
+  
+  // スクロール量に基づいたカードの位置調整
+  // 最初は画面外の下（bottom: -60vh）に配置され、スクロールすると上に移動
+  const cardsYPosition = useTransform(
+    scrollY, 
+    [0, 100, 600], 
+    ['calc(100vh + 30vh)', 'calc(100vh - 30vh)', 'calc(100vh - 100vh)']
+  );
+  
+  // 解説カードの表示制御
+  const explanationOpacity = useTransform(scrollY, [400, 600], [0, 1]);
+  const explanationY = useTransform(scrollY, [400, 700], [100, 0]);
+
+  // クライアント側でのみマウント状態を設定
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  return (
+    <main className="min-h-screen w-full relative overflow-x-hidden">
+      {/* 背景画像 */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center" 
+        style={{ backgroundImage: 'url("/top.jpg")' }}
+      >
+        {/* 背景オーバーレイ */}
+        <div className="absolute inset-0"></div>
+      </div>
+
+      <div className="relative z-10">
+        {/* タイトル */}
+        <motion.div 
+          className="w-full text-center pt-16 md:pt-24 lg:pt-28"
+          initial={{ opacity: 0, y: -100 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeInOut" }}
         >
-          <h1 className={styles.cherry + ' ' + styles.title}>
+          <h1 
+            className={`${darumadrop.className} text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold mb-6`}
+            style={{
+              background: 'linear-gradient(to top,rgb(255, 201, 187),rgb(255, 116, 220))',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              color: 'transparent'
+            }}
+          >
             ぷぷりえーる
           </h1>
-        </div>
+        </motion.div>
 
-        <div style={{position: 'relative', zIndex: 10}}>
-          {/* 画像ボタンをmapで横並びに（タイトルを画像の上に重ねる） */}
-          <div style={{position: 'absolute', top: 600, left: 0, right: 0, zIndex: 10, display: 'flex', justifyContent: 'center', gap: '2.5rem'}}>
-            {cardButtons.map((btn, idx) => (
-              <div key={btn.title} style={{position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+        {/* カードボタンコンテナ - 絶対位置で画面外下部に配置 */}
+        {isMounted && (
+          <motion.div 
+            className="absolute left-0 right-0 bottom-0 z-20 flex justify-center px-3"
+            style={{ 
+              top: cardsYPosition
+            }}
+          >
+            <motion.div 
+              className="flex flex-wrap justify-center gap-5 md:gap-8 lg:gap-10"
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+            >
+              {cardButtons.map((btn, idx) => (
                 <motion.div
-                  whileHover={{ scale: 1.08 }}
+                  key={btn.title}
+                  variants={cardVariants}
+                  custom={idx}
+                  whileHover={{ 
+                    transition: { duration: 0.2, ease: "easeOut" },
+                    y: -100
+                  }}
                   whileTap={{ scale: 0.95 }}
-                  style={{position: 'relative', width: 220, height: 320}}
+                  className="relative mb-1"
                 >
-                  <Link href={btn.href}>
-                    {/* タイトルを画像の上に重ねる */}
-                    <span className={styles.cherry} style={{
-                      position: 'absolute',
-                      top: 0,
-                      bottom: -10,
-                      left: 0,
-                      right: 0,
-                      width: '100%',
-                      zIndex: 10,
-                      fontWeight: 'bold',
-                      fontSize: '2rem',
-                      color: '#fff',
-                      textShadow: '0 2px 8px #0008',
-                      letterSpacing: '0.05em',
-                      textAlign: 'center',
-                      background: 'rgba(0,0,0,0.25)',
-                      borderTopLeftRadius: '1rem',
-                      borderTopRightRadius: '1rem',
-                      borderBottomLeftRadius: '1rem',
-                      borderBottomRightRadius: '1rem',
-                      padding: '0.7em 0',
-                    }}>{btn.title}</span>
-                    <Image
-                      src={btn.img}
-                      alt={btn.title}
-                      width={220}
-                      height={320}
-                      style={{cursor: 'pointer', borderRadius: '1rem', boxShadow: '0 4px 16px rgba(0,0,0,0.15)'}}
-                      priority={idx === 0}
-                    />
+                  <Link href={btn.href} className="block">
+                    <div 
+                      className="relative" 
+                      style={{ 
+                        width: 'calc(280px + 1vw)',
+                        maxWidth: '320px',
+                        aspectRatio: '220/320'
+                      }}
+                    >
+                      {/* タイトルを画像の上に重ねる */}
+                      <div 
+                        className={`${darumadrop.className} absolute inset-0 z-10 flex items-center justify-center 
+                        bg-black bg-opacity-25 rounded-2xl font-bold text-xl sm:text-2xl text-white shadow-lg
+                        p-2 text-center`}
+                      >
+                        {btn.title}
+                      </div>
+                      <Image
+                        src={btn.img}
+                        alt={btn.title}
+                        fill
+                        sizes="(max-width: 640px) 85vw, (max-width: 768px) 45vw, 320px"
+                        style={{
+                          objectFit: 'cover',
+                          borderRadius: '0.5rem',
+                          boxShadow: '0 4px 16px rgba(0,0,0,0.15)'
+                        }}
+                        priority={idx === 0}
+                      />
+                    </div>
                   </Link>
                 </motion.div>
-              </div>
-            ))}
-          </div>
-        </div>
+              ))}
+            </motion.div>
+          </motion.div>
+        )}
       </div>
+      {/* スペーサー - コンテンツを下にスクロールできるようにするための空間 */}
+      <div className="h-[60vh]"></div>
+      {/* 解説カードセクション */}
+      {isMounted && (
+        <motion.section 
+          className="relative z-10 min-h-screen w-full flex items-center justify-center py-20 px-4"
+          style={{
+            opacity: explanationOpacity,
+            y: explanationY
+          }}
+        >
+          <div className="w-full max-w-6xl">
+            <motion.h2 
+              className={`${darumadrop.className} text-4xl md:text-5xl text-center mb-16 text-white`}
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.8 }}
+              style={{
+                background: 'linear-gradient(to top,rgb(255, 201, 187),rgb(255, 116, 220))',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                color: 'transparent'
+              }}
+            >
+              ゲームについて
+            </motion.h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16">
+              {explanationCards.map((card) => (
+                <motion.div
+                  key={card.title}
+                  className="bg-yellow-200 bg-opacity-90 backdrop-blur-md rounded-2xl p-6 shadow-xl border border-white border-opacity-20"
+                  variants={explanationVariants}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true, margin: "-100px" }}
+                >
+                  <div className="flex flex-col h-full">
+                    <h3 className={`${darumadrop.className} text-2xl md:text-3xl mb-4 text-pink-400`}>
+                      {card.title}
+                    </h3>
+                    
+                    <div className="mb-6 flex-grow">
+                      <p className="text-black-500 text-lg leading-relaxed">
+                        {card.description}
+                      </p>
+                    </div>
+                    
+                    <div className="relative h-64 rounded-xl overflow-hidden">
+                      <Image
+                        src={card.img}
+                        alt={card.title}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                        style={{ objectFit: 'cover' }}
+                      />
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </motion.section>
+      )}
     </main>
   );
 }
