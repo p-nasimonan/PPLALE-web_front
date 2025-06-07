@@ -16,7 +16,7 @@ export default function DeckLayout({ children }: { children: React.ReactNode }) 
           </div>
         </div>
       </header>
-      <main >
+      <main className="pt-20 px-2">
         {children}
       </main>
     </>
