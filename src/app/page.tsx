@@ -106,164 +106,166 @@ export default function Home() {
 
   return (
     <main className="min-h-screen w-full relative overflow-x-hidden">
-      {/* 背景画像 */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center" 
-        style={{ backgroundImage: 'url("/top.jpg")' }}
-      >
-        {/* 背景オーバーレイ */}
-        <div className="absolute inset-0"></div>
-      </div>
-
-      <div className="relative z-10">
-        {/* タイトル */}
-        <motion.div 
-          className="w-full text-center pt-16 md:pt-24 lg:pt-28"
-          initial={{ opacity: 0, y: -100 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeInOut" }}
+      {/* ヒーローセクション（タイトルとカード部分） */}
+      <section className="relative h-screen">
+        {/* タイトル部分の背景画像 */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center" 
+          style={{ backgroundImage: 'url("/top.jpg")' }}
         >
-          <h1 
-            className={`${darumadrop.className} text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold mb-6`}
-            style={{
-              background: 'linear-gradient(to top,rgb(255, 201, 187),rgb(255, 116, 220))',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-              color: 'transparent'
-            }}
-          >
-            ぷぷりえーる
-          </h1>
-        </motion.div>
-
-        {/* カードボタンコンテナ - 絶対位置で画面外下部に配置 */}
-        {isMounted && (
+          {/* 背景オーバーレイ */}
+          <div className="absolute inset-0"></div>
+        </div>
+        
+        {/* タイトルコンテナ */}
+        <div className="relative z-10">
           <motion.div 
-            className="absolute left-0 right-0 bottom-0 z-20 flex justify-center px-3"
-            style={{ 
-              top: cardsYPosition
-            }}
+            className="w-full text-center pt-16 md:pt-24 lg:pt-28"
+            initial={{ opacity: 0, y: -100 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeInOut" }}
           >
-            <motion.div 
-              className="flex flex-wrap justify-center gap-5 md:gap-8 lg:gap-10"
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-            >
-              {cardButtons.map((btn, idx) => (
-                <motion.div
-                  key={btn.title}
-                  variants={cardVariants}
-                  custom={idx}
-                  whileHover={{ 
-                    transition: { duration: 0.2, ease: "easeOut" },
-                    y: -100
-                  }}
-                  whileTap={{ scale: 0.95 }}
-                  className="relative mb-1"
-                >
-                  <Link href={btn.href} className="block">
-                    <div 
-                      className="relative" 
-                      style={{ 
-                        width: 'calc(280px + 1vw)',
-                        maxWidth: '320px',
-                        aspectRatio: '220/320'
-                      }}
-                    >
-                      {/* タイトルを画像の上に重ねる */}
-                      <div 
-                        className={`${darumadrop.className} absolute inset-0 z-10 flex items-center justify-center 
-                        bg-black bg-opacity-25 rounded-2xl font-bold text-xl sm:text-2xl text-white shadow-lg
-                        p-2 text-center`}
-                      >
-                        {btn.title}
-                      </div>
-                      <Image
-                        src={btn.img}
-                        alt={btn.title}
-                        fill
-                        sizes="(max-width: 640px) 85vw, (max-width: 768px) 45vw, 320px"
-                        style={{
-                          objectFit: 'cover',
-                          borderRadius: '0.5rem',
-                          boxShadow: '0 4px 16px rgba(0,0,0,0.15)'
-                        }}
-                        priority={idx === 0}
-                      />
-                    </div>
-                  </Link>
-                </motion.div>
-              ))}
-            </motion.div>
+            <Image src="/pupu_game.png" alt="ぷぷりえーる" width={500} height={500} className="absolute left-0 right-0 mx-auto top-1/2" />
           </motion.div>
-        )}
-      </div>
-      {/* スペーサー - コンテンツを下にスクロールできるようにするための空間 */}
-      <div className="h-[60vh]"></div>
-      {/* 解説カードセクション */}
-      {isMounted && (
-        <motion.section 
-          className="relative z-10 min-h-screen w-full flex items-center justify-center py-20 px-4"
-          style={{
-            opacity: explanationOpacity,
-            y: explanationY
-          }}
-        >
-          <div className="w-full max-w-6xl">
-            <motion.h2 
-              className={`${darumadrop.className} text-4xl md:text-5xl text-center mb-16 text-white`}
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.8 }}
-              style={{
-                background: 'linear-gradient(to top,rgb(255, 201, 187),rgb(255, 116, 220))',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-                color: 'transparent'
+
+          {/* カードボタンコンテナ - 絶対位置で画面外下部に配置 */}
+          {isMounted && (
+            <motion.div 
+              className="absolute left-0 right-0 bottom-0 z-20 flex justify-center px-3"
+              style={{ 
+                top: cardsYPosition
               }}
             >
-              ゲームについて
-            </motion.h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16">
-              {explanationCards.map((card) => (
-                <motion.div
-                  key={card.title}
-                  className="bg-yellow-200 bg-opacity-90 backdrop-blur-md rounded-2xl p-6 shadow-xl border border-white border-opacity-20"
-                  variants={explanationVariants}
-                  initial="hidden"
-                  whileInView="visible"
-                  viewport={{ once: true, margin: "-100px" }}
-                >
-                  <div className="flex flex-col h-full">
-                    <h3 className={`${darumadrop.className} text-2xl md:text-3xl mb-4 text-pink-400`}>
-                      {card.title}
-                    </h3>
-                    
-                    <div className="mb-6 flex-grow">
-                      <p className="text-black-500 text-lg leading-relaxed">
-                        {card.description}
-                      </p>
-                    </div>
-                    
-                    <div className="relative h-64 rounded-xl overflow-hidden">
-                      <Image
-                        src={card.img}
-                        alt={card.title}
-                        fill
-                        sizes="(max-width: 768px) 100vw, 50vw"
-                        style={{ objectFit: 'cover' }}
-                      />
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+              <motion.div 
+                className="flex flex-wrap justify-center gap-5 md:gap-8 lg:gap-10"
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+              >
+                {cardButtons.map((btn, idx) => (
+                  <motion.div
+                    key={btn.title}
+                    variants={cardVariants}
+                    custom={idx}
+                    whileHover={{ 
+                      transition: { duration: 0.2, ease: "easeOut" },
+                      y: -100
+                    }}
+                    whileTap={{ scale: 0.95 }}
+                    className="relative mb-1"
+                  >
+                    <Link href={btn.href} className="block">
+                      <div 
+                        className="relative" 
+                        style={{ 
+                          width: 'calc(280px + 1vw)',
+                          maxWidth: '320px',
+                          aspectRatio: '220/320'
+                        }}
+                      >
+                        {/* タイトルを画像の上に重ねる */}
+                        <div 
+                          className={`${darumadrop.className} absolute inset-0 z-10 flex items-center justify-center 
+                          bg-black bg-opacity-25 rounded-2xl font-bold text-xl sm:text-2xl text-white shadow-lg
+                          p-2 text-center`}
+                        >
+                          {btn.title}
+                        </div>
+                        <Image
+                          src={btn.img}
+                          alt={btn.title}
+                          fill
+                          sizes="(max-width: 640px) 85vw, (max-width: 768px) 45vw, 320px"
+                          style={{
+                            objectFit: 'cover',
+                            borderRadius: '0.5rem',
+                            boxShadow: '0 4px 16px rgba(0,0,0,0.15)'
+                          }}
+                          priority={idx === 0}
+                        />
+                      </div>
+                    </Link>
+                  </motion.div>
+                ))}
+              </motion.div>
+            </motion.div>
+          )}
+        </div>
+      </section>
+
+      {/* 解説カードセクション - 別の背景画像 */}
+      {isMounted && (
+        <section className="relative min-h-screen w-full">
+          {/* 解説セクションの背景画像 */}
+          <div 
+            className="absolute inset-0 bg-cover bg-center" 
+            style={{ backgroundImage: 'url("/explanation-bg.jpg")' }}
+          >
+            {/* 背景オーバーレイ */}
+            <div className="absolute inset-0 bg-black bg-opacity-40"></div>
           </div>
-        </motion.section>
+
+          <motion.div 
+            className="relative z-10 w-full flex items-center justify-center py-20 px-4"
+            style={{
+              opacity: explanationOpacity,
+              y: explanationY
+            }}
+          >
+            <div className="w-full max-w-6xl">
+              <motion.h2 
+                className={`${darumadrop.className} text-4xl md:text-5xl text-center mb-16 text-white`}
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.8 }}
+                style={{
+                  background: 'linear-gradient(to top,rgb(255, 201, 187),rgb(255, 116, 220))',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                  color: 'transparent'
+                }}
+              >
+                ゲームについて
+              </motion.h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16">
+                {explanationCards.map((card) => (
+                  <motion.div
+                    key={card.title}
+                    className="bg-yellow-200 bg-opacity-90 backdrop-blur-md rounded-2xl p-6 shadow-xl border border-white border-opacity-20"
+                    variants={explanationVariants}
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true, margin: "-100px" }}
+                  >
+                    <div className="flex flex-col h-full">
+                      <h3 className={`${darumadrop.className} text-2xl md:text-3xl mb-4 text-pink-400`}>
+                        {card.title}
+                      </h3>
+                      
+                      <div className="mb-6 flex-grow">
+                        <p className="text-black-500 text-lg leading-relaxed">
+                          {card.description}
+                        </p>
+                      </div>
+                      
+                      <div className="relative h-64 rounded-xl overflow-hidden">
+                        <Image
+                          src={card.img}
+                          alt={card.title}
+                          fill
+                          sizes="(max-width: 768px) 100vw, 50vw"
+                          style={{ objectFit: 'cover' }}
+                        />
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        </section>
       )}
     </main>
   );
