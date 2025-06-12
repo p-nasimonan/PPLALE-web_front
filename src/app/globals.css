@@ -184,10 +184,6 @@ header h1{
   color: white;
 }
 
-p{
-  color: var(--text-color)
-}
-
 
 label{
   color: var(--text-color);

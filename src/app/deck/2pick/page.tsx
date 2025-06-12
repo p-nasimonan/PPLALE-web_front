@@ -18,7 +18,7 @@ import ExportPopup from '@/components/ExportPopup';
 import { useAuth } from '@/lib/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 
@@ -38,6 +38,7 @@ import DeckViewPopup from './components/DeckViewPopup';
 export default function TwoPick() {
   const { user } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const { isTwoCardLimit: defaultIsTwoCardLimit } = useSettings();
   const isTwoCardLimitParam = searchParams.get('twoCardLimit');
@@ -313,6 +314,32 @@ export default function TwoPick() {
       alert(`デッキの保存に失敗しました: ${error instanceof Error ? error.message : '不明なエラー'}`);
     }
   };
+
+  // ページを離れる前の警告を設定
+  useEffect(() => {
+    // 2. 戻るボタンを押した時の警告
+    const handlePopState = (e: PopStateEvent) => {
+      if (window.confirm('ページを離れると、選択したカードが失われます。本当に離れますか？')) {
+        // OKが押された場合
+        window.history.back();
+        return;
+      }
+      // キャンセルされた場合のみ戻る動作をキャンセル
+      e.preventDefault();
+      const fullUrl = `${pathname}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+      window.history.replaceState(null, '', fullUrl);
+    };
+    window.addEventListener('popstate', handlePopState);
+
+    // 3. 初期状態の設定
+    const fullUrl = `${pathname}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+    window.history.pushState(null, '', fullUrl);
+
+    // 4. クリーンアップ（後片付け）
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [pathname, searchParams]);
 
   return (
   <div>
