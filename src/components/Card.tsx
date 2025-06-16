@@ -116,7 +116,7 @@ const Card: React.FC<CardProps> = ({
     };
 
   const imagePath = `${basePath}${card.imageUrl}`;
-  const loadingImagePath = `${basePath}/images/back-card.png`;
+  const loadingImagePath = `${basePath}/images/back-card.webp`;
 
   // カードがクリックされたときの処理
   const handleClick = () => {

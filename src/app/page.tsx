@@ -13,8 +13,8 @@ const darumadrop = Darumadrop_One({
 });
 
 const cardButtons = [
-  { title: 'デッキをつくる', href: '/build', img: '/images/back-card.png' },
-  { title: 'ようかん杯', href: '/deck/2pick?twoCardLimit=false&fruits=いちご', img: '/images/back-card.png' },
+  { title: 'デッキをつくる', href: '/build', img: '/images/back-card.webp' },
+  { title: 'ようかん杯', href: '/deck/2pick?twoCardLimit=false&fruits=いちご', img: '/images/back-card.webp' },
 ];
 
 // 解説カード情報
@@ -125,7 +125,7 @@ export default function Home() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "easeInOut" }}
           >
-            <Image src="/pupu_game.png" alt="ぷぷりえーる" width={500} height={500} className="absolute left-0 right-0 mx-auto top-1/2" />
+            <Image src="/pupu_game.webp" alt="ぷぷりえーる" width={500} height={500} className="absolute left-0 right-0 mx-auto top-1/2" />
           </motion.div>
 
           {/* カードボタンコンテナ - 絶対位置で画面外下部に配置 */}
@@ -229,7 +229,7 @@ export default function Home() {
                 ゲームについて
               </motion.h2>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 mb-10 mt-10">
                 {explanationCards.map((card) => (
                   <motion.div
                     key={card.title}
@@ -267,6 +267,25 @@ export default function Home() {
           </motion.div>
         </section>
       )}
+      <footer className="text-white py-4  w-full gap-1 justify-center items-center flex flex-col bg-black/50 z-1">
+        <div>© 2025 ぷぷりえーる デッキ構築</div>
+        <div className="flex gap-4 mt-2">
+          <div>
+            <Link href="/privacy-policy">プライバシーポリシー</Link>
+          </div>
+          <div>
+            <Link href="/terms">利用規約</Link>
+          </div>
+        </div>
+        <div className="flex gap-1 mt-2">
+          <div>
+            <Link href="/credits">クレジット</Link>
+          </div>
+          <div>
+            <Link href="/contact">お問い合わせ</Link>
+          </div>
+        </div>
+      </footer>
     </main>
   );
 }
