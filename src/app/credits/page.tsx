@@ -117,9 +117,18 @@ export default function Credits() {
         </h1>
 
         <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-lg p-8">
+          <div className="mb-8 p-4 bg-gray-50 rounded-lg">
+            <p className="text-sm text-gray-600 leading-relaxed">
+              すべてのゲーム内アセットは元の所有者に帰属します。<br />
+              本ゲームは非営利目的で制作されており、すべての権利は各権利者に帰属します。
+            </p>
+            <p className="text-sm text-gray-600 leading-relaxed">
+              また、本サイトで使用しているすべてのカード画像はVRChatカードゲーム「ぷぷりえーる」のものです。
+            </p>
+          </div>
+
           <section className="mb-8">
             <h2 className={`${darumadrop.className} text-2xl mb-4 text-pink-500`}>使用素材</h2>
-            <p className="text-sm mb-3 leading-relaxed">これらの素材がカードの画像に使用されている可能性があります。</p>
             <div className="space-y-4">
               <div className="border-b pb-4">
                 <h3 className="font-bold text-lg mb-2">アバター</h3>

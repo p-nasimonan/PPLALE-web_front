@@ -267,7 +267,7 @@ export default function Home() {
           </motion.div>
         </section>
       )}
-      <footer className="text-white py-4  w-full gap-1 justify-center items-center flex flex-col bg-black/50 z-1">
+      <footer className="py-4  w-full gap-1 justify-center items-center flex flex-col maincolor z-1 bg-black/50">
         <div>© 2025 ぷぷりえーる デッキ構築</div>
         <div className="flex gap-4 mt-2">
           <div>
