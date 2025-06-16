@@ -47,14 +47,19 @@ const avatar = [
     Link: 'https://sisters.booth.pm/items/5129661',
   },
   {
+    Name: 'Original 3D Model ［nero -ネロ-］',
+    Credit: '「Hamuketsu/はむけつ」©Sisters!',
+    Link: 'https://booth.pm/ja/items/3436014',
+  },
+  {
     Name: 'オリジナル3Dモデル『アズキ』',
-    Credit: 'えも研',
+    Credit: '©えも研',
     Link: 'https://booth.pm/ja/items/6654988',
   },
   {
-    Name: 'オリジナル3Dモデル『ミカヅキ』',
-    Credit: 'えも研',
-    Link: 'https://booth.pm/ja/items/3436014',
+    Name: 'オリジナル3Dモデル『クララ』',
+    Credit: '©えも研',
+    Link: 'https://emolab.booth.pm/items/5484178',
   },
   {
     Name: 'オリジナル３Dモデル「てまり temari」',
@@ -65,16 +70,6 @@ const avatar = [
     Name: 'オリジナル3Ｄモデル 紫苑_Sion',
     Credit: '©Lemiel_atelier',
     Link: 'https://booth.pm/ja/items/3987778',
-  },
-  {
-    Name: 'オリジナル3Dモデル『クララ』',
-    Credit: '©えも研',
-    Link: 'https://emolab.booth.pm/items/5484178',
-  },
-  {
-    Name: 'オリジナル3Dモデル「ぽんとちゅね pon&chune」 #chibi_kemo',
-    Credit: '「Hamuketsu/はむけつ」©Sisters!',
-    Link: 'https://booth.pm/ja/items/5335595',
   },
   
 ];
@@ -110,10 +105,6 @@ const clothes = [
     Credit: '©#Ene_Collection',
     Link: 'https://booth.pm/ja/items/3999987',
   },
-  {
-    
-  }
-  
   
 ]
 
@@ -128,6 +119,7 @@ export default function Credits() {
         <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-lg p-8">
           <section className="mb-8">
             <h2 className={`${darumadrop.className} text-2xl mb-4 text-pink-500`}>使用素材</h2>
+            <p className="text-sm mb-3 leading-relaxed">これらの素材がカードの画像に使用されている可能性があります。</p>
             <div className="space-y-4">
               <div className="border-b pb-4">
                 <h3 className="font-bold text-lg mb-2">アバター</h3>
@@ -151,14 +143,6 @@ export default function Credits() {
                   リンク: <a href={clothes.Link} target="_blank" className="text-blue-500 hover:text-blue-600" rel="noopener noreferrer">{clothes.Link}</a><br />
                 </p>
                 ))}
-              </div>
-
-              <div className="border-b pb-4">
-                <h3 className="font-bold text-lg mb-2">フォント</h3>
-                <p className="text-sm">
-                  Darumadrop One<br />
-                  Google Fonts<br />
-                </p>
               </div>
             </div>
           </section>
