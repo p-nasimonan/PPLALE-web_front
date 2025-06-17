@@ -93,8 +93,8 @@ const FruitVersionSelection: React.FC<FruitVersionSelectionProps> = ({
                       <Image
                         src="/pupu_game.webp"
                         alt="background"
-                        width={200}
-                        height={200}
+                        width={500}
+                        height={281}
                         className="w-full h-full object-cover"
                       />
                     </div>
@@ -147,6 +147,7 @@ const FruitVersionSelection: React.FC<FruitVersionSelectionProps> = ({
                       className="w-full h-48 object-cover"
                       width={200}
                       height={200}
+                      priority
                     />
                     {field.value.includes(version) && (
                       <div className="absolute inset-0 bg-black/20 flex items-center justify-center">

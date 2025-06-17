@@ -125,7 +125,7 @@ export default function Home() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "easeInOut" }}
           >
-            <Image src="/pupu_game.webp" alt="ぷぷりえーる" width={500} height={500} className="absolute left-0 right-0 mx-auto top-1/2" />
+            <Image src="/pupu_game.webp" alt="ぷぷりえーる" width={500} height={281} className="absolute left-0 right-0 mx-auto top-1/2" priority/>
           </motion.div>
 
           {/* カードボタンコンテナ - 絶対位置で画面外下部に配置 */}
