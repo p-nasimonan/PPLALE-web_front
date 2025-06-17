@@ -23,7 +23,6 @@ import { User } from 'firebase/auth';
  * @property {User | null} user - 現在のユーザー情報
  * @property {() => void} onExport - エクスポートボタンがクリックされたときのコールバック関数
  * @property {() => Promise<void>} onSave - デッキを保存ボタンがクリックされたときのコールバック関数
- * @property {() => void} onShowDeck - デッキ確認ボタンがクリックされたときのコールバック関数
  */
 interface TwoPickResultProps {
   /** 構築された幼女デッキ */
@@ -38,8 +37,6 @@ interface TwoPickResultProps {
   onExport: () => void;
   /** デッキを保存ボタンがクリックされたときのコールバック関数 */
   onSave: () => Promise<void>;
-  /** デッキ確認ボタンがクリックされたときのコールバック関数 */
-  onShowDeck: () => void;
 }
 
 /**
@@ -55,7 +52,6 @@ const TwoPickResult: React.FC<TwoPickResultProps> = ({
   user,
   onExport,
   onSave,
-  onShowDeck,
 }) => {
   return (
     <div className="text-center relative">
@@ -87,14 +83,6 @@ const TwoPickResult: React.FC<TwoPickResultProps> = ({
             デッキを保存
           </button>
         )}
-      </div>
-      <div className="flex justify-center">
-        <button
-          className="btn-secondary"
-          onClick={onShowDeck}
-        >
-          デッキ確認
-        </button>
       </div>
     </div>
   );
