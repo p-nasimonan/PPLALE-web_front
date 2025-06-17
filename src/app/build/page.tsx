@@ -7,6 +7,8 @@ import { collection, getDocs, query, orderBy, limit, doc, setDoc, deleteDoc } fr
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/lib/auth';
 import Image from 'next/image';
+import { generateDeckImageDataUrl } from '@/components/DeckImagePreview';
+import { allYojoCards, allSweetCards, allPlayableCards } from '@/data/cards';
 
 interface Deck {
   id: string;
@@ -23,6 +25,7 @@ export default function BuildPage() {
   const router = useRouter();
   const { user } = useAuth();
   const [recentDecks, setRecentDecks] = useState<Deck[]>([]);
+  const [deckImages, setDeckImages] = useState<{ [deckId: string]: string }>({});
   const [loading, setLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
   const [deletingDeckId, setDeletingDeckId] = useState<string | null>(null);
@@ -50,6 +53,31 @@ export default function BuildPage() {
           updatedAt: doc.data().updatedAt?.toDate(),
         })) as Deck[];
         setRecentDecks(decks);
+
+        // 画像生成処理
+        const images: { [deckId: string]: string } = {};
+        await Promise.all(
+          decks.map(async (deck) => {
+            // カード情報をローカルデータから取得
+            const yojoDeck = (deck.yojoDeckIds || [])
+              .map((id) => allYojoCards.find(c => c.id === id))
+              .filter((c): c is import('@/types/card').CardInfo => Boolean(c));
+            const sweetDeck = (deck.sweetDeckIds || [])
+              .map((id) => allSweetCards.find(c => c.id === id))
+              .filter((c): c is import('@/types/card').CardInfo => Boolean(c));
+            const playableCard = deck.playableCardId
+              ? allPlayableCards.find(c => c.id === deck.playableCardId) || null
+              : null;
+            if (yojoDeck.length > 0) {
+              try {
+                images[deck.id] = await generateDeckImageDataUrl(yojoDeck, sweetDeck, playableCard);
+              } catch {
+                images[deck.id] = '';
+              }
+            }
+          })
+        );
+        setDeckImages(images);
       } catch (error) {
         console.error('デッキの取得に失敗しました:', error);
       } finally {
@@ -188,13 +216,14 @@ export default function BuildPage() {
                       href={`/deck/${user?.uid}/${deck.id}`}
                       className="card hover:shadow-lg transition-shadow block"
                     >
-                      <div className="aspect-video relative bg-gray-100 dark:bg-gray-700 rounded mb-3 overflow-hidden">
-                        {deck.yojoDeckIds && deck.yojoDeckIds.length > 0 && (
+                      <div className="aspect-video relative bg-orange-200 rounded mb-3 overflow-hidden">
+                        {deck.yojoDeckIds && deck.yojoDeckIds.length > 0 && deckImages[deck.id] && (
                           <Image
-                            src={`/api/og/${user?.uid}/${deck.id}`}
+                            src={deckImages[deck.id]}
                             alt={`${deck.name}のデッキ画像`}
                             fill
                             className="object-cover"
+                            unoptimized
                           />
                         )}
                       </div>

@@ -33,6 +33,8 @@ const config: NextConfig = {
     optimizeCss: true,
     serverComponentsExternalPackages: ['@vercel/og'],
   },
+  // フォント最適化の設定
+  optimizeFonts: true,
   // 本番環境用の設定
   assetPrefix: '',
   basePath: '',

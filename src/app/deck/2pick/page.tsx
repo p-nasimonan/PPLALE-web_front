@@ -398,7 +398,6 @@ export default function TwoPick() {
             user={user}
             onExport={() => setShowExportPopup(true)}
             onSave={handleSaveDeck}
-            onShowDeck={showDeck}
           />
         )}
 

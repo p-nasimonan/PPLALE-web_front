@@ -89,13 +89,15 @@ const FruitVersionSelection: React.FC<FruitVersionSelectionProps> = ({
                   <div className={`relative rounded-xl overflow-hidden transition-all duration-300 ${
                     field.value.includes(fruit) ? 'ring-4 ring-special' : 'ring-2 ring-gray-200'
                   }`}>
-                    <Image
-                      src={`/images/fruits/${fruit}.png`}
-                      alt={fruit}
-                      width={200}
-                      height={200}
-                      className="w-full h-32 object-cover"
-                    />
+                    <div className="w-full h-32 relative" style={{ backgroundColor: fruit === 'いちご' ? '#9B4341' : fruit === 'ぶどう' ? '#6E25AB' : fruit === 'めろん' ? '#40923D' : '#E5872C' }}>
+                      <Image
+                        src="/pupu_game.webp"
+                        alt="background"
+                        width={500}
+                        height={281}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
                     {field.value.includes(fruit) && (
                       <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
                         <div className="w-12 h-12 bg-special rounded-full flex items-center justify-center">
@@ -140,11 +142,12 @@ const FruitVersionSelection: React.FC<FruitVersionSelectionProps> = ({
                     field.value.includes(version) ? 'ring-4 ring-special' : 'ring-2 ring-gray-200'
                   }`}>
                     <Image
-                      src={`/images/versions/${version}.png`}
+                      src={`/images/versions/${version}.webp`}
                       alt={version}
                       className="w-full h-48 object-cover"
                       width={200}
                       height={200}
+                      priority
                     />
                     {field.value.includes(version) && (
                       <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
