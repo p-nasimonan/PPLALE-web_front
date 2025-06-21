@@ -59,6 +59,7 @@ const PlayableCardPreview: React.FC<PlayableCardPreviewProps> = ({
   return (
     <div className="flex flex-col items-center mt-8">
       <h2 className="text-xl font-bold mb-4">プレイアブルカードを確認してください</h2>
+      <p className="text-sm text-gray-500 mb-4">最後に選択するプレイアブルカードです。覚えておいて構築してね</p>
       <div className="grid grid-cols-3 gap-4 w-full max-w-6xl mx-auto place-items-center">
         {playableChoices.map((card, index) => (
           <Card

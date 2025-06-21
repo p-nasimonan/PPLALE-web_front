@@ -66,12 +66,6 @@ const avatar = [
     Credit: '「Hamuketsu/はむけつ」©Sisters!',
     Link: 'https://booth.pm/ja/items/4962906',
   },
-  {
-    Name: 'オリジナル3Ｄモデル 紫苑_Sion',
-    Credit: '©Lemiel_atelier',
-    Link: 'https://booth.pm/ja/items/3987778',
-  },
-  
 ];
 
 const clothes = [
