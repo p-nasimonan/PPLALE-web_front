@@ -13,6 +13,7 @@ import { CardInfo } from '@/types/card';
 import ShareButtons from '@/components/ShareButtons';
 import { User } from 'firebase/auth';
 import DeckImagePreview from '@/components/DeckImagePreview';
+import JungaryCopy from '@/svgs/jungary-copy.svg';
 
 /**
  * 2Pick結果表示コンポーネントのProps
@@ -131,10 +132,11 @@ const TwoPickResult: React.FC<TwoPickResultProps> = ({
             <pre className="text-sm">{sweetDeck.map(card => extractNumber(card.id)).join(',')}</pre>
           </div>
           <button
-            className="btn-primary mb-2"
+            className="btn-primary mb-2 flex items-center justify-center gap-2"
             onClick={handleCopySweetDeck}
           >
-            {sweetCopied ? 'コピーしました！' : 'お菓子デッキをコピー'}
+            <JungaryCopy width={24} height={24} className="inline-block" />
+            {sweetCopied ? 'コピーしました！' : 'コピー'}
           </button>
         </div>
       </div>
