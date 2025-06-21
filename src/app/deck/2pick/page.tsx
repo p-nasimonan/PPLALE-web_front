@@ -404,9 +404,9 @@ export default function TwoPick() {
             onRestart={handleRestart}
           />
         )}
-
-        {/* デッキ確認ポップアップ */}
-      {isShowDeck && (
+    </div>
+            {/* デッキ確認ポップアップ */}
+            {isShowDeck && (
           <DeckViewPopup
             yojoDeck={yojoDeck}
             sweetDeck={sweetDeck}
@@ -414,7 +414,6 @@ export default function TwoPick() {
             onClose={showDeck}
           />
         )}
-    </div>
   </div>
   );
 }
