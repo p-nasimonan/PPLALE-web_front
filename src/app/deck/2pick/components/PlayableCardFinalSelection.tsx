@@ -12,6 +12,7 @@
 import React, { useState, useEffect } from 'react';
 import { CardInfo } from '@/types/card';
 import Card from '@/components/Card';
+import DeckImagePreview from '@/components/DeckImagePreview';
 
 /**
  * プレイアブルカード最終選択コンポーネントのProps
@@ -37,6 +38,10 @@ interface PlayableCardFinalSelectionProps {
   onConfirm: () => void;
   /** 戻るボタンがクリックされたときのコールバック関数 */
   onBack: () => void;
+  /** 構築された幼女デッキ */
+  yojoDeck: CardInfo[];
+  /** 構築されたお菓子デッキ */
+  sweetDeck: CardInfo[];
 }
 
 /**
@@ -52,6 +57,8 @@ const PlayableCardFinalSelection: React.FC<PlayableCardFinalSelectionProps> = ({
   isCardDisappearing,
   onConfirm,
   onBack,
+  yojoDeck,
+  sweetDeck,
 }) => {
   // カードの表示状態管理
   const [cardsFaceUp, setCardsFaceUp] = useState<boolean[]>([]);
@@ -75,7 +82,7 @@ const PlayableCardFinalSelection: React.FC<PlayableCardFinalSelectionProps> = ({
       <h2 className="text-xl font-bold mb-4 text-center">プレイアブルカードを選択してください</h2>
       {!selectedPlayableCard && (
         <div>
-          <div className="flex gap-4">
+          <div className="flex gap-4 justify-center">
             {playableChoices.map((card, index) => (
               <Card
                 key={card.id}
@@ -91,6 +98,16 @@ const PlayableCardFinalSelection: React.FC<PlayableCardFinalSelectionProps> = ({
                 canShowDetail={false}
               />
             ))}
+          </div>
+          <div className="w-1/2 flex justify-center mx-auto mt-4">
+          <DeckImagePreview
+            yojoDeck={yojoDeck}
+            sweetDeck={sweetDeck}
+            playableCard={selectedPlayableCard}
+            onClose={() => {}}
+            isPopup={false}
+            download_button={false}
+          />
           </div>
         </div>
       )}

@@ -131,6 +131,7 @@ interface DeckImagePreviewProps {
   playableCard: CardInfo | null;
   onClose: () => void;
   isPopup?: boolean; // ポップアップ表示かどうか
+  download_button?: boolean; // ダウンロードボタンを表示するかどうか
 }
 
 const CANVAS_WIDTH = 1920;
@@ -153,7 +154,7 @@ const PLAYABLE_H = 393;
 const PLAYABLE_MARGIN_L = 10;
 const PLAYABLE_MARGIN_T = 0;
 
-const DeckImagePreview: React.FC<DeckImagePreviewProps> = ({ yojoDeck, sweetDeck, playableCard, onClose, isPopup }) => {
+const DeckImagePreview: React.FC<DeckImagePreviewProps> = ({ yojoDeck, sweetDeck, playableCard, onClose, isPopup, download_button }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [imgUrl, setImgUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -285,7 +286,7 @@ const DeckImagePreview: React.FC<DeckImagePreviewProps> = ({ yojoDeck, sweetDeck
           ) : imgUrl ? (
             <>
               <Image src={imgUrl} alt="デッキ画像" className="mb-4 max-w-full" width={1920} height={1080} unoptimized />
-              <a href={imgUrl} download="deck.png" className="btn btn-primary mb-2">画像をダウンロード</a>
+              {download_button && <a href={imgUrl} download="deck.png" className="btn btn-primary mb-2">画像をダウンロード</a>}
             </>
           ) : (
             <div className="my-8 text-red-500">画像生成に失敗しました</div>
