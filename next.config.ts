@@ -45,8 +45,9 @@ const config: NextConfig = {
     basePath: '',
   },
   webpack: (config) => {
+    // SVG 以外の画像ファイルを file-loader で処理する
     config.module.rules.push({
-      test: /\.(png|jpe?g|gif|svg)$/i,
+      test: /\.(png|jpe?g|gif)$/i,
       use: [
         {
           loader: 'file-loader',
@@ -58,6 +59,28 @@ const config: NextConfig = {
         },
       ],
     });
+
+    // SVG を React コンポーネントとして処理する
+    config.module.rules.push({
+      test: /\.svg$/i,
+      use: [{
+        loader: '@svgr/webpack',
+        options: {
+          svgo: true,
+          svgoConfig: {
+            plugins: [
+              {
+                name: 'preset-default',
+                params: {
+                  overrides: { removeViewBox: false },
+                },
+              },
+            ],
+          },
+        },
+      }],
+    });
+
     return config;
   }
 };

@@ -8,10 +8,12 @@
 
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { CardInfo } from '@/types/card';
 import ShareButtons from '@/components/ShareButtons';
 import { User } from 'firebase/auth';
+import DeckImagePreview from '@/components/DeckImagePreview';
+import JungaryCopy from '@/svgs/jungary-copy.svg';
 
 /**
  * 2Pick結果表示コンポーネントのProps
@@ -21,7 +23,6 @@ import { User } from 'firebase/auth';
  * @property {CardInfo[]} sweetDeck - 構築されたお菓子デッキ
  * @property {CardInfo | null} playableCard - 選択されたプレイアブルカード
  * @property {User | null} user - 現在のユーザー情報
- * @property {() => void} onExport - エクスポートボタンがクリックされたときのコールバック関数
  * @property {() => Promise<void>} onSave - デッキを保存ボタンがクリックされたときのコールバック関数
  */
 interface TwoPickResultProps {
@@ -33,10 +34,10 @@ interface TwoPickResultProps {
   playableCard: CardInfo | null;
   /** 現在のユーザー情報 */
   user: User | null;
-  /** エクスポートボタンがクリックされたときのコールバック関数 */
-  onExport: () => void;
   /** デッキを保存ボタンがクリックされたときのコールバック関数 */
   onSave: () => Promise<void>;
+  /** もう一度プレイボタンがクリックされたときのコールバック関数 */
+  onRestart: () => void;
 }
 
 /**
@@ -50,9 +51,39 @@ const TwoPickResult: React.FC<TwoPickResultProps> = ({
   sweetDeck,
   playableCard,
   user,
-  onExport,
   onSave,
+  onRestart,
 }) => {
+  // 幼女デッキのコピー状態
+  const [yojoCopied, setYojoCopied] = useState(false);
+  // お菓子デッキのコピー状態
+  const [sweetCopied, setSweetCopied] = useState(false);
+
+  /**
+   * IDから数字のみを抽出する関数
+   */
+  const extractNumber = (id: string) => {
+    return id.replace(/[^0-9]/g, '');
+  };
+
+  /**
+   * 幼女デッキをクリップボードにコピーする
+   */
+  const handleCopyYojoDeck = () => {
+    navigator.clipboard.writeText(yojoDeck.map(card => extractNumber(card.id)).join(','));
+    setYojoCopied(true);
+    setTimeout(() => setYojoCopied(false), 2000);
+  };
+
+  /**
+   * お菓子デッキをクリップボードにコピーする
+   */
+  const handleCopySweetDeck = () => {
+    navigator.clipboard.writeText(sweetDeck.map(card => extractNumber(card.id)).join(','));
+    setSweetCopied(true);
+    setTimeout(() => setSweetCopied(false), 2000);
+  };
+
   return (
     <div className="text-center relative">
       <div className="absolute top-0 right-20">
@@ -66,15 +97,51 @@ const TwoPickResult: React.FC<TwoPickResultProps> = ({
           playableCard={playableCard}
         />
       </div>
-      <h2 className="text-2xl font-bold mb-4">デッキ構築完了！</h2>
-      <p className="mb-4">選択したカードでデッキが完成しました。</p>
-      <div className="flex justify-center gap-4 mb-4">
-        <button
-          className="btn-export"
-          onClick={onExport}
-        >
-          エクスポート
-        </button>
+      <h2 className="text-2xl font-bold mb-4">デッキ構築結果</h2>
+      <p className="mb-4">構築したデッキをシェアしよう</p>
+
+      {/* デッキ画像プレビュー */}
+      <div className="w-1/2 mx-auto mb-4">
+      <DeckImagePreview
+        yojoDeck={yojoDeck}
+        sweetDeck={sweetDeck}
+        playableCard={playableCard}
+        onClose={() => {}}
+        isPopup={false}
+      />
+      </div>
+      
+      {/* エクスポート機能 */}
+      <div className="flex items-center justify-center gap-10 mb-6">
+        <div className="mb-4">
+          <h4 className="font-bold mb-2">幼女デッキ</h4>
+          <div className="bg-gray-100 p-3 rounded border border-gray-300 overflow-auto max-h-40 mb-2">
+            <pre className="text-sm">{yojoDeck.map(card => extractNumber(card.id)).join(',')}</pre>
+          </div>
+          <button
+            className="btn-primary mb-2"
+            onClick={handleCopyYojoDeck}
+          >
+            {yojoCopied ? 'コピーしました！' : '幼女デッキをコピー'}
+          </button>
+        </div>
+        
+        <div className="mb-4">
+          <h4 className="font-bold mb-2">お菓子デッキ</h4>
+          <div className="bg-gray-100 p-3 rounded border border-gray-300 overflow-auto max-h-40 mb-2">
+            <pre className="text-sm">{sweetDeck.map(card => extractNumber(card.id)).join(',')}</pre>
+          </div>
+          <button
+            className="btn-primary mb-2 flex items-center justify-center gap-2"
+            onClick={handleCopySweetDeck}
+          >
+            <JungaryCopy width={24} height={24} className="inline-block" />
+            {sweetCopied ? 'コピーしました！' : 'コピー'}
+          </button>
+        </div>
+      </div>
+
+      <div className="flex flex-col items-center gap-4 mb-4">
         {user?.uid === 'local' && (
           <button
             className="btn-primary"
@@ -83,6 +150,12 @@ const TwoPickResult: React.FC<TwoPickResultProps> = ({
             デッキを保存
           </button>
         )}
+        <button
+          className=""
+          onClick={onRestart}
+        >
+          もう一度プレイ
+        </button>
       </div>
     </div>
   );

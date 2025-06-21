@@ -14,7 +14,6 @@ import { useForm } from 'react-hook-form';
 import { CardInfo, CardType, FruitType } from '@/types/card';
 import { allYojoCards, allSweetCards, allPlayableCards } from '@/data/cards';
 import { useSettings } from "../../SideMenuProvider";
-import ExportPopup from '@/components/ExportPopup';
 import { useAuth } from '@/lib/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
@@ -64,7 +63,6 @@ export default function TwoPick() {
   
   const [isShowDeck, setIsShowDeck] = useState(false); // デッキ確認ポップアップの表示状態
   const [round, setRound] = useState(1); // 現在のラウンド
-  const [showExportPopup, setShowExportPopup] = useState(false);
 
   const { control, handleSubmit, watch } = useForm<{ fruits: FruitType[]; playableVersions: string[] }>({
     defaultValues: {
@@ -195,6 +193,12 @@ export default function TwoPick() {
     setRound(1); // ラウンドをリセット
     setIsShowDeck(false); // デッキ確認ポップアップを非表示
   }
+
+  const handleRestart = () => {
+    if (window.confirm('もう一度作りますか？')) {
+      restart();
+    }
+  };
 
   // プレイアブルカード選択完了処理
   const handlePlayableCardConfirm = () => {
@@ -343,7 +347,7 @@ export default function TwoPick() {
 
   return (
   <div>
-    <div className={showExportPopup ? 'blur-sm ' : '"container relative"'}>
+    <div className={isShowDeck ? 'blur-sm ' : '"container relative"'}>
         {/* フルーツとバージョン選択画面 */}
         {selectionPhase === 'fruitSelection' && (
           <FruitVersionSelection
@@ -396,8 +400,8 @@ export default function TwoPick() {
             sweetDeck={sweetDeck}
             playableCard={selectedPlayableCard}
             user={user}
-            onExport={() => setShowExportPopup(true)}
             onSave={handleSaveDeck}
+            onRestart={handleRestart}
           />
         )}
 
@@ -411,16 +415,6 @@ export default function TwoPick() {
           />
         )}
     </div>
-
-          {/* エクスポートポップアップ */}
-          {showExportPopup && (
-        <ExportPopup
-          yojoDeck={yojoDeck}
-          sweetDeck={sweetDeck}
-          playableCard={selectedPlayableCard}
-          onClose={() => setShowExportPopup(false)}
-        />
-      )}
   </div>
   );
 }

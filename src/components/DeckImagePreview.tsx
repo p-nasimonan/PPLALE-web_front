@@ -130,6 +130,7 @@ interface DeckImagePreviewProps {
   sweetDeck: CardInfo[];
   playableCard: CardInfo | null;
   onClose: () => void;
+  isPopup?: boolean; // ポップアップ表示かどうか
 }
 
 const CANVAS_WIDTH = 1920;
@@ -152,7 +153,7 @@ const PLAYABLE_H = 393;
 const PLAYABLE_MARGIN_L = 10;
 const PLAYABLE_MARGIN_T = 0;
 
-const DeckImagePreview: React.FC<DeckImagePreviewProps> = ({ yojoDeck, sweetDeck, playableCard, onClose }) => {
+const DeckImagePreview: React.FC<DeckImagePreviewProps> = ({ yojoDeck, sweetDeck, playableCard, onClose, isPopup }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [imgUrl, setImgUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -257,23 +258,41 @@ const DeckImagePreview: React.FC<DeckImagePreviewProps> = ({ yojoDeck, sweetDeck
   }, [yojoDeck, sweetDeck, playableCard]);
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg max-w-5xl w-full flex flex-col items-center">
-        <h3 className="text-lg font-bold mb-4">デッキ画像プレビュー</h3>
-        <canvas ref={canvasRef} width={CANVAS_WIDTH} height={CANVAS_HEIGHT} style={{ display: 'none' }} />
-        {loading ? (
-          <div className="my-8">画像生成中...</div>
-        ) : imgUrl ? (
-          <>
-            <Image src={imgUrl} alt="デッキ画像" className="mb-4 max-w-full" width={1920} height={1080} unoptimized />
-            <a href={imgUrl} download="deck.png" className="btn btn-primary mb-2">画像をダウンロード</a>
-          </>
-        ) : (
-          <div className="my-8 text-red-500">画像生成に失敗しました</div>
-        )}
-        <button className="btn btn-secondary mt-2" onClick={onClose}>閉じる</button>
-      </div>
-    </div>
+    <>
+      {isPopup ? (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-5xl w-full flex flex-col items-center">
+            <h3 className="text-lg font-bold mb-4">デッキ画像プレビュー</h3>
+            <canvas ref={canvasRef} width={CANVAS_WIDTH} height={CANVAS_HEIGHT} style={{ display: 'none' }} />
+            {loading ? (
+              <div className="my-8">画像生成中...</div>
+            ) : imgUrl ? (
+              <>
+                <Image src={imgUrl} alt="デッキ画像" className="mb-4 max-w-full" width={1920} height={1080} unoptimized />
+                <a href={imgUrl} download="deck.png" className="btn btn-primary mb-2">画像をダウンロード</a>
+              </>
+            ) : (
+              <div className="my-8 text-red-500">画像生成に失敗しました</div>
+            )}
+            <button className="btn btn-secondary mt-2" onClick={onClose}>閉じる</button>
+          </div>
+        </div>
+      ) : (
+        <div className="flex flex-col items-center">
+          <canvas ref={canvasRef} width={CANVAS_WIDTH} height={CANVAS_HEIGHT} style={{ display: 'none' }} />
+          {loading ? (
+            <div className="my-8">画像生成中...</div>
+          ) : imgUrl ? (
+            <>
+              <Image src={imgUrl} alt="デッキ画像" className="mb-4 max-w-full" width={1920} height={1080} unoptimized />
+              <a href={imgUrl} download="deck.png" className="btn btn-primary mb-2">画像をダウンロード</a>
+            </>
+          ) : (
+            <div className="my-8 text-red-500">画像生成に失敗しました</div>
+          )}
+        </div>
+      )}
+    </>
   );
 };
 
