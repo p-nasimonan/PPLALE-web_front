@@ -1,17 +1,29 @@
 # VRChatにあるカードゲーム「ぷぷりえーる」のデッキ構築などができるwebアプリのフロントエンド
-URL: https://pplale-web-front.vercel.app/  （GitHubPagesは諦めました）  
-自宅鯖： https://pplale.pgw.jp/  （ipv4対応しました）  
-<img width="1619" alt="スクリーンショット 2025-05-01 15 34 43" src="https://github.com/user-attachments/assets/5a895727-011e-4c35-8c57-66b94f290253" />
+自宅鯖： https://pplale.pgw.jp/  （ipv4対応しました）   
+予備: https://pplale-web-front.vercel.app/ （デッキデータをパーソナライズするためGitHubPagesから移行）
+![image](https://github.com/user-attachments/assets/f30d43ca-e1b6-463f-ac5a-f3d9b23f0922)
+
+![image](https://github.com/user-attachments/assets/51f9bd05-2cd3-4e7f-9c74-3763ed0fa326)
 
 ## ぷぷりえーるとは
 VRChatのイベントロリっ子喫茶ぷぷりえのカードゲーム！推しのデッキを構築しよう！
 
-# 使い方
-カードをドラッグ&ドロップでデッキに追加  
-<img width="597" alt="スクリーンショット 2025-05-01 15 36 54" src="https://github.com/user-attachments/assets/f5325cb9-aabc-4b8d-b415-0654603d8d7b" />
+## 通常構築
+カードをドラッグ＆ドロップして構築する
+![image](https://github.com/user-attachments/assets/1af293a3-7bbc-4b70-b80d-4d6e29962c78)
 
-もしくは、クリックしてカード詳細を開き、追加ボタンから  
-<img width="826" alt="スクリーンショット 2025-05-01 15 42 14" src="https://github.com/user-attachments/assets/82a2d83f-b8b0-4533-8c72-cc8d3ef6a9fe" />
+
+## 2pick構築について
+シャドウバースの2pickのようにある程度ランダムにデッキを構築する。
+```
+フルーツ、プレイアブルカードのバージョン選択
+↓
+最後に選択するプレイアブルカード3枚の確認
+↓
+二枚ずつ選んデッキ構築
+↓
+プレイアブルカード選択
+```
 
 ## 2pick構築について
 シャドウバースの2pickのようにある程度ランダムにデッキを構築する。
