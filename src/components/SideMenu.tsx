@@ -69,7 +69,7 @@ export default function SettingsButton() {
                 2枚制限
               </label>
             </div>
-            <p className="text-xs">
+            <p className="text-xs light-color">
               {isTwoCardLimit ? "同じカードは最大2枚まで" : "同じカードを何枚でも追加可能"}
             </p>
 
