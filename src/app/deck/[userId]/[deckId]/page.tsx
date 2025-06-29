@@ -19,18 +19,18 @@ async function getDeckData(userId: string, deckId: string): Promise<{
   initialYojoDeck: CardInfo[];
   initialSweetDeck: CardInfo[];
   initialSelectedPlayableCard: CardInfo | null;
-  isInitialDataLoaded: boolean;
+  isServerDataAvailable: boolean;
   initialError: string | null;
 }> {
   if (userId === 'local') {
     // ローカルユーザーの場合、クライアント側でlocalStorageから読み込むため初期データは空とし、
-    // isInitialDataLoaded を false に設定してクライアント側での処理を促す。
+    // isServerDataAvailable を false に設定してクライアント側での処理を促す。
     return {
       initialDeckName: '無名のデッキ', // または null
       initialYojoDeck: [],
       initialSweetDeck: [],
       initialSelectedPlayableCard: null,
-      isInitialDataLoaded: false, // クライアントでのローカルストレージ読み込みを期待
+      isServerDataAvailable: false, // クライアントでのローカルストレージ読み込みを期待
       initialError: null,
     };
   }
@@ -40,22 +40,30 @@ async function getDeckData(userId: string, deckId: string): Promise<{
     const deckDoc = await getDoc(deckRef);
 
     if (!deckDoc.exists()) {
-      return {
-        initialDeckName: '無名のデッキ',
-        initialYojoDeck: [],
-        initialSweetDeck: [],
-        initialSelectedPlayableCard: null,
-        isInitialDataLoaded: true, // データが存在しないこともロード済みとみなす
-        initialError: 'デッキが存在しません',
-      };
+      throw new Error(`デッキID "${deckId}" が見つかりません。ユーザーID: "${userId}"`);
     }
 
     const deckDocData = deckDoc.data() as DeckDocData;
+    
+    // 必要なプロパティの存在チェック
+    if (!deckDocData) {
+      throw new Error(`デッキデータが不正です。ユーザーID: "${userId}", デッキID: "${deckId}"`);
+    }
+
     const deckName = deckDocData.name || '無名のデッキ';
 
     const yojoDeckIds: string[] = deckDocData.yojoDeckIds || [];
     const sweetDeckIds: string[] = deckDocData.sweetDeckIds || [];
     const playableCardId: string | null = deckDocData.playableCardId || null;
+
+    // データの整合性チェック
+    if (!Array.isArray(yojoDeckIds)) {
+      throw new Error(`幼女デッキIDが配列ではありません。ユーザーID: "${userId}", デッキID: "${deckId}"`);
+    }
+
+    if (!Array.isArray(sweetDeckIds)) {
+      throw new Error(`お菓子デッキIDが配列ではありません。ユーザーID: "${userId}", デッキID: "${deckId}"`);
+    }
 
     const yojoDeck: CardInfo[] = yojoDeckIds
       .map(id => allYojoCards.find(card => card.id === id))
@@ -74,18 +82,24 @@ async function getDeckData(userId: string, deckId: string): Promise<{
       initialYojoDeck: yojoDeck,
       initialSweetDeck: sweetDeck,
       initialSelectedPlayableCard: selectedPlayableCard,
-      isInitialDataLoaded: true,
+      isServerDataAvailable: true,
       initialError: null,
     };
   } catch (error) {
     console.error('デッキの取得に失敗しました(Server):', error);
+    
+    // エラーメッセージを詳細化
+    const errorMessage = error instanceof Error 
+      ? error.message 
+      : 'デッキの取得に失敗しました';
+    
     return {
       initialDeckName: '無名のデッキ',
       initialYojoDeck: [],
       initialSweetDeck: [],
       initialSelectedPlayableCard: null,
-      isInitialDataLoaded: true, // エラーでもロード試行は完了
-      initialError: 'デッキの取得に失敗しました',
+      isServerDataAvailable: true, // エラーでもロード試行は完了
+      initialError: errorMessage,
     };
   }
 }
@@ -156,7 +170,7 @@ export default async function DeckPage({ params: paramsPromise }: { params: Prom
       initialYojoDeck={deckData.initialYojoDeck}
       initialSweetDeck={deckData.initialSweetDeck}
       initialSelectedPlayableCard={deckData.initialSelectedPlayableCard}
-      isInitialDataLoaded={deckData.isInitialDataLoaded}
+      isServerDataAvailable={deckData.isServerDataAvailable}
       initialError={deckData.initialError}
       serverUserId={userId}
       serverDeckId={deckId}
