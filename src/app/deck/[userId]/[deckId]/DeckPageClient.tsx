@@ -87,14 +87,7 @@ export default function DeckPageClient({
     setSelectedPlayableCard(initialSelectedPlayableCard);
     setError(initialError);
     setIsLoaded(isServerDataAvailable);
-    setIsOwner(user ? user.uid === userId : userId === 'local');
-    
-    // 新規作成の場合はデッキ名を編集可能にする
-    const urlParams = new URLSearchParams(window.location.search);
-    const isNewDeck = urlParams.get('isNew') === 'true';
-    if (isNewDeck && isOwner) {
-      setIsEditing(true);
-    }
+    setIsOwner(user ? user.uid === userId || userId === 'local' : userId === 'local');  //ログインしてlocalの共有データを見てもログインしなくても編集可能
     
     // userId === 'local' の場合、かつサーバーからのデータロードに失敗した場合のフォールバック
     if (userId === 'local' && !isServerDataAvailable) {
@@ -446,12 +439,12 @@ export default function DeckPageClient({
               )}
             </h1>
               {/* ローカルユーザー向けログインボタン */}
-              {userId === 'local' && (
+              {userId === 'local' && user &&(
                     <button
                       onClick={handleLoginAndSave}
                       className="btn-primary text-sm px-4 py-2"
                     >
-                      {user ? 'アカウントにデッキを保存' : 'ログインしてデッキを保存'}
+                      アカウントにデッキを保存
                     </button>
               )}
             <ShareButtons 
