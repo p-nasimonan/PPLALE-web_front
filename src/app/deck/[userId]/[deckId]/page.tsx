@@ -65,6 +65,59 @@ async function getDeckData(userId: string, deckId: string): Promise<{
       throw new Error(`お菓子デッキIDが配列ではありません。ユーザーID: "${userId}", デッキID: "${deckId}"`);
     }
 
+    // データが不完全な場合のチェック（デフォルト値になっている場合）
+    if (deckName === '無名のデッキ' && yojoDeckIds.length === 0 && sweetDeckIds.length === 0 && !playableCardId) {
+      // データが不完全な場合、少し待ってから再試行
+      console.log('デッキデータが不完全です。再試行します...');
+      // 再読み込み
+      window.location.reload();
+      await new Promise(resolve => setTimeout(resolve, 500)); // 0.5秒待機
+      
+      // 再取得を試行
+      const retryDeckDoc = await getDoc(deckRef);
+      if (!retryDeckDoc.exists()) {
+        throw new Error(`デッキID "${deckId}" が見つかりません（再試行後）。ユーザーID: "${userId}"`);
+      }
+      
+      const retryDeckDocData = retryDeckDoc.data() as DeckDocData;
+      if (!retryDeckDocData) {
+        throw new Error(`デッキデータが不正です（再試行後）。ユーザーID: "${userId}", デッキID: "${deckId}"`);
+      }
+      
+      // 再取得したデータを使用
+      const retryDeckName = retryDeckDocData.name || '無名のデッキ';
+      const retryYojoDeckIds: string[] = retryDeckDocData.yojoDeckIds || [];
+      const retrySweetDeckIds: string[] = retryDeckDocData.sweetDeckIds || [];
+      const retryPlayableCardId: string | null = retryDeckDocData.playableCardId || null;
+      
+      // 再取得後も不完全な場合はエラー
+      if (retryDeckName === '無名のデッキ' && retryYojoDeckIds.length === 0 && retrySweetDeckIds.length === 0 && !retryPlayableCardId) {
+        throw new Error(`デッキデータが不完全です（再試行後も）。ユーザーID: "${userId}", デッキID: "${deckId}"`);
+      }
+      
+      // 再取得したデータで処理を続行
+      const yojoDeck: CardInfo[] = retryYojoDeckIds
+        .map(id => allYojoCards.find(card => card.id === id))
+        .filter((card): card is CardInfo => card !== undefined);
+
+      const sweetDeck: CardInfo[] = retrySweetDeckIds
+        .map(id => allSweetCards.find(card => card.id === id))
+        .filter((card): card is CardInfo => card !== undefined);
+
+      const selectedPlayableCard = retryPlayableCardId
+        ? allPlayableCards.find(card => card.id === retryPlayableCardId) || null
+        : null;
+
+      return {
+        initialDeckName: retryDeckName,
+        initialYojoDeck: yojoDeck,
+        initialSweetDeck: sweetDeck,
+        initialSelectedPlayableCard: selectedPlayableCard,
+        isServerDataAvailable: true,
+        initialError: null,
+      };
+    }
+
     const yojoDeck: CardInfo[] = yojoDeckIds
       .map(id => allYojoCards.find(card => card.id === id))
       .filter((card): card is CardInfo => card !== undefined);
