@@ -14,6 +14,26 @@ interface DeckDocData {
   is2pick?: boolean;
 }
 
+async function createDeck(userId: string, deckId: string): Promise<{
+  initialDeckName: string | null;
+  initialYojoDeck: CardInfo[];
+  initialSweetDeck: CardInfo[];
+  initialSelectedPlayableCard: CardInfo | null;
+  isServerDataAvailable: boolean;
+  initialError: string | null;
+}> {
+  // 新規作成の場合は空のデッキデータを返す
+  // Firebaseへの保存はクライアントサイドで行う
+  return {
+    initialDeckName: '無名のデッキ',
+    initialYojoDeck: [],
+    initialSweetDeck: [],
+    initialSelectedPlayableCard: null,
+    isServerDataAvailable: true, // 新規作成時もtrueに設定
+    initialError: null,
+  };
+}
+
 async function getDeckData(userId: string, deckId: string): Promise<{
   initialDeckName: string | null;
   initialYojoDeck: CardInfo[];
@@ -26,7 +46,7 @@ async function getDeckData(userId: string, deckId: string): Promise<{
     // ローカルユーザーの場合、クライアント側でlocalStorageから読み込むため初期データは空とし、
     // isServerDataAvailable を false に設定してクライアント側での処理を促す。
     return {
-      initialDeckName: '無名のデッキ', // または null
+      initialDeckName: '無名のデッキ',
       initialYojoDeck: [],
       initialSweetDeck: [],
       initialSelectedPlayableCard: null,
@@ -44,79 +64,10 @@ async function getDeckData(userId: string, deckId: string): Promise<{
     }
 
     const deckDocData = deckDoc.data() as DeckDocData;
-    
-    // 必要なプロパティの存在チェック
-    if (!deckDocData) {
-      throw new Error(`デッキデータが不正です。ユーザーID: "${userId}", デッキID: "${deckId}"`);
-    }
-
     const deckName = deckDocData.name || '無名のデッキ';
-
     const yojoDeckIds: string[] = deckDocData.yojoDeckIds || [];
     const sweetDeckIds: string[] = deckDocData.sweetDeckIds || [];
     const playableCardId: string | null = deckDocData.playableCardId || null;
-
-    // データの整合性チェック
-    if (!Array.isArray(yojoDeckIds)) {
-      throw new Error(`幼女デッキIDが配列ではありません。ユーザーID: "${userId}", デッキID: "${deckId}"`);
-    }
-
-    if (!Array.isArray(sweetDeckIds)) {
-      throw new Error(`お菓子デッキIDが配列ではありません。ユーザーID: "${userId}", デッキID: "${deckId}"`);
-    }
-
-    // データが不完全な場合のチェック（デフォルト値になっている場合）
-    if (deckName === '無名のデッキ' && yojoDeckIds.length === 0 && sweetDeckIds.length === 0 && !playableCardId) {
-      // データが不完全な場合、少し待ってから再試行
-      console.log('デッキデータが不完全です。再試行します...');
-      // 再読み込み
-      window.location.reload();
-      await new Promise(resolve => setTimeout(resolve, 500)); // 0.5秒待機
-      
-      // 再取得を試行
-      const retryDeckDoc = await getDoc(deckRef);
-      if (!retryDeckDoc.exists()) {
-        throw new Error(`デッキID "${deckId}" が見つかりません（再試行後）。ユーザーID: "${userId}"`);
-      }
-      
-      const retryDeckDocData = retryDeckDoc.data() as DeckDocData;
-      if (!retryDeckDocData) {
-        throw new Error(`デッキデータが不正です（再試行後）。ユーザーID: "${userId}", デッキID: "${deckId}"`);
-      }
-      
-      // 再取得したデータを使用
-      const retryDeckName = retryDeckDocData.name || '無名のデッキ';
-      const retryYojoDeckIds: string[] = retryDeckDocData.yojoDeckIds || [];
-      const retrySweetDeckIds: string[] = retryDeckDocData.sweetDeckIds || [];
-      const retryPlayableCardId: string | null = retryDeckDocData.playableCardId || null;
-      
-      // 再取得後も不完全な場合はエラー
-      if (retryDeckName === '無名のデッキ' && retryYojoDeckIds.length === 0 && retrySweetDeckIds.length === 0 && !retryPlayableCardId) {
-        throw new Error(`デッキデータが不完全です（再試行後も）。ユーザーID: "${userId}", デッキID: "${deckId}"`);
-      }
-      
-      // 再取得したデータで処理を続行
-      const yojoDeck: CardInfo[] = retryYojoDeckIds
-        .map(id => allYojoCards.find(card => card.id === id))
-        .filter((card): card is CardInfo => card !== undefined);
-
-      const sweetDeck: CardInfo[] = retrySweetDeckIds
-        .map(id => allSweetCards.find(card => card.id === id))
-        .filter((card): card is CardInfo => card !== undefined);
-
-      const selectedPlayableCard = retryPlayableCardId
-        ? allPlayableCards.find(card => card.id === retryPlayableCardId) || null
-        : null;
-
-      return {
-        initialDeckName: retryDeckName,
-        initialYojoDeck: yojoDeck,
-        initialSweetDeck: sweetDeck,
-        initialSelectedPlayableCard: selectedPlayableCard,
-        isServerDataAvailable: true,
-        initialError: null,
-      };
-    }
 
     const yojoDeck: CardInfo[] = yojoDeckIds
       .map(id => allYojoCards.find(card => card.id === id))
@@ -141,7 +92,6 @@ async function getDeckData(userId: string, deckId: string): Promise<{
   } catch (error) {
     console.error('デッキの取得に失敗しました(Server):', error);
     
-    // エラーメッセージを詳細化
     const errorMessage = error instanceof Error 
       ? error.message 
       : 'デッキの取得に失敗しました';
@@ -151,7 +101,7 @@ async function getDeckData(userId: string, deckId: string): Promise<{
       initialYojoDeck: [],
       initialSweetDeck: [],
       initialSelectedPlayableCard: null,
-      isServerDataAvailable: true, // エラーでもロード試行は完了
+      isServerDataAvailable: true,
       initialError: errorMessage,
     };
   }
@@ -211,11 +161,28 @@ export async function generateMetadata(
   };
 }
 
-export default async function DeckPage({ params: paramsPromise }: { params: Promise<{ userId: string; deckId: string }> }) {
+export default async function DeckPage({ 
+  params: paramsPromise,
+  searchParams
+}: { 
+  params: Promise<{ userId: string; deckId: string }>;
+  searchParams: Promise<{ isNew?: string }>;
+}) {
   const params = await paramsPromise;
   const { userId, deckId } = params;
+  const searchParamsData = await searchParams;
+  
+  // クエリパラメータで新規作成かどうかを判別
+  const isNewDeck = searchParamsData.isNew === 'true';
+  let deckData;
+  if (isNewDeck) {
+    deckData = await createDeck(userId, deckId);
+    
+  } else {
+    // デッキデータを取得
+    deckData = await getDeckData(userId, deckId);
+  }
 
-  const deckData = await getDeckData(userId, deckId);
 
   return (
     <DeckPageClient

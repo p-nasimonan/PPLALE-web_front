@@ -39,7 +39,7 @@ export default function DeckPageClient({
   isServerDataAvailable,
   initialError,
   serverUserId,
-  serverDeckId
+  serverDeckId,
 }: DeckPageClientProps) {
   const router = useRouter();
   const userId = serverUserId;
@@ -53,7 +53,7 @@ export default function DeckPageClient({
   const [yojoDeck, setYojoDeck] = useState<CardInfo[]>(initialYojoDeck);
   const [sweetDeck, setSweetDeck] = useState<CardInfo[]>(initialSweetDeck);
   const [selectedPlayableCard, setSelectedPlayableCard] = useState<CardInfo | null>(initialSelectedPlayableCard);
-  const [isLoading, setIsLoading] = useState(!isServerDataAvailable); // 初期データロード済みならfalse
+  const [isLoading, setIsLoading] = useState(false); // 初期値はfalseに変更
   const [error, setError] = useState<string | null>(initialError);
   const [deckViewActiveTab, setDeckViewActiveTab] = useState<'yojo' | 'sweet' | 'playable'>('yojo');
   const [showExportPopup, setShowExportPopup] = useState(false);
@@ -68,11 +68,18 @@ export default function DeckPageClient({
     setSweetDeck(initialSweetDeck);
     setSelectedPlayableCard(initialSelectedPlayableCard);
     setError(initialError);
-    setIsLoading(!isServerDataAvailable);
     setIsLoaded(isServerDataAvailable);
     setIsOwner(user ? user.uid === userId : userId === 'local');
+    
+    // 新規作成の場合はデッキ名を編集可能にする
+    const urlParams = new URLSearchParams(window.location.search);
+    const isNewDeck = urlParams.get('isNew') === 'true';
+    if (isNewDeck && isOwner) {
+      setIsEditing(true);
+    }
+    
     // userId === 'local' の場合、かつサーバーからのデータロードに失敗した場合のフォールバック
-    if (userId === 'local' && !isServerDataAvailable && !isOwner) {
+    if (userId === 'local' && !isServerDataAvailable) {
       const fetchLocalData = () => {
         try {
           setIsLoading(true);
@@ -118,8 +125,11 @@ export default function DeckPageClient({
         }
       };
       fetchLocalData();
+    } else {
+      // サーバーデータが利用可能な場合、またはローカルユーザーでない場合はローディングをfalseにする
+      setIsLoading(false);
     }
-  }, [initialDeckName, initialYojoDeck, initialSweetDeck, initialSelectedPlayableCard, isServerDataAvailable, initialError, userId, deckId]);
+  }, [initialDeckName, initialYojoDeck, initialSweetDeck, initialSelectedPlayableCard, isServerDataAvailable, initialError, userId, deckId, router]);
 
   useEffect(() => {
     const handleExport = () => setShowExportPopup(true);
@@ -206,8 +216,7 @@ export default function DeckPageClient({
   const handleLoginAndSave = async () => {
     // Firebaseにログイン済みの場合
     if (user) {
-      const newDeckId = crypto.randomUUID();
-      const deckRef = doc(db, 'users', user.uid, 'decks', newDeckId);
+      const deckRef = doc(db, 'users', user.uid, 'decks', deckId);
       
       try {
         await setDoc(deckRef, {
@@ -218,11 +227,11 @@ export default function DeckPageClient({
           updatedAt: new Date()
         });
         
-        console.log('ログイン済みユーザーが新しいデッキを作成しました:', newDeckId);
-        router.push(`/deck/${user.uid}/${newDeckId}`);
+        console.log('ログイン済みユーザーがデッキを更新しました:', deckId);
+        router.push(`/deck/${user.uid}/${deckId}`);
       } catch (error) {
-        console.error('デッキの作成に失敗しました:', error);
-        alert('デッキの作成に失敗しました');
+        console.error('デッキの更新に失敗しました:', error);
+        alert('デッキの更新に失敗しました');
       }
       return;
     }
@@ -232,9 +241,7 @@ export default function DeckPageClient({
     try {
       const result = await signInWithPopup(auth, provider);
       if (result.user) {
-        // 現在のデッキデータを新しいデッキとして作成
-        const newDeckId = crypto.randomUUID();
-        const deckRef = doc(db, 'users', result.user.uid, 'decks', newDeckId);
+        const deckRef = doc(db, 'users', result.user.uid, 'decks', deckId);
         
         await setDoc(deckRef, {
           name: deckName,
@@ -244,8 +251,8 @@ export default function DeckPageClient({
           updatedAt: new Date()
         });
         
-        console.log('ログイン後に新しいデッキを作成しました:', newDeckId);
-        router.push(`/deck/${result.user.uid}/${newDeckId}`);
+        console.log('ログイン後にデッキを更新しました:', deckId);
+        router.push(`/deck/${result.user.uid}/${deckId}`);
       }
     } catch (error) {
       console.error('ログインエラー:', error);
@@ -530,4 +537,4 @@ export default function DeckPageClient({
       )}
     </div>
   );
-} 
+}
