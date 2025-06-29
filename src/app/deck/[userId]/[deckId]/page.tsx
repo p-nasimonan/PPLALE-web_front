@@ -14,7 +14,7 @@ interface DeckDocData {
   is2pick?: boolean;
 }
 
-async function createDeck(userId: string, deckId: string): Promise<{
+async function createDeck(): Promise<{
   initialDeckName: string | null;
   initialYojoDeck: CardInfo[];
   initialSweetDeck: CardInfo[];
@@ -176,7 +176,7 @@ export default async function DeckPage({
   const isNewDeck = searchParamsData.isNew === 'true';
   let deckData;
   if (isNewDeck) {
-    deckData = await createDeck(userId, deckId);
+    deckData = await createDeck();
     
   } else {
     // デッキデータを取得

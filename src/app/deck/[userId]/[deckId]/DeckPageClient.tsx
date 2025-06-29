@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { CardInfo } from '@/types/card';
 import { allYojoCards, allSweetCards, allPlayableCards } from '@/data/cards';
@@ -60,6 +60,24 @@ export default function DeckPageClient({
   const [showImportPopup, setShowImportPopup] = useState(false);
   const [isLoaded, setIsLoaded] = useState(isServerDataAvailable); // Firebaseへの自動保存制御用
   const [isOwner, setIsOwner] = useState(false);
+
+  /**
+   * 現在のデッキ状態でデータ損失が発生しているかチェックする
+   * @returns データ損失の可能性があるかどうか
+   */
+  const checkSignificantDataLoss = useCallback((): boolean => {
+    // 幼女デッキが大幅に削除された場合
+    if (initialYojoDeck.length > 0 && yojoDeck.length < 1) {
+      return true;
+    }
+    
+    // お菓子デッキが大幅に削除された場合
+    if (initialSweetDeck.length > 0 && sweetDeck.length < 1) {
+      return true;
+    }
+    
+    return false;
+  }, [initialYojoDeck, yojoDeck, initialSweetDeck, sweetDeck]);
 
   useEffect(() => {
     // サーバーからデータが渡された場合、それを使用
@@ -129,7 +147,7 @@ export default function DeckPageClient({
       // サーバーデータが利用可能な場合、またはローカルユーザーでない場合はローディングをfalseにする
       setIsLoading(false);
     }
-  }, [initialDeckName, initialYojoDeck, initialSweetDeck, initialSelectedPlayableCard, isServerDataAvailable, initialError, userId, deckId, router]);
+  }, [initialDeckName, initialYojoDeck, initialSweetDeck, initialSelectedPlayableCard, isServerDataAvailable, initialError, userId, deckId, router, isOwner, user]);
 
   useEffect(() => {
     const handleExport = () => setShowExportPopup(true);
@@ -207,7 +225,7 @@ export default function DeckPageClient({
     };
 
     saveToFirebase();
-  }, [user, userId, deckId, isLoaded, deckName, yojoDeck, sweetDeck, selectedPlayableCard]);
+  }, [user, userId, deckId, isLoaded, deckName, yojoDeck, sweetDeck, selectedPlayableCard, checkSignificantDataLoss]);
 
   /**
    * ローカルユーザーがログインしてデッキを保存する
@@ -361,24 +379,6 @@ export default function DeckPageClient({
     } else if (card.type === 'プレイアブル') {
       return !selectedPlayableCard;
     }
-    return false;
-  };
-
-  /**
-   * 現在のデッキ状態でデータ損失が発生しているかチェックする
-   * @returns データ損失の可能性があるかどうか
-   */
-  const checkSignificantDataLoss = (): boolean => {
-    // 幼女デッキが大幅に削除された場合
-    if (initialYojoDeck.length > 0 && yojoDeck.length < 1) {
-      return true;
-    }
-    
-    // お菓子デッキが大幅に削除された場合
-    if (initialSweetDeck.length > 0 && sweetDeck.length < 1) {
-      return true;
-    }
-    
     return false;
   };
 
