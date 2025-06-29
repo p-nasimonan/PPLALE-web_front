@@ -98,24 +98,27 @@ export default function BuildPage() {
         router.push(`/deck/2pick?${queryParams.toString()}`);
         return;
       }
-      const deckId = Date.now().toString();
+      
+      // 新規作成の場合はデッキIDを生成してから遷移
       if (user) {
-        try {
-          const deckRef = doc(db, 'users', user.uid, 'decks', deckId);
-          await setDoc(deckRef, {
-            name: '無名のデッキ',
-            yojoDeckIds: [],
-            sweetDeckIds: [],
-            playableCardId: null,
-            updatedAt: new Date(),
-            is2pick: false  // 通常デッキの場合はfalse
-          });
-          router.push(`/deck/${user.uid}/${deckId}`);
-        } catch (error) {
-          console.error('Firebaseへの保存に失敗しました:', error);
-          alert('デッキの作成に失敗しました');
-        }
+        // ログインユーザーの場合、Firebaseに新しいデッキを作成
+        const newDeckId = crypto.randomUUID();
+        const deckRef = doc(db, 'users', user.uid, 'decks', newDeckId);
+        
+        await setDoc(deckRef, {
+          name: '無名のデッキ',
+          yojoDeckIds: [],
+          sweetDeckIds: [],
+          playableCardId: null,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        });
+        
+        console.log('新しいデッキを作成しました:', newDeckId);
+        router.push(`/deck/${user.uid}/${newDeckId}?isNew=true`);
       } else {
+        // ローカルユーザーの場合
+        const deckId = Date.now().toString();
         const newDeck = {
           id: deckId,
           name: '無名のデッキ',
@@ -125,7 +128,7 @@ export default function BuildPage() {
         };
         const localDecks = JSON.parse(localStorage.getItem('localDecks') || '[]');
         localStorage.setItem('localDecks', JSON.stringify([newDeck, ...localDecks]));
-        router.push(`/deck/local/${deckId}`);
+        router.push(`/deck/local/${deckId}?isNew=true`);
       }
     } catch (error) {
       console.error('デッキの作成に失敗しました:', error);
