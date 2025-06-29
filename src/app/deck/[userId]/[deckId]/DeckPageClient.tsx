@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { CardInfo } from '@/types/card';
 import { allYojoCards, allSweetCards, allPlayableCards } from '@/data/cards';
@@ -25,7 +25,7 @@ interface DeckPageClientProps {
   initialYojoDeck: CardInfo[];
   initialSweetDeck: CardInfo[];
   initialSelectedPlayableCard: CardInfo | null;
-  isInitialDataLoaded: boolean;
+  isServerDataAvailable: boolean;
   initialError: string | null;
   serverUserId: string; // Passed from server component (params.userId)
   serverDeckId: string; // Passed from server component (params.deckId)
@@ -36,10 +36,10 @@ export default function DeckPageClient({
   initialYojoDeck,
   initialSweetDeck,
   initialSelectedPlayableCard,
-  isInitialDataLoaded,
+  isServerDataAvailable,
   initialError,
   serverUserId,
-  serverDeckId
+  serverDeckId,
 }: DeckPageClientProps) {
   const router = useRouter();
   const userId = serverUserId;
@@ -53,12 +53,31 @@ export default function DeckPageClient({
   const [yojoDeck, setYojoDeck] = useState<CardInfo[]>(initialYojoDeck);
   const [sweetDeck, setSweetDeck] = useState<CardInfo[]>(initialSweetDeck);
   const [selectedPlayableCard, setSelectedPlayableCard] = useState<CardInfo | null>(initialSelectedPlayableCard);
-  const [isLoading, setIsLoading] = useState(!isInitialDataLoaded); // 初期データロード済みならfalse
+  const [isLoading, setIsLoading] = useState(false); // 初期値はfalseに変更
   const [error, setError] = useState<string | null>(initialError);
   const [deckViewActiveTab, setDeckViewActiveTab] = useState<'yojo' | 'sweet' | 'playable'>('yojo');
   const [showExportPopup, setShowExportPopup] = useState(false);
   const [showImportPopup, setShowImportPopup] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(isInitialDataLoaded); // Firebaseへの自動保存制御用
+  const [isLoaded, setIsLoaded] = useState(isServerDataAvailable); // Firebaseへの自動保存制御用
+  const [isOwner, setIsOwner] = useState(false);
+
+  /**
+   * 現在のデッキ状態でデータ損失が発生しているかチェックする
+   * @returns データ損失の可能性があるかどうか
+   */
+  const checkSignificantDataLoss = useCallback((): boolean => {
+    // 幼女デッキが大幅に削除された場合
+    if (initialYojoDeck.length > 0 && yojoDeck.length < 1) {
+      return true;
+    }
+    
+    // お菓子デッキが大幅に削除された場合
+    if (initialSweetDeck.length > 0 && sweetDeck.length < 1) {
+      return true;
+    }
+    
+    return false;
+  }, [initialYojoDeck, yojoDeck, initialSweetDeck, sweetDeck]);
 
   useEffect(() => {
     // サーバーからデータが渡された場合、それを使用
@@ -67,11 +86,11 @@ export default function DeckPageClient({
     setSweetDeck(initialSweetDeck);
     setSelectedPlayableCard(initialSelectedPlayableCard);
     setError(initialError);
-    setIsLoading(!isInitialDataLoaded);
-    setIsLoaded(isInitialDataLoaded);
-
-    // userId === 'local' の場合、またはサーバーからのデータロードに失敗した場合のフォールバック
-    if (userId === 'local' && !isInitialDataLoaded) {
+    setIsLoaded(isServerDataAvailable);
+    setIsOwner(user ? user.uid === userId || userId === 'local' : userId === 'local');  //ログインしてlocalの共有データを見てもログインしなくても編集可能
+    
+    // userId === 'local' の場合、かつサーバーからのデータロードに失敗した場合のフォールバック
+    if (userId === 'local' && !isServerDataAvailable) {
       const fetchLocalData = () => {
         try {
           setIsLoading(true);
@@ -117,8 +136,11 @@ export default function DeckPageClient({
         }
       };
       fetchLocalData();
+    } else {
+      // サーバーデータが利用可能な場合、またはローカルユーザーでない場合はローディングをfalseにする
+      setIsLoading(false);
     }
-  }, [initialDeckName, initialYojoDeck, initialSweetDeck, initialSelectedPlayableCard, isInitialDataLoaded, initialError, userId, deckId]);
+  }, [initialDeckName, initialYojoDeck, initialSweetDeck, initialSelectedPlayableCard, isServerDataAvailable, initialError, userId, deckId, router, isOwner, user]);
 
   useEffect(() => {
     const handleExport = () => setShowExportPopup(true);
@@ -160,6 +182,21 @@ export default function DeckPageClient({
     const saveToFirebase = async () => {
       try {
         const deckRef = doc(db, 'users', userId, 'decks', deckId);
+
+        // データ損失の可能性をチェック
+        const hasSignificantDataLoss = checkSignificantDataLoss();
+        if (hasSignificantDataLoss) {
+          const confirmed = showDataLossWarning(
+            `デッキの変更により、多くのカードが削除されます。\n\n` +
+            `この変更を保存しますか？\n\n` +
+            `保存後は元に戻すことができません。`
+          );
+          if (!confirmed) {
+            console.log('ユーザーがデータ損失警告でキャンセルしました');
+            return;
+          }
+        }
+
         await setDoc(deckRef, {
           name: deckName,
           yojoDeckIds: yojoDeck.map(card => card.id),
@@ -181,24 +218,65 @@ export default function DeckPageClient({
     };
 
     saveToFirebase();
-  }, [user, userId, deckId, isLoaded, deckName, yojoDeck, sweetDeck, selectedPlayableCard]);
+  }, [user, userId, deckId, isLoaded, deckName, yojoDeck, sweetDeck, selectedPlayableCard, checkSignificantDataLoss]);
 
+  /**
+   * ローカルユーザーがログインしてデッキを保存する
+   * ログインしていたら新規作成して保存する
+   */
+  const handleLoginAndSave = async () => {
+    // Firebaseにログイン済みの場合
+    if (user) {
+      const deckRef = doc(db, 'users', user.uid, 'decks', deckId);
+      
+      try {
+        await setDoc(deckRef, {
+          name: deckName,
+          yojoDeckIds: yojoDeck.map(card => card.id),
+          sweetDeckIds: sweetDeck.map(card => card.id),
+          playableCardId: selectedPlayableCard?.id || null,
+          updatedAt: new Date()
+        });
+        
+        console.log('ログイン済みユーザーがデッキを更新しました:', deckId);
+        router.push(`/deck/${user.uid}/${deckId}`);
+      } catch (error) {
+        console.error('デッキの更新に失敗しました:', error);
+        alert('デッキの更新に失敗しました');
+      }
+      return;
+    }
+    
+    // 未ログインの場合、Googleログインを実行
+    const provider = new GoogleAuthProvider();
+    try {
+      const result = await signInWithPopup(auth, provider);
+      if (result.user) {
+        const deckRef = doc(db, 'users', result.user.uid, 'decks', deckId);
+        
+        await setDoc(deckRef, {
+          name: deckName,
+          yojoDeckIds: yojoDeck.map(card => card.id),
+          sweetDeckIds: sweetDeck.map(card => card.id),
+          playableCardId: selectedPlayableCard?.id || null,
+          updatedAt: new Date()
+        });
+        
+        console.log('ログイン後にデッキを更新しました:', deckId);
+        router.push(`/deck/${result.user.uid}/${deckId}`);
+      }
+    } catch (error) {
+      console.error('ログインエラー:', error);
+      alert('ログインに失敗しました');
+    }
+  };
 
   const handleNameChange = async (newName: string) => {
     if (userId === 'local') {
       setIsEditing(false);
       setDeckName(newName);
       localStorage.setItem(`deck_${deckId}_name`, newName);
-      const provider = new GoogleAuthProvider();
-      try {
-        const result = await signInWithPopup(auth, provider);
-        if (result.user) {
-          router.push(`/deck/${result.user.uid}/${deckId}`);
-        }
-      } catch (error) {
-        console.error('ログインエラー:', error);
-        alert('ログインに失敗しました');
-      }
+      handleLoginAndSave();
       return;
     }
     if (!user || user.uid !== userId) {
@@ -297,6 +375,15 @@ export default function DeckPageClient({
     return false;
   };
 
+  /**
+   * データが消される可能性のある操作に対して警告を表示する
+   * @param message 警告メッセージ
+   * @returns ユーザーが確認したかどうか
+   */
+  const showDataLossWarning = (message: string): boolean => {
+    return window.confirm(`⚠️ 警告: ${message}\n\nこの操作により、現在のデッキデータが失われる可能性があります。\n\n本当に続行しますか？`);
+  };
+
   if (isLoading) {
     return <div className="container mx-auto p-4">読み込み中...</div>;
   }
@@ -304,8 +391,6 @@ export default function DeckPageClient({
   if (error) {
     return <div className="container mx-auto p-4 text-red-500">{error}</div>;
   }
-
-  const isOwner = user ? user.uid === userId : userId === 'local';
 
   const deckViewTabs: TabDefinition[] = [
     { key: 'yojo', label: '幼女' },
@@ -353,6 +438,15 @@ export default function DeckPageClient({
                 </span>
               )}
             </h1>
+              {/* ローカルユーザー向けログインボタン */}
+              {userId === 'local' && user &&(
+                    <button
+                      onClick={handleLoginAndSave}
+                      className="btn-primary text-sm px-4 py-2"
+                    >
+                      アカウントにデッキを保存
+                    </button>
+              )}
             <ShareButtons 
               share_url={window.location.pathname != '' ? window.location.href : ''}
               share_text={`#お菓子争奪戦争ぷぷりえーる`}
@@ -361,7 +455,9 @@ export default function DeckPageClient({
               sweetDeck={sweetDeck}
               playableCard={selectedPlayableCard}
             />
+            
           </div>
+          
         )}
       </div>
 
@@ -434,4 +530,4 @@ export default function DeckPageClient({
       )}
     </div>
   );
-} 
+}

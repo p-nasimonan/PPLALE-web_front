@@ -14,23 +14,43 @@ interface DeckDocData {
   is2pick?: boolean;
 }
 
+async function createDeck(): Promise<{
+  initialDeckName: string | null;
+  initialYojoDeck: CardInfo[];
+  initialSweetDeck: CardInfo[];
+  initialSelectedPlayableCard: CardInfo | null;
+  isServerDataAvailable: boolean;
+  initialError: string | null;
+}> {
+  // 新規作成の場合は空のデッキデータを返す
+  // Firebaseへの保存はクライアントサイドで行う
+  return {
+    initialDeckName: '無名のデッキ',
+    initialYojoDeck: [],
+    initialSweetDeck: [],
+    initialSelectedPlayableCard: null,
+    isServerDataAvailable: true, // 新規作成時もtrueに設定
+    initialError: null,
+  };
+}
+
 async function getDeckData(userId: string, deckId: string): Promise<{
   initialDeckName: string | null;
   initialYojoDeck: CardInfo[];
   initialSweetDeck: CardInfo[];
   initialSelectedPlayableCard: CardInfo | null;
-  isInitialDataLoaded: boolean;
+  isServerDataAvailable: boolean;
   initialError: string | null;
 }> {
   if (userId === 'local') {
     // ローカルユーザーの場合、クライアント側でlocalStorageから読み込むため初期データは空とし、
-    // isInitialDataLoaded を false に設定してクライアント側での処理を促す。
+    // isServerDataAvailable を false に設定してクライアント側での処理を促す。
     return {
-      initialDeckName: '無名のデッキ', // または null
+      initialDeckName: '無名のデッキ',
       initialYojoDeck: [],
       initialSweetDeck: [],
       initialSelectedPlayableCard: null,
-      isInitialDataLoaded: false, // クライアントでのローカルストレージ読み込みを期待
+      isServerDataAvailable: false, // クライアントでのローカルストレージ読み込みを期待
       initialError: null,
     };
   }
@@ -40,19 +60,11 @@ async function getDeckData(userId: string, deckId: string): Promise<{
     const deckDoc = await getDoc(deckRef);
 
     if (!deckDoc.exists()) {
-      return {
-        initialDeckName: '無名のデッキ',
-        initialYojoDeck: [],
-        initialSweetDeck: [],
-        initialSelectedPlayableCard: null,
-        isInitialDataLoaded: true, // データが存在しないこともロード済みとみなす
-        initialError: 'デッキが存在しません',
-      };
+      throw new Error(`デッキID "${deckId}" が見つかりません。ユーザーID: "${userId}"`);
     }
 
     const deckDocData = deckDoc.data() as DeckDocData;
     const deckName = deckDocData.name || '無名のデッキ';
-
     const yojoDeckIds: string[] = deckDocData.yojoDeckIds || [];
     const sweetDeckIds: string[] = deckDocData.sweetDeckIds || [];
     const playableCardId: string | null = deckDocData.playableCardId || null;
@@ -74,18 +86,23 @@ async function getDeckData(userId: string, deckId: string): Promise<{
       initialYojoDeck: yojoDeck,
       initialSweetDeck: sweetDeck,
       initialSelectedPlayableCard: selectedPlayableCard,
-      isInitialDataLoaded: true,
+      isServerDataAvailable: true,
       initialError: null,
     };
   } catch (error) {
     console.error('デッキの取得に失敗しました(Server):', error);
+    
+    const errorMessage = error instanceof Error 
+      ? error.message 
+      : 'デッキの取得に失敗しました';
+    
     return {
       initialDeckName: '無名のデッキ',
       initialYojoDeck: [],
       initialSweetDeck: [],
       initialSelectedPlayableCard: null,
-      isInitialDataLoaded: true, // エラーでもロード試行は完了
-      initialError: 'デッキの取得に失敗しました',
+      isServerDataAvailable: true,
+      initialError: errorMessage,
     };
   }
 }
@@ -144,11 +161,28 @@ export async function generateMetadata(
   };
 }
 
-export default async function DeckPage({ params: paramsPromise }: { params: Promise<{ userId: string; deckId: string }> }) {
+export default async function DeckPage({ 
+  params: paramsPromise,
+  searchParams
+}: { 
+  params: Promise<{ userId: string; deckId: string }>;
+  searchParams: Promise<{ isNew?: string }>;
+}) {
   const params = await paramsPromise;
   const { userId, deckId } = params;
+  const searchParamsData = await searchParams;
+  
+  // クエリパラメータで新規作成かどうかを判別
+  const isNewDeck = searchParamsData.isNew === 'true';
+  let deckData;
+  if (isNewDeck) {
+    deckData = await createDeck();
+    
+  } else {
+    // デッキデータを取得
+    deckData = await getDeckData(userId, deckId);
+  }
 
-  const deckData = await getDeckData(userId, deckId);
 
   return (
     <DeckPageClient
@@ -156,7 +190,7 @@ export default async function DeckPage({ params: paramsPromise }: { params: Prom
       initialYojoDeck={deckData.initialYojoDeck}
       initialSweetDeck={deckData.initialSweetDeck}
       initialSelectedPlayableCard={deckData.initialSelectedPlayableCard}
-      isInitialDataLoaded={deckData.isInitialDataLoaded}
+      isServerDataAvailable={deckData.isServerDataAvailable}
       initialError={deckData.initialError}
       serverUserId={userId}
       serverDeckId={deckId}
