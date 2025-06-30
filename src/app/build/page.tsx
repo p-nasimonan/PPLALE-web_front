@@ -27,14 +27,18 @@ export default function BuildPage() {
   const { user } = useAuth();
   const [recentDecks, setRecentDecks] = useState<Deck[]>([]);
   const [deckImages, setDeckImages] = useState<{ [deckId: string]: string }>({});
-  const [loading, setLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
   const [deletingDeckId, setDeletingDeckId] = useState<string | null>(null);
+  const [topDecks, setTopDecks] = useState<Deck[]>([]);
+  const [otherDecks, setOtherDecks] = useState<Deck[]>([]);
+  const [filter, setFilter] = useState('');
+  const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) {
       setRecentDecks([]);
-      setLoading(false);
+      setTopDecks([]);
+      setOtherDecks([]);
       return;
     }
     // ログインユーザーのみデッキ取得
@@ -81,12 +85,15 @@ export default function BuildPage() {
         setDeckImages(images);
       } catch (error) {
         console.error('デッキの取得に失敗しました:', error);
-      } finally {
-        setLoading(false);
       }
     };
     fetchRecentDecks();
   }, [user]);
+
+  useEffect(() => {
+    setTopDecks(recentDecks.slice(0, 3));
+    setOtherDecks(recentDecks.slice(3));
+  }, [recentDecks]);
 
   const handleCreateDeck = async (type: string, options?: { isTwoCardLimit?: boolean, initialFruits?: string[], initialPlayableVersions?: string[] }) => {
     setIsCreating(true);
@@ -208,13 +215,11 @@ export default function BuildPage() {
         {user && (
           <section>
             <h2 className="text-2xl font-semibold mb-4 main-color">最近作成したデッキ</h2>
-            {loading ? (
-              <div className="text-center py-8">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-color mx-auto"></div>
-              </div>
-            ) : recentDecks.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {recentDecks.map((deck) => (
+            {/* 直近3つを大きく表示 */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+              {topDecks
+                .filter(deck => deck.name.includes(filter))
+                .map((deck) => (
                   <div key={deck.id} className="relative group">
                     <Link
                       href={`/deck/${user?.uid}/${deck.id}`}
@@ -247,10 +252,71 @@ export default function BuildPage() {
                     </button>
                   </div>
                 ))}
-              </div>
-            ) : (
-              <div className="text-center py-8 description">
-                デッキがまだありません。新しいデッキを作成しましょう！
+            </div>
+            {/* それ以外を小さくリスト表示 */}
+            {otherDecks.length > 0 && (
+              <div className="light-background rounded p-4">
+                {/* フィルターとソートUIをここに移動 */}
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-2">
+                  <input
+                    type="text"
+                    placeholder="デッキ名でフィルター"
+                    value={filter}
+                    onChange={e => setFilter(e.target.value)}
+                    className="p-2 border rounded w-full max-w-xs main-color"
+                  />
+                  {/* ソートUI例: */}
+                  {/* <select className="p-2 border rounded main-color">
+                    <option value="updatedAt">最終更新順</option>
+                    <option value="name">名前順</option>
+                  </select> */}
+                </div>
+                <h3 className="text-lg font-semibold mb-2 main-color light-background">その他のデッキ</h3>
+                <ul>
+                  {otherDecks
+                    .filter(deck => deck.name.includes(filter))
+                    .map(deck => (
+                      <li key={deck.id} className="flex items-center justify-between border-b py-2 group relative">
+                        <Link href={`/deck/${user?.uid}/${deck.id}`} className="flex-1 flex items-center min-w-0 px-2 py-1 hover:bg-gray-100 rounded cursor-pointer">
+                          <span className="font-medium main-color truncate">{deck.name}</span>
+                          <span className="ml-2 text-xs text-gray-500 flex-shrink-0">{deck.updatedAt.toLocaleDateString('ja-JP')}</span>
+                        </Link>
+                        <button
+                          onClick={e => { e.stopPropagation(); setMenuOpenId(menuOpenId === deck.id ? null : deck.id); }}
+                          className="p-1 ml-2 rounded main-color main-background"
+                          aria-label="メニューを開く"
+                        >
+                          {/* 3点縦メニューアイコン */}
+                          <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <circle cx="12" cy="5" r="1.5"/>
+                            <circle cx="12" cy="12" r="1.5"/>
+                            <circle cx="12" cy="19" r="1.5"/>
+                          </svg>
+                        </button>
+                        {/* メニューポップアップ */}
+                        {menuOpenId === deck.id && (
+                          <div className="absolute right-0 top-8 z-10 bg-white border rounded shadow-md min-w-[120px]">
+                            <button
+                              onClick={e => { e.stopPropagation(); setDeletingDeckId(deck.id); setMenuOpenId(null); }}
+                              className="block w-full text-left px-4 py-2 hover:bg-red-100 text-red-600"
+                            >
+                              削除
+                            </button>
+                            <button
+                              onClick={e => {
+                                e.stopPropagation();
+                                navigator.clipboard.writeText(`${window.location.origin}/deck/${user?.uid}/${deck.id}`);
+                                setMenuOpenId(null);
+                              }}
+                              className="block w-full text-left px-4 py-2 hover:bg-blue-100 text-blue-600"
+                            >
+                              共有リンクをコピー
+                            </button>
+                          </div>
+                        )}
+                      </li>
+                    ))}
+                </ul>
               </div>
             )}
           </section>
@@ -259,7 +325,7 @@ export default function BuildPage() {
         {/* 削除確認モーダル */}
         {deletingDeckId && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="main-color p-6 rounded-lg max-w-sm w-full mx-4">
+            <div className="main-color main-background p-6 rounded-lg max-w-sm w-full mx-4">
               <h3 className="text-lg font-bold mb-4 main-color">デッキの削除</h3>
               <p className="mb-6 description">このデッキを削除してもよろしいですか？この操作は取り消せません。</p>
               <div className="flex justify-end gap-4">

@@ -66,12 +66,17 @@
 }
 
 .main-color {
-  background-color: var(--background-color);
   color: var(--text-color);
+}
+.main-background {
+  background-color: var(--background-color);
 }
 
 .light-color {
   color: var(--text-color);
+}
+.light-background {
+  background-color: var(--background-light);
 }
 
 .deck-color {
