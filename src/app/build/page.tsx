@@ -9,6 +9,7 @@ import { useAuth } from '@/lib/auth';
 import Image from 'next/image';
 import { generateDeckImageDataUrl } from '@/components/DeckImagePreview';
 import { allYojoCards, allSweetCards, allPlayableCards } from '@/data/cards';
+import { nanoid } from 'nanoid';
 
 interface Deck {
   id: string;
@@ -102,7 +103,7 @@ export default function BuildPage() {
       // 新規作成の場合はデッキIDを生成してから遷移
       if (user) {
         // ログインユーザーの場合、Firebaseに新しいデッキを作成
-        const newDeckId = crypto.randomUUID();
+        const newDeckId = nanoid(8);
         const deckRef = doc(db, 'users', user.uid, 'decks', newDeckId);
         
         await setDoc(deckRef, {
@@ -118,7 +119,7 @@ export default function BuildPage() {
         router.push(`/deck/${user.uid}/${newDeckId}?isNew=true`);
       } else {
         // ローカルユーザーの場合
-        const deckId = Date.now().toString();
+        const deckId = nanoid(8);
         const newDeck = {
           id: deckId,
           name: '無名のデッキ',
