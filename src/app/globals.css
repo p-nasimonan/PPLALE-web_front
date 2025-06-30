@@ -13,6 +13,7 @@
   --danger-hover: #dc2626;
   --background-color: #f3f4f6;
   --hover-back-color: #9e9e9e;
+  --hover-back-color-light: #e2e2e2;
   --card-background: #ffffff;
   --text-color: #1f2937;
   --text-light: #6b7280;
@@ -41,7 +42,8 @@
 :root.dark {
   --background-color: #1f2937;
   --background-light: #1f2937;
-  --hover-back-color: #000000;
+  --hover-back-color: #6e6e6e;
+  --hover-back-color-light: #9e9e9e;
   --card-background: #374151;
   --text-color: #f3f4f6;
   --text-light: #9ca3af;
@@ -77,6 +79,14 @@
 }
 .light-background {
   background-color: var(--background-light);
+}
+
+a.main-background:hover {
+  background-color: var(--hover-back-color);
+}
+
+a.light-background:hover {
+  background-color: var(--hover-back-color-light);
 }
 
 .deck-color {

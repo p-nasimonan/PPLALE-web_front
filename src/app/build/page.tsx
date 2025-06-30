@@ -95,6 +95,18 @@ export default function BuildPage() {
     setOtherDecks(recentDecks.slice(3));
   }, [recentDecks]);
 
+  // メニューポップアップ外クリックで閉じる
+  useEffect(() => {
+    if (!menuOpenId) return;
+    const handleClick = () => {
+      setMenuOpenId(null);
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => {
+      document.removeEventListener('mousedown', handleClick);
+    };
+  }, [menuOpenId]);
+
   const handleCreateDeck = async (type: string, options?: { isTwoCardLimit?: boolean, initialFruits?: string[], initialPlayableVersions?: string[] }) => {
     setIsCreating(true);
     try {
@@ -277,7 +289,7 @@ export default function BuildPage() {
                     .filter(deck => deck.name.includes(filter))
                     .map(deck => (
                       <li key={deck.id} className="flex items-center justify-between border-b py-2 group relative">
-                        <Link href={`/deck/${user?.uid}/${deck.id}`} className="flex-1 flex items-center min-w-0 px-2 py-1 hover:bg-gray-100 rounded cursor-pointer">
+                        <Link href={`/deck/${user?.uid}/${deck.id}`} className="flex-1 flex items-center min-w-0 px-2 py-1 rounded cursor-pointer light-background">
                           <span className="font-medium main-color truncate">{deck.name}</span>
                           <span className="ml-2 text-xs text-gray-500 flex-shrink-0">{deck.updatedAt.toLocaleDateString('ja-JP')}</span>
                         </Link>
@@ -295,7 +307,10 @@ export default function BuildPage() {
                         </button>
                         {/* メニューポップアップ */}
                         {menuOpenId === deck.id && (
-                          <div className="absolute right-0 top-8 z-10 bg-white border rounded shadow-md min-w-[120px]">
+                          <div
+                            className="absolute right-0 top-8 z-10 bg-white border rounded shadow-md min-w-[120px]"
+                            onClick={e => e.stopPropagation()}
+                          >
                             <button
                               onClick={e => { e.stopPropagation(); setDeletingDeckId(deck.id); setMenuOpenId(null); }}
                               className="block w-full text-left px-4 py-2 hover:bg-red-100 text-red-600"
