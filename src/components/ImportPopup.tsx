@@ -120,7 +120,7 @@ const ImportPopup: React.FC<ImportPopupProps> = ({ onImport, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg w-full max-w-lg main-color">
+      <div className="main-background p-6 rounded-lg w-full max-w-lg main-color">
         <h2 className="text-xl font-bold mb-4">デッキをインポート</h2>
         {error && (
           <div className="mb-4 p-2 bg-red-100 text-red-700 rounded">
@@ -135,7 +135,7 @@ const ImportPopup: React.FC<ImportPopupProps> = ({ onImport, onClose }) => {
               rows={3}
               value={yojoCardIds}
               onChange={(e) => setYojoCardIds(e.target.value)}
-              placeholder="1,2,3,4,5"
+              placeholder="1,2,3,4,5 (任意)"
             />
             <p className="text-sm text-gray-600 mt-1">
               カンマ区切りで数字を入力してください（例：1,2,3,4,5）。IDは1から64の範囲で入力してください。先頭の0は不要です。
@@ -149,7 +149,7 @@ const ImportPopup: React.FC<ImportPopupProps> = ({ onImport, onClose }) => {
               rows={3}
               value={sweetCardIds}
               onChange={(e) => setSweetCardIds(e.target.value)}
-              placeholder="6,7,8,9,10"
+              placeholder="6,7,8,9,10 (任意)"
             />
           </div>
 
@@ -160,7 +160,7 @@ const ImportPopup: React.FC<ImportPopupProps> = ({ onImport, onClose }) => {
               className="w-full p-2 border rounded-md"
               value={playableCardId}
               onChange={(e) => setPlayableCardId(e.target.value)}
-              placeholder="p_01"
+              placeholder="p_01 (任意)"
             />
           </div>
         </div>
