@@ -14,6 +14,7 @@ import ShareButtons from '@/components/ShareButtons';
 import { User } from 'firebase/auth';
 import DeckImagePreview from '@/components/DeckImagePreview';
 import JungaryCopy from '@/svgs/jungary-copy.svg';
+import Link from 'next/link';
 
 /**
  * 2Pick結果表示コンポーネントのProps
@@ -141,21 +142,33 @@ const TwoPickResult: React.FC<TwoPickResultProps> = ({
         </div>
       </div>
 
-      <div className="flex flex-col items-center gap-4 mb-4">
-        {user?.uid === 'local' && (
+      <div className="flex flex-col items-center gap-4 mb-4 mt-10">
+        {user ? (
           <button
             className="btn-primary"
             onClick={onSave}
           >
             デッキを保存
           </button>
+        ) : (
+          <button
+            className="btn-primary"
+            onClick={onSave}
+          >
+            ログインしてデッキを保存
+          </button>
         )}
+        <div className="flex items-center gap-4">
         <button
-          className=""
+          className="btn-secondary"
           onClick={onRestart}
         >
           もう一度プレイ
         </button>
+        <Link href="/" className="btn-secondary">
+          ホームに戻る
+        </Link>
+        </div>
       </div>
     </div>
   );
