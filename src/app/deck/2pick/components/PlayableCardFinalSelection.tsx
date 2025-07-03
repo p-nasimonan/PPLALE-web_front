@@ -37,6 +37,8 @@ interface PlayableCardFinalSelectionProps {
   onConfirm: () => void;
   /** 戻るボタンがクリックされたときのコールバック関数 */
   onBack: () => void;
+  /** デッキ確認ボタンがクリックされたときのコールバック関数 */
+  onCheckDeck: () => void;
 }
 
 /**
@@ -52,12 +54,13 @@ const PlayableCardFinalSelection: React.FC<PlayableCardFinalSelectionProps> = ({
   isCardDisappearing,
   onConfirm,
   onBack,
+  onCheckDeck,
 }) => {
   // カードの表示状態管理
   const [cardsFaceUp, setCardsFaceUp] = useState<boolean[]>([]);
 
+  // 読み込んだ時にカードを表向きにする(0.5秒後に表向きにする)
   useEffect(() => {
-    if (!selectedPlayableCard) {
       // 初期表示時はすべて裏向き
       setCardsFaceUp(new Array(playableChoices.length).fill(false));
 
@@ -67,8 +70,7 @@ const PlayableCardFinalSelection: React.FC<PlayableCardFinalSelectionProps> = ({
       }, 500); // 0.5秒後に表向きにする
 
       return () => clearTimeout(timer);
-    }
-  }, [playableChoices, selectedPlayableCard]);
+  }, [playableChoices]);
 
   return (
     <div className="mt-4 flex flex-col items-center">
@@ -91,6 +93,15 @@ const PlayableCardFinalSelection: React.FC<PlayableCardFinalSelectionProps> = ({
                 canShowDetail={false}
               />
             ))}
+          </div>
+          {/* デッキ確認ボタン */}
+          <div className="flex items-center gap-4 mt-4 justify-center">
+          <button
+            className="btn-secondary"
+            onClick={onCheckDeck}
+          >
+            デッキ確認
+          </button>
           </div>
         </div>
       )}
