@@ -59,8 +59,8 @@ const PlayableCardFinalSelection: React.FC<PlayableCardFinalSelectionProps> = ({
   // カードの表示状態管理
   const [cardsFaceUp, setCardsFaceUp] = useState<boolean[]>([]);
 
+  // 読み込んだ時にカードを表向きにする(0.5秒後に表向きにする)
   useEffect(() => {
-    if (!selectedPlayableCard) {
       // 初期表示時はすべて裏向き
       setCardsFaceUp(new Array(playableChoices.length).fill(false));
 
@@ -70,8 +70,7 @@ const PlayableCardFinalSelection: React.FC<PlayableCardFinalSelectionProps> = ({
       }, 500); // 0.5秒後に表向きにする
 
       return () => clearTimeout(timer);
-    }
-  }, [playableChoices, selectedPlayableCard]);
+  }, [playableChoices]);
 
   return (
     <div className="mt-4 flex flex-col items-center">
