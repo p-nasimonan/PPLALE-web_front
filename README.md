@@ -1,4 +1,4 @@
-# VRChatにあるカードゲーム「ぷぷりえーる」のデッキ構築などができるwebアプリのフロントエンド
+# VRChatにあるカードゲーム「ぷぷりえーる」のデッキ構築などができるwebアプリ
 自宅鯖： https://pplale.pgw.jp/  （ipv4対応しました）   
 予備: https://pplale-web-front.vercel.app/ （デッキデータをパーソナライズするためGitHubPagesから移行）
 ![image](https://github.com/user-attachments/assets/f30d43ca-e1b6-463f-ac5a-f3d9b23f0922)
