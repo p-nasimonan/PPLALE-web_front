@@ -390,6 +390,7 @@ export default function TwoPick() {
             isCardDisappearing={isCardDisappearing}
             onConfirm={handlePlayableCardConfirm}
             onBack={() => setSelectedPlayableCard(null)}
+            onCheckDeck={showDeck}
           />
         )}
 
